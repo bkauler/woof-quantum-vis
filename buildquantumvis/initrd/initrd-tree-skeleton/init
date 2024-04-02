@@ -120,15 +120,15 @@ menu_func() {
   CNTm=$(($CNTm+1))
  fi
  if [ $CSMflg -eq 1 ];then #have cap_sys_mount in kernel.
-  if [ -f /mnt/${WKG_DEV}/${PATHDEF}/.lockdown.flg ];then
+  if [ -f /mnt/${WKG_DEV}/${PATHDEF}/lockdown.flg ];then
    echo "LOCKOFF ${CNTm} ${S404:-Turn OFF lockdown, allow access drive partitions}" >> /menulist
   else
    echo "LOCKON ${CNTm} ${S403:-Turn ON lockdown, prevent access drive partitions}" >> /menulist
   fi
   CNTm=$(($CNTm+1))
  else #precaution, but this should never happen...
-  if [ -f /mnt/${WKG_DEV}/${PATHDEF}/.lockdown.flg ];then
-   rm -f /mnt/${WKG_DEV}/${PATHDEF}/.lockdown.flg
+  if [ -f /mnt/${WKG_DEV}/${PATHDEF}/lockdown.flg ];then
+   rm -f /mnt/${WKG_DEV}/${PATHDEF}/lockdown.flg
   fi
  fi
  echo "NOX ${CNTm} ${S022:-Bootup to commandline only, no X}" >> /menulist
@@ -177,13 +177,13 @@ menu_func() {
  fi
  case "$MENUVAR" in
   LOCKOFF)
-   rm -f /mnt/${WKG_DEV}/${PATHDEF}/.lockdown.flg
+   rm -f /mnt/${WKG_DEV}/${PATHDEF}/lockdown.flg
    touch /mnt/${WKG_DEV}/${QV}/var/local/pup_event_icon_change_flag
    LOCKDOWN=0
    echo "${S405:-...you have chosen to restore access to drive partitions}"
   ;;
   LOCKON)
-   touch /mnt/${WKG_DEV}/${PATHDEF}/.lockdown.flg
+   touch /mnt/${WKG_DEV}/${PATHDEF}/lockdown.flg
    touch /mnt/${WKG_DEV}/${QV}/var/local/pup_event_icon_change_flag
    LOCKDOWN=1
    echo "${S406:-...you have chosen to prevent access to drive partitions}"
@@ -197,10 +197,10 @@ menu_func() {
     DISTRO_VERSION="$(cat /TODAYDATE)"
     sed -i -e "s%^DISTRO_VERSION=.*%DISTRO_VERSION=${DISTRO_VERSION}%" /mnt/${WKG_DEV}/${QV}/etc/DISTRO_SPECS
     echo "...snapshot taken"
-    if [ -f /mnt/${WKG_DEV}/${PATHDEF}/.lockdown.flg ];then
-     rm -f /mnt/${WKG_DEV}/${PATHDEF}/.lockdown.flg
-     echo "...lockdown is turned off in the snapshot"
-    fi
+    #if [ -f /mnt/${WKG_DEV}/${PATHDEF}/lockdown.flg ];then
+    # rm -f /mnt/${WKG_DEV}/${PATHDEF}/lockdown.flg
+    echo "...lockdown is turned off in the snapshot"
+    #fi
     echo -n "${SNAPDEF}" > /mnt/${WKG_DEV}/${WKG_DIR}snapshot-default
     REASON="$(cat /tsreason | head -n 1 | cut -c 1-80)"
     [ -z "$REASON" ] && REASON="no explanation provided"
@@ -240,7 +240,7 @@ menu_func() {
   ;;
  esac
  #apply to all boot choices...
- if [ -f /mnt/${WKG_DEV}/${PATHDEF}/.lockdown.flg ];then
+ if [ -f /mnt/${WKG_DEV}/${PATHDEF}/lockdown.flg ];then
   LOCKDOWN=1
  else
   LOCKDOWN=0
@@ -252,10 +252,10 @@ menu_func() {
 menu_delay_func() {
  case "$MENUVAR" in
   NOX)
-   touch /mnt/${WKG_DEV}/${WKG_DIR}root/bootcnt.txt #see /root/.profile
+   touch /mnt/${WKG_DEV}/${QV}/root/bootcnt.txt #see /root/.profile
   ;;
   FSCHECK)
-   echo -n "${WKG_DEV},${WKG_FS},REQUEST" > /mnt/${WKG_DEV}/${WKG_DIR}.fsckme.flg
+   echo -n "${WKG_DEV},${WKG_FS},REQUEST" > /mnt/${WKG_DEV}/${QV}.fsckme.flg
   ;;
  esac
 }
