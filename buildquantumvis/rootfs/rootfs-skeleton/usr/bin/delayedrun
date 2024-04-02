@@ -91,6 +91,7 @@
 #20220715 run date-time-wizard if no /etc/clock.<hw profile> ref: rc.country, quicksetup
 #20221023 may be running as zeus super-user. 20221031 hmmm, maybe still need bump to root.
 #20230626 new sudo-sh replaces sudo.
+#20240402 fix for qv.
 
 #20230626
 if [ "$(whoami)" != "root" ];then
@@ -266,42 +267,14 @@ if [ ! -f /etc/clock.${PC_HARDWARE_PROFILE} ];then
  cp -a -f /etc/clock /etc/clock.${PC_HARDWARE_PROFILE}
 fi
 
-if [ "$BOOT_LOCK" ];then #200823 running in ram. ref: init in initrd.
- LOCKDOWN="${BOOT_LOCK:0:1}" #BOOT_LOCK has N:M N=1,2 M=0,1
- LOCKkeep="${BOOT_LOCK:2:1}" #M
- if [ ! -f /var/local/delayedrun_firstlock_${LOCKDOWN}_${LOCKkeep}_flag ];then #200829
-  zfree_func
-  MSG8=''
-  case "${LOCKDOWN}" in
-   2) MSG1="$(gettext 'You are currently running totally in RAM, all drives disabled. However, you can save the session if have booted off a removable drive -- just physically replug it, and you will then be able to save, via the <b>save</b> icon at the top of the screen.')" ;;
-   *) MSG1="$(gettext 'You are currently running totally in RAM, all drives unmounted. The drives are still usable, and you can optionally save the session -- see <b>save</b> icon at top of screen.')" ;;
-  esac
-  case "$LOCKkeep" in
-   1)
-    MSG2="$(gettext 'The current lockdown mode is permanent, meaning future bootups will also be running totally in RAM. To return to a normal bootup, choose <b>Normal bootup (remove lockdown)</b> in the menu at bootup.')"
-    MSG3="<b>$(gettext 'Technical note')</b>"
-    MSG4="$(gettext 'Lockdown can also be removed by deleting file <b>.lockdown.flg</b> in the working-partition.')"
-    MSG8="${CR}${CR}${MSG3}${CR}${MSG4}"
-   ;;
-   *) MSG2="$(gettext 'The current lockdown mode (running totally in RAM) is one-off, meaning that next bootup will be normal.')" ;;
-  esac
-  MSG5="<b><span color='red' weight='bold'>$(gettext 'Warning, free RAM:') ${ZFREE}</span></b>"
-  MSG6="$(gettext 'RAM space is limited, so you need to be cautious about downloading files or installing packages.')"
-  MSG7="$(gettext 'Note that free space in RAM is high due to zram compression. Note also, you can check free space at any time by mouse-over the memory-icon in the tray.')"
-  MSG9="${MSG1}${CR}${CR}${MSG2}${CR}${CR}${MSG5}${CR}${MSG6}${CR}${MSG7}${MSG8}"
-  popup "terminate=ok background=#e0d0ff level=top process=wait|${MSG9}"
-  touch /var/local/delayedrun_firstlock_${LOCKDOWN}_${LOCKkeep}_flag #200829
- fi
-else
- #170225 200823 200829
- WKG_DRV="${WKG_DEV%%[1-9]}" #remove number off end.
- WKG_DRV="${WKG_DRV%%[1-9]}" #repeat, in case another number on end.
- [ "$WKG_DRV" != "sdp" ] && WKG_DRV="${WKG_DRV%%p}" #ex: mmcblk0p becomes mmcblk0
- if [ "`cat /sys/block/${WKG_DRV}/removable 2>/dev/null`" = "1" ];then
-  grep -q "^/dev/${WKG_DRV}" /proc/mounts
-  if [ $? -eq 0 ];then
-   gtkdialog-splash -close never -fontsize large -bg yellow -timeout 3 -text "$(gettext 'WARNING! Do not unplug drive') ${WKG_DRV}" &
-  fi
+#170225 200823 200829
+WKG_DRV="${WKG_DEV%%[1-9]}" #remove number off end.
+WKG_DRV="${WKG_DRV%%[1-9]}" #repeat, in case another number on end.
+[ "$WKG_DRV" != "sdp" ] && WKG_DRV="${WKG_DRV%%p}" #ex: mmcblk0p becomes mmcblk0
+if [ "`cat /sys/block/${WKG_DRV}/removable 2>/dev/null`" = "1" ];then
+ grep -q "^/dev/${WKG_DRV}" /proc/mounts
+ if [ $? -eq 0 ];then
+  gtkdialog-splash -close never -fontsize large -bg yellow -timeout 3 -text "$(gettext 'WARNING! Do not unplug drive') ${WKG_DRV}" &
  fi
 fi
 
