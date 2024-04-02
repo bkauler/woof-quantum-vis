@@ -1,0 +1,12 @@
+
+#20210603
+#'truncate' conflicts with applet in busybox and in coreutils...
+if [ -f usr/bin/truncate ];then
+ mv -f usr/bin/truncate usr/bin/truncate-pup
+fi
+
+#20240318
+if [ -f usr/local/debget/debdb2pupdb ];then
+ mv -f usr/local/debget/debdb2pupdb usr/local/petget/debdb2pupdb
+ rm -rf usr/local/debget
+fi

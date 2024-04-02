@@ -1,0 +1,16 @@
+#!/bin/bash
+#20240318
+
+export LANG=C
+RP="$(realpath ${0})"
+L1="${RP/buildquantumvis*/buildquantumvis}"
+xARCH="$(arch)"
+mkdir -p /tmp/woofQV
+. /var/local/woofQV/VARS #has E1
+
+#generate woof-installed-packages and devx-only-installed-packages...
+${L1}/support/findwoofinstalledpkgs
+${L1}/support/sort-dep-order
+#...has created ${E1}/woof-installed-packages-dep-order
+
+###end###

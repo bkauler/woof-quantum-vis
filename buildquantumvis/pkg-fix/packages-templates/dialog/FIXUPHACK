@@ -1,0 +1,7 @@
+
+#get rid of everything except the executable...
+mv -f usr/bin/dialog /tmp/woofQV/dialog
+rm -rf ./*
+mkdir -p usr/bin
+mv -f /tmp/woofQV/dialog usr/bin/dialog
+

@@ -1,0 +1,105 @@
+#!/bin/bash
+#called from 8create-drive-img
+#$1 is allowed default size of wkg-partition in init script.
+#create /data/woofQV/initrd/initrd-tree, hence file initrd.
+
+P2M="$1"
+[ -z "$P2M" ] && P2M='928'
+export LANG=C
+
+RP="$(realpath ${0})"
+L1="${RP/buildquantumvis*/buildquantumvis}"
+xARCH="$(arch)"
+
+. ${L1}/configure/${xARCH}/DISTRO_SPECS
+mkdir -p /tmp/woofQV
+. /var/local/woofQV/VARS #has E1
+
+if [ -d ${E1}/initrd ];then
+ rm -rf ${E1}/initrd
+fi
+mkdir -p ${E1}/initrd
+
+###copy skeleton initrd###
+cp -a ${L1}/initrd/initrd-tree-skeleton ${E1}/initrd/initrd-tree
+find ${E1}/initrd/initrd-tree -type f -name 'EMPTYDIRMARKER' -delete
+sync
+
+#fix allowed wkg-part size
+sed -i -e "s%^P2M=.*%P2M='${P2M}'%" ${E1}/initrd/initrd-tree/init
+
+#populate initrd with static binaries...
+#hwclock ref: https://bkhome.org/news/202402/hwclock-fail-in-easyvoid-603.html --quirkyvoid still have this problem, in initrd.
+#note: this capsh recognizes cap_sys_mount (41) patched kernel.
+for aS in argon2 btrfs btrfstune busybox capsh dialog fdisk fscryptctl gpg hwclock idump mkfs.btrfs mp readlink vercmp
+do
+ if [ -x ${L1}/bin-static/${xARCH}/${aS} ];then
+  cp -a ${L1}/bin-static/${xARCH}/${aS} ${E1}/initrd/initrd-tree/bin/
+ fi
+done
+
+sync
+
+###create busybox symlinks###
+echo "populating symlinks in ${E1}/initrd/initrd-tree/bin..."
+if [ -f ${E1}/initrd/initrd-tree/bin/busybox ];then
+ APPLETS="$(${E1}/initrd/initrd-tree/bin/busybox --list | tr '\n' ' ' | tr '[' ' ')"
+ #ex: acpid addgroup adduser ash base64 basename bbconfig beep blkdiscard blkid blockdev bunzip2 bzcat bzip2 cal cat chgrp chmod chown chpasswd chroot chvt cksum clear cmp cp cpio crond crontab cryptpw cut date dc dd deallocvt delgroup deluser depmod devmem df dhcprelay diff dirname dmesg dnsdomainname dos2unix dpkg dpkg-deb du dumpkmap dumpleases echo ed egrep eject env expand expr false fatattr fbset fbsplash fdflush fdformat fdisk fgconsole fgrep find findfs flash_eraseall flash_lock flash_unlock flashcp fold free freeramdisk fsck fstrim fsync ftpget ftpput fuser getopt getty grep groups guess_fstype gunzip gzip halt hd hdparm head hexdump hostid hostname httpd hwclock i2cdetect i2cdump i2cget i2cset id ifconfig ifdown ifplugd ifup init inotifyd insmod ionice iostat ip ipaddr ipcalc iplink iproute iprule iptunnel kbd_mode kill killall klogd less linux32 linux64 linuxrc ln loadfont loadkmap logger login logname logread losetup ls lsmod lsof lspci lsusb lzcat lzma lzop lzopcat makedevs man md5sum mdev mesg microcom mkdir mkdosfs mke2fs mkfifo mkfs.ext2 mkfs.reiser mkfs.vfat mknod mkpasswd mkswap mktemp modinfo modprobe more mount mountpoint mpstat mv nameif nc netstat nice nohup nsenter nslookup od openvt passwd patch pgrep pidof ping ping6 pipe_progress pivot_root pkill pmap poweroff powertop printenv printf ps pscan pstree pwd pwdx rdate rdev readahead readlink realpath reboot renice reset resize rev rfkill rm rmdir rmmod route rpm rpm2cpio rtcwake run-parts sed seq setarch setconsole setfont setkeycodes setlogcons setserial sh sha1sum sha256sum sha3sum sha512sum showkey shuf sleep sort split start-stop-daemon stat strings stty su sulogin sum swapoff swapon switch_root sync sysctl syslogd tac tail tar tee telnet test tftp time timeout top touch tr traceroute traceroute6 true truncate tty ttysize tune2fs ubirename udhcpc udhcpd uevent umount uname uncompress unexpand uniq unix2dos unlink unlzma unlzop unshare unxz unzip uptime usleep uudecode uuencode vi vlock volname watch wc wget which whoami xargs xz xzcat yes zcat
+ for ONEAPPLET in $APPLETS
+ do
+  [ -e ${E1}/initrd/initrd-tree/bin/${ONEAPPLET} ] && continue
+  ln -s busybox ${E1}/initrd/initrd-tree/bin/${ONEAPPLET}
+ done
+ ln -s busybox "${E1}/initrd/initrd-tree/bin/["
+ ln -s busybox "${E1}/initrd/initrd-tree/bin/[["
+ ln -s ../bin/busybox ${E1}/initrd/initrd-tree/sbin/chroot #must match host!
+ ln -s ../bin/busybox ${E1}/initrd/initrd-tree/sbin/getty
+ ln -s ../bin/busybox ${E1}/initrd/initrd-tree/sbin/init
+ ln -s ../bin/busybox ${E1}/initrd/initrd-tree/sbin/poweroff
+ ln -s ../bin/busybox ${E1}/initrd/initrd-tree/sbin/reboot
+fi
+sync
+
+###DISTRO_SPECS###
+cp -a -f ${L1}/configure/${xARCH}/DISTRO_SPECS ${E1}/initrd/initrd-tree/etc/
+
+#replace "EasyOS" in translation strings...
+#also replace "easy.sfs"
+cd ${E1}/initrd/initrd-tree
+if [ "${DISTRO_NAME_NORMAL}" != "EasyOS" ];then
+ for aSTR in $(find nls -type f -name 'init.str' | tr '\n' ' ')
+ do
+  sed -i -e "s%EasyOS%${DISTRO_NAME_NORMAL}%g" $aSTR
+  sed -i -e "s%easy\.sfs%${DISTRO_NAME_SHORT,,}.sfs%g" $aSTR
+ done
+ for aSCRIPT in init sbin/uninstall sbin/rollback sbin/fixlayers sbin/ask-language sbin/fscheck skeleton/containers/easy/bk-notes skeleton/containers/console/bk-notes
+ do
+  if [ -e $aSCRIPT ];then
+   #note: ${DISTRO_NAME_SHORT,,} requires bash...
+   sed -i -e "s%easy\.sfs%${DISTRO_NAME_SHORT,,}.sfs%g" $aSCRIPT
+  fi
+ done
+fi
+
+#escape single-quote chars in translations. ' replaced with '\''
+#fix if ' missing on end. also folder hierarchy changed.
+for aNLS in `ls -1 nls/*/*str`
+do
+ sed -i -e "s%\(^S[0-9][0-9][0-9]\) %\1='%" $aNLS #fix space after variable.
+ sed -i -e "s%\([^']\)$%\1'%" $aNLS #make sure ' on end.
+ sed -i -e "s%='%=___%" -e "s%'$%___%" -e "s%'%'\\\''%g" -e "s%___%'%g" $aNLS
+done
+
+#/sbin/ask-language in initrd wants this...
+cp -a -f ${L1}/configure/${xARCH}/build-choices ./
+
+###create file initrd###
+echo "Creating ${E1}/initrd/initrd ..."
+cd ${E1}/initrd/initrd-tree
+find . | cpio -o -H newc > ../initrd
+sync
+cd ..
+
+sync
+echo '...done'
+###end###

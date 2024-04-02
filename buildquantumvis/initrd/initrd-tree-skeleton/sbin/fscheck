@@ -1,0 +1,76 @@
+#!/bin/sh
+#(c) Copyright Barry Kauler, 2024. Licence: GPL v3 (/usr/share/doc/legal).
+#20240323 rewritten for quirkyvoid
+
+WKG_DRV=$1 #ex: sda
+WKG_DEV=$2 #ex: sda2
+WKG_DIR=$3 #ex: quirkyvoid/@qv
+WKG_FS=$4  #btrfs
+#users may forget to put a trailing slash... a leading slash is not allowed...
+[ "$WKG_DIR" ] && [ "${WKG_DIR##*/}" ] && WKG_DIR="${WKG_DIR}/"
+[ "$WKG_DIR" ] && [ "${WKG_DIR:0:1}" == "/" ] && WKG_DIR="${WKG_DIR:1:99}"
+
+
+#QLANG exported from init.
+#. /nls/en/fscheck.str
+if [ "$QLANG" ];then
+ if [ -e /nls/${QLANG}/fscheck.str -a "$QLANG" != "en" ];then
+. /nls/${QLANG}/fscheck.str
+ fi
+fi
+
+#non-fatal error exit...
+err_exit() {
+ echo -e "\\033[1;31m${S001:-ERROR:} ${1}\\033[0;39m" #red
+ rm -f /mnt/${WKG_DEV}/${WKG_DIR}.fsckme.flg
+ exit 0
+}
+
+CHECK="`cat /mnt/${WKG_DEV}/${WKG_DIR}.fsckme.flg | cut -f 3 -d ','`" #"MAXIMAL", see rc.shutdown, quicksetup. 20220801
+
+#the f.s. is mounted. could do a f.s. check, but prefer to unmount it...
+sync
+umount /dev/$WKG_DEV
+[ $? -ne 0 ] && err_exit "${S002:-Could not check the filesystem of working partition, unable to unmount}"
+
+echo -e "\\033[1;35m" #purple. 34=blue, 33=yellow, 32=green, 31=red, 35=purple, 36=aquablue, 38=black.
+echo "${S003:-Filesystem operations are to be performed upon the working partition.}"
+echo "${S004:-Working partition:} ${WKG_DEV}"
+echo -en "\\033[0;39m"
+
+case "$CHECK" in
+ MAXIMAL) echo "  ${S005:-Performing filesystem check, maximal mount count...}" ;;
+ REQUEST) echo "  ${S006:-Performing filesystem check, on request...}" ;;
+ *) echo "  ${S007:-Performing filesystem check, after improper shutdown...}" ;;
+esac
+
+echo -n "  ${S008:-Current date:} "
+echo "$DATE"
+
+btrfs check --progress /dev/${WKG_DEV}
+
+if [ $? -ne 0 ];then
+ echo -e "\\033[1;31m${S012:-WARNING: filesystem error detected}
+${S013:-Refer to btrfs documentation on strategies to repair}\\033[0;39m" #red
+ sleep 4
+fi
+
+echo "  ${S010:-Filesystem check completed!}"
+
+#remount
+sync
+mount -o rw,relatime,subvol=/ -t btrfs /dev/${WKG_DEV} /mnt/${WKG_DEV}
+if [ $? -ne 0 ];then
+ echo "${S011:-Failed to remount working-partition, cannot continue}"
+ exit 1
+fi
+
+if [ -s /PASSPHRASE ];then
+ #a pw was entered in 'init' so decrypt...
+ fscryptctl add_key /mnt/${WKG_DEV} < /PASSPHRASE > /dev/null
+ sleep 0.1
+fi
+
+rm -f /mnt/${WKG_DEV}/${WKG_DIR}.fsckme.flg
+exit 0
+###end###

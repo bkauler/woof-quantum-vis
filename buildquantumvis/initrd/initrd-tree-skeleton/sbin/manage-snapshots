@@ -1,0 +1,47 @@
+#!/bin/sh
+#choose a snapshot to boot into.
+
+WKG_DEV="$1" #ex: sdc2
+WKG_DIR="$2" #ex: quirkyvoid/
+PATHDEF="$3" #ex: quirkyvoid/1
+
+if [ -f /nls/${QLANG}/manage-snapshots.str ];then
+.  /nls/${QLANG}/manage-snapshots.str
+fi
+
+#snapshot records: /mnt/${WKG_DEV}/${WKG_DIR}snapshot-record
+SNAPDEF="$(cat /mnt/${WKG_DEV}/${WKG_DIR}snapshot-default)"
+
+CR='
+'
+M1="${S100:-Manage Snapshots}"
+M2="${S101:-These are the available snapshots.}"
+M3="${S102:-This is the current default:}"
+M4="${S103:-Please choose which one you want to boot into and become the new default:}"
+
+ITEMS="$(sed -e 's%"%%' -e 's%|% "%' -e 's%|% %' -e 's%$%"%' /mnt/${WKG_DEV}/${WKG_DIR}snapshot-record | tr '\n' ' ')"
+
+eval "dialog --title \"${M1}\" --cr-wrap --stderr --menu \"${M2}${CR}${M3} ${SNAPDEF}${CR}${M4}\" 0 0 0 ${ITEMS} 2>/srchoice"
+if [ ! -s /srchoice ];then
+ echo "${S110:-ERROR invalid choice}"
+ exit 1
+fi
+SRCHOICE=$(cat /srchoice)
+#note: busybox grep error with "-G" unrecognized option...
+grep -q "^${SRCHOICE}|" /mnt/${WKG_DEV}/${WKG_DIR}snapshot-record
+if [ $? -ne 0 ];then
+ echo "${S110:-ERROR invalid choice}"
+ exit 2
+fi
+
+M10="${S120:-Snapshot chosen}"
+M11="${S121:-Path to the snapshot:}"
+M12="${S122:-This will now be booted into, and will be the default for future bootups.}"
+M13="${S123:-OK}"
+dialog --title "${M10}" --ok-label "${M13}" --no-cancel --cr-wrap --msgbox "${M11}${CR}/mnt/${WKG_DEV}/${WKG_DIR}${SRCHOICE}${CR}${M12}" 0 0
+
+#make new snapshot the default...
+echo -n "${WKG_DIR}${SRCHOICE}" > /NEWPATHDEF
+exit 0
+###end###
+

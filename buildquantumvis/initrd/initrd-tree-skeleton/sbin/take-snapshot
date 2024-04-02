@@ -1,0 +1,79 @@
+#!/bin/sh
+#take a snapshot.
+
+WKG_DEV="$1" #ex: sdc2
+WKG_DIR="$2" #ex: quirkyvoid/
+PATHDEF="$3" #ex: quirkyvoid/1
+
+#we want to take snapshots of these:
+#/mnt/${WKG_DEV}/${WKG_DIR}@files
+#/mnt/${WKG_DEV}/${PATHDEF}/@home
+#/mnt/${WKG_DEV}/${PATHDEF}/@data
+
+if [ -f /nls/${QLANG}/take-snapshot.str ];then
+.  /nls/${QLANG}/take-snapshot.str
+fi
+
+#find the snapshots...
+SNAPS="$(find /mnt/${WKG_DEV}/${WKG_DIR} -mindepth 1 -maxdepth 1 -type d -name '[0-9]*')"
+SNAPS="${SNAPS##*/}"
+SNAPS="$(echo -n "$SNAPS" | sort -n)"
+
+#current snapshot...
+SNAPDEF="${PATHDEF##*/}" #ex: 1
+#new snapshot...
+SNAPMAX=$(echo -n "$SNAPS" | tail -n 1)
+SNAPNEW="$((${SNAPMAX}+1))"
+
+#put up a dialog, with offer to decline...
+CR='
+'
+M1="${S100:-A snapshot will be taken of the current default root filesystem, and the snapshot will become the new default.}"
+M2="${S101:-That is, the new snapshot will be booted into and will be the default for future bootups.}"
+M3="${S102:-Note1: Path of the current root filesystem:}"
+M4="${S103:-Note2: Path of the new root filesystem:}"
+M5="${S104:-To abort creating a snapshot, choose the Cancel button}"
+M6="${S105:-Take snapshot}"
+M7="${S106:-OK}"
+M8="${S107:-Cancel}"
+dialog --title "${M6}" --yes-label "${M7}" --no-label "${M8}" --cr-wrap --yesno "${M1}${CR}${M2}${CR}${M3} ${PATHDEF}${CR}${M4} ${WKG_DIR}${SNAPNEW}${CR}${M5}" 0 0
+
+if [ $? -ne 0 ];then
+ exit 1
+fi
+
+#create the snapshot...
+mkdir /mnt/${WKG_DEV}/${WKG_DIR}${SNAPNEW}
+btrfs subvolume snapshot /mnt/${WKG_DEV}/${PATHDEF}/@qv /mnt/${WKG_DEV}/${WKG_DIR}${SNAPNEW}/@qv
+if [ $? -ne 0 ];then
+ echo "${S110:-Failed to create snapshot:} /mnt/${WKG_DEV}/${WKG_DIR}${SNAPNEW}/@qv"
+ rm -rf /mnt/${WKG_DEV}/${WKG_DIR}${SNAPNEW}
+ exit 2
+fi
+btrfs subvolume snapshot /mnt/${WKG_DEV}/${PATHDEF}/@home /mnt/${WKG_DEV}/${WKG_DIR}${SNAPNEW}/@home
+if [ $? -ne 0 ];then
+ echo "${S110:-Failed to create snapshot:} /mnt/${WKG_DEV}/${WKG_DIR}${SNAPNEW}/@home"
+ rm -rf /mnt/${WKG_DEV}/${WKG_DIR}${SNAPNEW}
+ exit 3
+fi
+btrfs subvolume snapshot /mnt/${WKG_DEV}/${PATHDEF}/@data /mnt/${WKG_DEV}/${WKG_DIR}${SNAPNEW}/@data
+if [ $? -ne 0 ];then
+ echo "${S110:-Failed to create snapshot:} /mnt/${WKG_DEV}/${WKG_DIR}${SNAPNEW}/@data"
+ rm -rf /mnt/${WKG_DEV}/${WKG_DIR}${SNAPNEW}
+ exit 4
+fi
+#note: @files does not get snapshotted, but must be a subvolume as may be encrypted.
+
+TODAYDATE="$(date +%y%m%d)"
+echo -n "${TODAYDATE}" > /TODAYDATE
+M10="${S120:-Snapshot successfully taken}"
+M11="${S121:-Path to new snapshot:}"
+M12="${S122:-This will now be booted into, and will be the default for future bootups.}"
+M13="${S123:-OK}"
+M14="${S124:-Please type a very short reason for this snapshot:}"
+dialog --title "${M10}" --ok-label "${M13}" --no-cancel --cr-wrap --inputbox "${M11}${CR}/mnt/${WKG_DEV}/${WKG_DIR}${SNAPNEW}${CR}${M12}${CR}${M14}" 0 0 2>/tsreason
+
+#make new snapshot the default...
+echo -n "${WKG_DIR}${SNAPNEW}" > /NEWPATHDEF
+exit 0
+###end###

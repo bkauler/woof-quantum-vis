@@ -1,0 +1,9 @@
+echo 'FIXUPHACK: bc' 1>&2 #for error log.
+
+mkdir -p usr/bin
+
+GLOBIGNORE='bc:dc'
+cd usr/bin
+rm *
+cd ../../
+unset GLOBIGNORE

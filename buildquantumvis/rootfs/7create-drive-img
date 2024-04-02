@@ -1,0 +1,223 @@
+#!/bin/bash
+#20240318
+
+export LANG=C
+RP="$(realpath ${0})"
+L1="${RP/buildquantumvis*/buildquantumvis}"
+xARCH="$(arch)"
+mkdir -p /tmp/woofQV
+. /var/local/woofQV/VARS #has E1
+
+if ! which openssl >/dev/null ;then
+ echo 'ERROR utility openssl missing. aborting.'
+ exit 1
+fi
+
+. /etc/rc.d/PUPSTATE
+. ${E1}/rootfs/etc/DISTRO_SPECS
+
+cd ${E1}
+rm -rf export 2>/dev/null
+mkdir export
+
+#create btrfs f.s...
+#this is only to estimate required size...
+cd sandbox
+if [ -f btrfs-file ];then
+ rm -f btrfs-file
+fi
+dd if=/dev/zero of=btrfs-file bs=1M count=2048
+sync
+UUID2="$(uuidgen -r)" #ex: bf250e04-a570-488c-bc45-b6a1ded8f8a0
+#mkfs.btrfs -d single -m single -L QV1 --uuid ${UUID2} btrfs-file
+#mkfs.btrfs -O quota -L QV2 --uuid ${UUID2} btrfs-file
+mkfs.btrfs -L QV2 --uuid ${UUID2} btrfs-file
+mkdir -p btrfs-mount
+#max compr here, but in initrd will mount with zstd:3
+busybox mount -o loop,compress-force=zstd:15,noatime -t btrfs btrfs-file btrfs-mount
+mkdir -p btrfs-mount/quirkyvoid/1
+cp -a ../rootfs btrfs-mount/quirkyvoid/1/qv
+sync
+#free space in bytes...
+FREEB=$(btrfs filesystem usage -b btrfs-mount | grep 'Free (estimated):' | sed -e 's%[^0-9(]*%%g' | cut -f 2 -d '(')
+CUTB=$(dc -e"${FREEB} 0.99 * p" | cut -f 1 -d '.')
+CUTK=$((${CUTB}/1024))
+CUTM=$((${CUTK}/1024))
+#btrfs filesystem resize -${CUTM}M btrfs-mount
+P2M=$((2048-${CUTM}))
+busybox umount btrfs-mount
+rm -f btrfs-file
+
+echo "$(gettext 'Creating skeleton drive image file')"
+P1M=15
+T1=$((1+${P1M}+${P2M}+1)) #total size of file.
+SKEL="qv-skeleton-15-${P2M}-${T1}mb.img"
+
+if [ ! -f ${SKEL}.gz ];then
+ ${L1}/support/create-skel-drv-img ${P1M} ${P2M}
+fi
+cd ${E1}
+if [ ! -f ${SKEL}.gz ];then
+ echo "ERROR skeleton drive image file missing."
+ exit 1
+fi
+
+echo "Creating initrd"
+${L1}/initrd/create-initrd "$P2M"
+#...$P2M is passed-in to set allowed default size of wkg-partition in init script.
+if [ $? -ne 0 -o ! -s ${E1}/initrd/initrd ];then
+ echo "ERROR initrd has not been created"
+ exit 2
+fi
+
+#random number for disk-id
+RANDHEX8="$(openssl rand -hex 4)" #want this for disk identifier.
+[ "$RANDHEX8" == "12345678" ] && RANDHEX8="$(openssl rand -hex 4)" #181205 reserved, try again.
+echo "Random hex number: ${RANDHEX8}"
+
+cp -a -f ${SKEL}.gz export/
+cp -a -f initrd/initrd export/
+cp -a -f sandbox/vmlinuz export/
+rm -f export/${SKEL} 2>/dev/null
+
+cd export
+gunzip ${SKEL}.gz
+SKELETON_NAME="${SKEL%.img}"
+if [ "${DISTRO_NAME_SHORT,,}" != "easy" ];then
+ oldSKEL="$SKELETON_NAME"
+ SKELETON_NAME="$(echo -n "$oldSKEL" | sed -e "s%^easy%${DISTRO_NAME_SHORT,,}%")"
+ if [ "$oldSKEL" != "$SKELETON_NAME" ];then
+  mv -f ${oldSKEL}.img ${SKELETON_NAME}.img
+ fi
+fi
+
+#change UUID of the filesystems...
+echo
+echo "Assigning random UUIDs to ${SKELETON_NAME}.img"
+LOOP1="$(losetup -f)" #free loop device, ex: /dev/loop2
+OFF1='1048576' #1M
+OFF2="$((${P1M}*1048576))"
+OFF2=$((${OFF2}+${OFF1}))
+losetup -o ${OFF1} ${LOOP1} ${SKELETON_NAME}.img
+LOOP2="$(losetup -f)"
+losetup -o ${OFF2} ${LOOP2} ${SKELETON_NAME}.img
+BOOT_FS="$(blkid ${LOOP1} | tr ' ' '\n' | grep '^TYPE=' | cut -f 2 -d '"')"
+WKG_FS="$(blkid ${LOOP2} | tr ' ' '\n' | grep '^TYPE=' | cut -f 2 -d '"')"
+mlabel -n -i ${LOOP1} :: 2>/dev/null #assign new random serial number (uuid).
+UUID1="$(blkid ${LOOP1} | tr ' ' '\n' | grep '^UUID=' | cut -f 2 -d '"')"
+
+#uuid of btrfs 2nd partition is set in create-skel-drv-img
+UUID2="$(blkid ${LOOP2} | tr ' ' '\n' | grep '^UUID=' | cut -f 2 -d '"')"
+
+sync
+losetup -d ${LOOP2}
+losetup -d ${LOOP1}
+echo "  first (vfat) partition, UUID='${UUID1}'"
+echo "  second (btrfs) partition, UUID='${UUID2}'"
+
+echo
+echo "Mounting ${SKELETON_NAME}.img"
+mkdir -p img_mntpt
+busybox mount -t vfat -o offset=1048576,loop ${SKELETON_NAME}.img img_mntpt
+if [ $? -ne 0 ];then #precaution
+ echo "FAILED: mount -t vfat -o offset=1048576,loop ${SKELETON_NAME}.img img_mntpt"
+ exit 1
+fi
+
+BOOTDIR=''
+
+echo "Installing Limine to first partition"
+BRANDINGFIELD="${DISTRO_NAME_NORMAL} Limine Boot Manager"
+COMMENTFIELD="${DISTRO_NAME_NORMAL} ${DISTRO_COMPAT_VERSION^} bootup" #ex: Kirkstone
+OPTIONSFIELD="Options..."
+FBVFIELD="Fix broken video"
+FBVCOMMENTFIELD="Run Xorg Video Wizard to fix broken video"
+
+echo "VERBOSE=no
+TIMEOUT=0
+DEFAULT_ENTRY=1
+INTERFACE_BRANDING=${BRANDINGFIELD}
+INTERFACE_RESOLUTION=800x600
+
+:${DISTRO_NAME_NORMAL} ${DISTRO_COMPAT_VERSION^}
+    COMMENT=${COMMENTFIELD}
+    RESOLUTION=800x600
+    PROTOCOL=linux
+    KERNEL_PATH=boot://1/vmlinuz
+    MODULE_PATH=boot://1/initrd
+    KERNEL_CMDLINE=rw wkg_uuid=${UUID2} wkg_dir=quirkyvoid/
+
+:  ${OPTIONSFIELD}
+::${FBVFIELD}
+    COMMENT=${FBVCOMMENTFIELD}
+    RESOLUTION=800x600
+    PROTOCOL=linux
+    KERNEL_PATH=boot://1/vmlinuz
+    MODULE_PATH=boot://1/initrd
+    KERNEL_CMDLINE=rw qfix=vid nomodeset wkg_uuid=${UUID2} wkg_dir=quirkyvoid/
+" > img_mntpt/limine.cfg
+
+mkdir -p img_mntpt/EFI/BOOT
+cp -a -f ../rootfs/usr/share/limine/BOOTX64.EFI img_mntpt/EFI/BOOT/
+cp -a -f ../rootfs/usr/share/limine/BOOTIA32.EFI img_mntpt/EFI/BOOT/
+cp -a -f ../rootfs/usr/share/limine/limine.sys img_mntpt/
+sync
+sleep 0.5
+echo "copying vmlinuz into img file..."
+cp -f ./vmlinuz img_mntpt/
+sync
+echo "copying initrd into img file..."
+cp -f ./initrd img_mntpt/
+sync
+sleep 2
+
+fsync img_mntpt/limine.sys
+fsync img_mntpt/vmlinuz
+fsync img_mntpt/initrd
+busybox umount img_mntpt
+
+#working-partition...
+echo "Populating working-partition"
+mkdir -p img_mntpt2
+#mount top-level without compression... 20240326 with compression...
+busybox mount -o offset=${OFF2},loop,compress-force=zstd:3,noatime -t btrfs ${SKELETON_NAME}.img img_mntpt2
+mkdir -p img_mntpt2/quirkyvoid/1
+#create a subvolume...
+btrfs subvolume create img_mntpt2/quirkyvoid/1/@qv
+btrfs property set img_mntpt2/quirkyvoid/1/@qv compression zstd
+echo -n '1' > img_mntpt2/quirkyvoid/snapshot-default
+echo "1|${DISTRO_VERSION}|This is the original subvolume" > img_mntpt2/quirkyvoid/snapshot-record
+sync
+sleep 2
+busybox umount img_mntpt2
+
+#max compr here, but in initrd will mount with zstd:3
+busybox mount -o offset=${OFF2},loop,compress-force=zstd:15,noatime,subvol=quirkyvoid/1/@qv -t btrfs ${SKELETON_NAME}.img img_mntpt2
+echo "Copying rootfs into img file..."
+cp -a ../rootfs/* img_mntpt2/
+sync
+sleep 2
+busybox umount img_mntpt2
+
+echo
+echo "Changing the disk identifier in ${SKELETON_NAME}.img ..."
+echo -e "x\ni\n0x${RANDHEX8}\nr\nw" | fdisk ${SKELETON_NAME}.img
+sync
+
+#update legacy-BIOS booting...
+LOOP3="$(losetup -f)"
+losetup ${LOOP3} ${SKELETON_NAME}.img
+sleep 0.5
+echo "EXECUTING: rootfs/usr/bin/limine-deploy ${LOOP3} --force-mbr"
+../rootfs/usr/bin/limine-deploy ${LOOP3} --force-mbr
+sleep 0.1
+sync
+losetup -d ${LOOP3}
+
+[ -f qv-${DISTRO_VERSION}-${DISTRO_TARGETARCH}.img ] && rm -f qv-${DISTRO_VERSION}-${DISTRO_TARGETARCH}.img
+
+mv -f ${SKELETON_NAME}.img qv-${DISTRO_VERSION}-${DISTRO_TARGETARCH}.img
+md5sum qv-${DISTRO_VERSION}-${DISTRO_TARGETARCH}.img > md5sum.txt
+sync
+echo "qv-${DISTRO_VERSION}-${DISTRO_TARGETARCH}.img has been created"
+###end###

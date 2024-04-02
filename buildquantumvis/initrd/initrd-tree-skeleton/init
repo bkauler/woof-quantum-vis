@@ -1,0 +1,945 @@
+#!/bin/sh
+#(c) Copyright Barry Kauler, 2024. Licence: GPL v3 (/usr/share/doc/legal).
+#simple script in initramfs to boot Quirky Linux.
+
+#text colors: 34=blue, 33=yellow, 32=green, 31=red, 35=purple, 36=aquablue, 38=black
+#background colors: 40=black 41=red 42=green 43=yellow 44=blue 45=magenta 46=cyan 47=white
+#ansi escape codes ref: https://misc.flogisoft.com/bash/tip_colors_and_formatting
+
+export LANG=C
+mount -o hidepid=1,gid=118 -t proc none /proc
+mount -t sysfs none /sys
+mount -t rootfs -o remount,rw rootfs /
+ln -s /proc/mounts /etc/mtab 2> /dev/null
+export PATH="/bin:/sbin"
+mount -t devtmpfs devtmpfs /dev
+mkdir /newroot
+
+export TZ='XXX-23' #imaginary place right around the world east of Greenwich.
+#...i think that this will give the most delayed time, so any file operations
+#will not result in a future date after the correct time is set in the main f.s.
+#ref: http://www.gnu.org/s/libc/manual/html_node/TZ-Variable.html
+
+KERNVER="$(uname -r)"
+CR='
+'
+
+exit_to_initrd() {
+ [ ! "${1}" ] && set -- " Have exited from init script at this line number"
+ echo -e '\033[1;31m' #bright red
+ echo -n "${S002:-Line} "
+ grep -n -o "${1}" ${0}
+ echo -en '\033[1;35m' #1;35 foreground bright magenta
+ echo "${S003:-Note 1: Type \"exit\", the init script will attempt to continue.}"
+ echo "${S004:-Note 2: On some PCs the keyboard does not work at this stage of bootup.}"
+ echo "${S005:-Note 3: if \"ctrl-alt-del\" not work, hold down power button to poweroff.}"
+ echo "${S006:-Note 4: Console text editor \"mp\" is available.}"
+ echo "${S007:-Note 5: Console file manager \"shfm\": Navigate with arrow keys, \"!\" to spawn}"
+ echo "${S008:-        a shell, \"?\" popup help, \"q\" to quit. Help file is \"/shfm.txt\"}"
+ if [ -f /bin/nnn ];then
+  echo "${S009:-Note 6: Console file manager \"nnn\": Same keys. Help file \"/nnn.txt\"}"
+  if [ ! -f /bin/nnn.bin ];then
+   mv -f /bin/nnn /bin/nnn.bin
+   echo -e '#!/bin/sh\nexec nnn.bin -c -d' > /bin/nnn
+   chmod 755 /bin/nnn
+  fi
+  export XDG_CONFIG_HOME=/etc/nnn
+  #note, i think if append /etc/nnn/plugins to $PATH, then can just have "simple" here...
+  export NNN_OPEN=/etc/nnn/plugins/simple
+ fi
+ echo -en '\033[0;39m' #reset foreground color to default.
+ export EDITOR=mp
+ export SHFM_OPENER=/sbin/xdg-open #200807 for shfm file manager.
+ #/bin/sh
+ setsid cttyhack sh #fixes "job control turned off"
+}
+
+err_exit() {
+ echo -en '\033[1;31m' #bright red
+ echo -e "${S010:-ERROR:} ${1}" #red
+ echo "${S011:-Have now dropped into a shell in the initramfs.}"
+ echo "${S012:-Please hit key combination CTRL-ALT-DEL to reboot,}"
+ echo "${S013:-or HOLD DOWN THE POWER BUTTON TO SHUTDOWN}"
+ echo
+ echo -en '\033[1;35m' #1;35 foreground bright magenta
+ echo "${S014:-The following instructions are for developers only:}"
+ echo -en '\033[0;39m' #reset foreground color to default.
+ exit_to_initrd "$1"
+}
+
+ask_kb() {
+ KEYMAP=us
+ #ask for KEYMAP...
+ echo -e '\e[1;;45m 1 azerty 2 be-latin1  3 br-abnt2  4 br-abnt   5 br-latin1-abnt2 6 br-latin1-us
+ 7 by     8 cf         9 croat      10 cz        11 de            12 de-latin1 
+ 13 dk    14 dvorak    15 dvorak-l  16 dvorak-r  17 es            18 et        
+ 19 fi    20 fr        21 gb        22 gr        23 hu101         24 hu        
+ 25 il    26 it        27 jp106     28 la-latin1 29 lt            30 mk        
+ 31 nl    32 no        33 pl        34 pt-latin1 35 ro            36 ru        
+ 37 se    38 sg        39 sk-qwerty 40 sk-qwertz 41 slovene       42 srp       
+ 43 sv-latin1  44 tr   45 us        46 wangbe                                  \e[0;;m'
+ #want word-wrapped text block in background colour rectangle...
+ echo -n -e '\033[1;;44m'
+ while read aLINE
+ do
+  echo -n '                                                                       '
+  echo -n -e '\033[1G' #move cursor back to col 1.
+  echo " ${aLINE}"
+ done << EOT
+$(echo " ${S015:-Please enter the number corresponding to your keyboard layout.}")
+$(echo "${S016:-Choose the closest match, there will be an opportunity to fine-tune the layout after the desktop has loaded. Press ENTER only for US.}" | fold -s -w 70)
+EOT
+ echo -n -e '\033[0;;m'
+ echo -n -e '\033[1;30;43m'
+ while read aLINE
+ do
+  echo -n '                                                                       '
+  echo -n -e '\033[1G' #move cursor back to col 1.
+  echo " ${aLINE}"
+ done << EOT
+$(echo "${S017:-Note: on some PCs the keyboard does not work at this stage of bootup. In that case, wait 5 minutes for bootup.}" | fold -s -w 70)
+EOT
+ echo -n -e '\033[0;;m'
+ echo -n " ${S018:-Keyboard layout:} "
+ read -r -t 300 KBnum
+ [ $? -ne 0 ] && return 1 #timed out
+ KBnum=$(echo -n "$KBnum" | sed -e 's%[^0-9]%%g')
+ [ ! $KBnum ] && KBnum=45
+ [ $KBnum -gt 46 ] && KBnum=45
+ [ $KBnum -eq 0 ] && KBnum=45
+ KEYMAP="$(ls -1 /lib/keymaps | head -n ${KBnum} | tail -n 1 | sed -e 's%\.gz%%')"
+ echo " ${S019:-...ok, keymap chosen:} ${KEYMAP}"
+ return 0
+}
+
+#no longer offering boot options in boot-manager, offer here...
+menu_func() {
+ CNTm=1
+ if [ "$1" != "nopw" ];then
+  echo "QUIT ${CNTm} ${S020:-Do nothing, go back to enter password}" > /menulist
+  CNTm=$(($CNTm+1))
+ fi
+ if [ $CSMflg -eq 1 ];then #have cap_sys_mount in kernel.
+  if [ -f /mnt/${WKG_DEV}/${PATHDEF}/.lockdown.flg ];then
+   echo "LOCKOFF ${CNTm} ${S404:-Turn OFF lockdown, allow access drive partitions}" >> /menulist
+  else
+   echo "LOCKON ${CNTm} ${S403:-Turn ON lockdown, prevent access drive partitions}" >> /menulist
+  fi
+  CNTm=$(($CNTm+1))
+ else #precaution, but this should never happen...
+  if [ -f /mnt/${WKG_DEV}/${PATHDEF}/.lockdown.flg ];then
+   rm -f /mnt/${WKG_DEV}/${PATHDEF}/.lockdown.flg
+  fi
+ fi
+ echo "NOX ${CNTm} ${S022:-Bootup to commandline only, no X}" >> /menulist
+ CNTm=$(($CNTm+1))
+ echo "SNAPTAKE ${CNTm} ${S407:-Take a snapshot}" >> /menulist
+ CNTm=$(($CNTm+1))
+ echo "SNAPBOOT ${CNTm} ${S408:-Choose snapshot to boot into}" >> /menulist
+ CNTm=$(($CNTm+1))
+ echo "FSCHECK ${CNTm} ${S025:-Filesystem check of working-partition}" >> /menulist
+ CNTm=$(($CNTm+1))
+ echo "FIXVIDEO ${CNTm} ${S401:-Run Xorg Wizard to fix broken video}" >> /menulist
+ CNTm=$(($CNTm+1))
+ echo "DROPSHELL ${CNTm} ${S410:-Dropout to shell in initrd (developers only)}" >> /menulist
+ CNTm=$(($CNTm+1))
+ echo
+ if [ "$1" == "nopw" ];then
+  echo "${S026:-Press ENTER key or wait 15 seconds for normal bootup}"
+  echo "${S409:-(Hit the SPACEBAR to disable 15 second timeout)}"
+ fi
+ echo -e -n "\\e[1;38;43m" #38=black text, 43=yellow background. ...um, getting bright-white text, black bg.
+ #this pads the lines with spaces to column 41...
+ cut -f 2- -d ' ' /menulist | xargs -I STR printf "%-41s\n" STR
+ echo -e -n "\\e[0;;m"
+ if [ "$1" == "nopw" ];then
+  echo -n "${S027:-Type a number from the left column:} "
+  IFS= read -t 15 -n 1 menuchoice
+  if [ "$menuchoice" == " " ];then
+   clear
+   echo
+   echo "Timeout disabled. Press ENTER key for normal bootup"
+   echo -e -n "\\e[1;38;43m" #bright-white text, black bg.
+   cut -f 2- -d ' ' /menulist | xargs -I STR printf "%-41s\n" STR
+   echo -e -n "\\e[0;;m"
+   echo -n "${S027:-Type a number from the left column:} "
+   read -n 1 menuchoice
+  fi
+ else
+  echo -n "${S027:-Type a number from the left column:} "
+  read -n 1 menuchoice
+ fi
+ echo
+ if [ "$menuchoice" ];then
+  MENUVAR="$(grep " ${menuchoice} " /menulist | cut -f 1 -d ' ')"
+ else
+  MENUVAR=''
+ fi
+ case "$MENUVAR" in
+  LOCKOFF)
+   rm -f /mnt/${WKG_DEV}/${PATHDEF}/.lockdown.flg
+   touch /mnt/${WKG_DEV}/${QV}/var/local/pup_event_icon_change_flag
+   LOCKDOWN=0
+   echo "${S405:-...you have chosen to restore access to drive partitions}"
+  ;;
+  LOCKON)
+   touch /mnt/${WKG_DEV}/${PATHDEF}/.lockdown.flg
+   touch /mnt/${WKG_DEV}/${QV}/var/local/pup_event_icon_change_flag
+   LOCKDOWN=1
+   echo "${S406:-...you have chosen to prevent access to drive partitions}"
+  ;;
+  SNAPTAKE)
+   /sbin/take-snapshot "${WKG_DEV}" "${WKG_DIR}" "${PATHDEF}"
+   if [ $? -eq 0 ];then
+    PATHDEF="$(cat /NEWPATHDEF)" #ex: quirkyvoid/2
+    SNAPDEF="${PATHDEF##*/}"
+    QV="${PATHDEF}/@qv"
+    DISTRO_VERSION="$(cat /TODAYDATE)"
+    sed -i -e "s%^DISTRO_VERSION=.*%DISTRO_VERSION=${DISTRO_VERSION}%" /mnt/${WKG_DEV}/${QV}/etc/DISTRO_SPECS
+    echo "...snapshot taken"
+    if [ -f /mnt/${WKG_DEV}/${PATHDEF}/.lockdown.flg ];then
+     rm -f /mnt/${WKG_DEV}/${PATHDEF}/.lockdown.flg
+     echo "...lockdown is turned off in the snapshot"
+    fi
+    echo -n "${SNAPDEF}" > /mnt/${WKG_DEV}/${WKG_DIR}snapshot-default
+    REASON="$(cat /tsreason | head -n 1 | cut -c 1-80)"
+    [ -z "$REASON" ] && REASON="no explanation provided"
+    echo "${SNAPDEF}|${DISTRO_VERSION}|${REASON}" >> /mnt/${WKG_DEV}/${WKG_DIR}snapshot-record
+   fi
+  ;;
+  SNAPBOOT)
+   /sbin/manage-snapshots "${WKG_DEV}" "${WKG_DIR}" "${PATHDEF}"
+   if [ $? -eq 0 ];then
+    PATHDEF="$(cat /NEWPATHDEF)" #ex: quirkyvoid/2
+    SNAPDEF="${PATHDEF##*/}"
+    QV="${PATHDEF}/@qv"
+    #. /mnt/${WKG_DEV}/${QV}/etc/DISTRO_SPECS
+    echo -n "${SNAPDEF}" > /mnt/${WKG_DEV}/${WKG_DIR}snapshot-default
+   fi
+  ;;
+  NOX)
+   #delayed, see menu_delay_func...
+   echo "${S030:-...will bootup to commandline, no X}"
+  ;;
+  FSCHECK)
+   echo "${S033:-...will perform filesystem check}"
+  ;;
+  FIXVIDEO)
+   BROKENVID=1
+   echo "${S402:-...will bootup to commandline, no X, and run Xorg Wizard}"
+  ;;
+  DROPSHELL)
+   echo "For QV developers only. Knowledge of English required."
+   echo "Type a number, from 1 to 3, then press the ENTER key."
+   echo "Or, press ENTER only for normal bootup."
+   echo "1 Exit from init script, before recovery & maintenance operations."
+   echo "2 Exit from init script, before moving mount points to wkg f.s."
+   echo "3 Exit from init script, just before switch_root."
+   echo -n "Type number: "
+   read DROPOUT
+  ;;
+ esac
+ #apply to all boot choices...
+ if [ -f /mnt/${WKG_DEV}/${PATHDEF}/.lockdown.flg ];then
+  LOCKDOWN=1
+ else
+  LOCKDOWN=0
+ fi
+ echo
+}
+
+#some choices in menu_func cannot be implemented until after pw entered.
+menu_delay_func() {
+ case "$MENUVAR" in
+  NOX)
+   touch /mnt/${WKG_DEV}/${WKG_DIR}root/bootcnt.txt #see /root/.profile
+  ;;
+  FSCHECK)
+   echo -n "${WKG_DEV},${WKG_FS},REQUEST" > /mnt/${WKG_DEV}/${WKG_DIR}.fsckme.flg
+  ;;
+ esac
+}
+
+ask_root_pw() {
+ echo -en "\\033[1;31m" #red foreground.
+ echo -n "${S300:-You chose not to enter a password to encrypt folders in the working-partition; however, you should, at least, enter a password for the root user.}${CR}${S301:-Note1: at future bootups, the password will not be required to login.}${CR}${S302:-Note2: if the keyboard does not work this early in bootup, there will be a timeout in 300 seconds.}${CR}${S303:-Please type a password, with characters a-z, A-Z, 0-9, minimum 6 characters, that you will remember:}" | fold -s -w 69
+ echo -e "\\033[0;39m"
+ rootPW=''
+ while [ 1 ];do
+  echo -n " ${S037:-Password:} "
+  read -r -t 300 rootPW
+  [ $? -ne 0 ] && echo #timed out
+  if [ "$rootPW" != "" ];then
+   xPW="$(echo -n "$rootPW" | sed -e 's%[^a-zA-Z0-9]%%g')"
+   if [ "$rootPW" != "$xPW" ];then
+    echo "\\033[1;31m ${S038:-Sorry, only a-z, A-Z, 0-9 characters allowed, try again} \\033[0;39m" #red text.
+    continue
+   fi
+  fi
+  break
+ done
+}
+
+ask_pw() {
+ if [ "$1" == "0" ];then
+  #want word-wrapped text block in background colour rectangle...
+  echo -n -e '\033[1;;44m'
+  while read aLINE
+  do
+   echo -n '                                                                    '
+   echo -n -e '\033[1G' #move cursor back to col 1.
+   echo " ${aLINE}"
+  done << EOT
+$(echo "${S034:-Please enter a password, any characters a-z, A-Z, 0-9, any length. The password will encrypt parts of the working-partition, and must be remembered, as it will have to be entered at every bootup.}" | fold -s -w 69)
+$(echo " ${S035:-Or, just press ENTER key for no password.}")
+EOT
+  echo -n -e '\033[0;;m'
+  echo -e " \\033[1;31m${S036:-For your security, a password is recommended}\\033[0;39m" #35=purple, 31=red 20220528
+  while [ 1 ];do
+   echo -n " ${S037:-Password:} "
+   read -r -t 300 PW
+   [ $? -ne 0 ] && echo #timed out
+   if [ "$PW" != "" ];then
+    xPW="$(echo -n "$PW" | sed -e 's%[^a-zA-Z0-9]%%g')"
+    if [ "$PW" != "$xPW" ];then
+     echo "\\033[1;31m ${S038:-Sorry, only a-z, A-Z, 0-9 characters allowed, try again} \\033[0;39m" #red text.
+     continue
+    fi
+   fi
+   break
+  done
+#  if [ ! "$PW" ];then
+#   PW="$(< /dev/urandom tr -dc 'a-zA-Z0-9' | head -c10)"
+#   echo " The auto-generated password is: ${PW}"
+#   echo " Pausing for 60 seconds, please write it down now!!!!"
+#   sleep 60
+#  fi
+ else
+  #no longer have menu choices in the boot-manager, so offer some choices here...
+  while [ 1 ];do
+   echo -e "\\e[1;;44m ${S039:-Please enter password to decrypt the working-partition} \\e[0;;m"
+   echo -e "\\e[1;;43m ${S040:-OR just press ENTER to bring up a menu of boot options} \\e[0;;m" #43=yellow background.
+   echo -n " ${S041:-Password:} "
+   PW=''
+   while [ 1 ];do #echo * for each char entered...
+    read -r -s -n1 pw1
+    if [[ -z $pw1 ]];then
+     echo; break
+    else
+     echo -n '*'; PW="${PW}${pw1}"
+    fi
+   done
+   if [ "$PW" == "" ];then
+    menu_func
+    continue
+   fi
+   break
+  done
+ fi
+ return 0
+}
+
+#if qlang kernel boot param...
+if [ "$qlang" ];then
+ QLANG="$qlang"
+fi
+if [ "$QLANG" ];then
+ if [ -e /nls/${QLANG}/init.str -a "$QLANG" != "en" ];then
+. /nls/${QLANG}/init.str
+  export QLANG
+ fi
+fi
+
+#WKG_DIR kernel boot param......
+[ "$wkg_dir" ] && zWKG_DIR="$wkg_dir"
+[ "$WKG_DIR" ] && zWKG_DIR="$WKG_DIR"
+#WKG_DEV kernel boot param...
+[ "$wkg_dev" ] && WKG_DEV="$wkg_dev"
+#or WKG_UUID, WKG_LABEL...
+[ "$wkg_uuid" ] && zWKG_UUID="$wkg_uuid"
+[ "$WKG_UUID" ] && zWKG_UUID="$WKG_UUID"
+[ "$wkg_label" ] && zWKG_LABEL="$wkg_label"
+[ "$WKG_LABEL" ] && zWKG_LABEL="$WKG_LABEL"
+#set to something if not defined...
+[ -z "$WKG_UUID" ] && WKG_UUID='wkguuidunknown'
+[ -z "$WKG_LABEL" ] && WKG_LABEL='wkglabelunknown'
+#kernel boot parameter overrides...
+[ "$zWKG_DIR" ] && WKG_DIR="$zWKG_DIR"
+[ "$zWKG_UUID" ] && WKG_UUID="$zWKG_UUID" && WKG_DEV="" && WKG_LABEL=""
+[ "$zWKG_LABEL" ] && WKG_LABEL="$zWKG_LABEL" && WKG_DEV="" && WKG_UUID=""
+#users may forget to put a trailing slash... a leading slash is not allowed...
+[ "$WKG_DIR" ] && [ "${WKG_DIR##*/}" ] && WKG_DIR="${WKG_DIR}/"
+[ "$WKG_DIR" ] && [ "${WKG_DIR:0:1}" == "/" ] && WKG_DIR="${WKG_DIR:1:99}"
+#ex: WKG_DIR=quirkyvoid/
+
+SALT="aprilandvincent" #for folder encryption.
+
+loadfont < /lib/consolefonts/zap-ext-vga16.psfu #20230522
+echo -n -e "\\033[1;32mQuirky Void\\033[0;39m\n" #bright green
+echo
+
+###find drives###
+#note: preliminary text has to be english...
+echo -n -e "\\033[1;35mFinding drives\\033[0;39m\n " #purple 'Finding drives'
+CNT=0; Pb=0; Pw=0
+while [ $CNT -lt 20 ];do #drives may take few seconds to become available.
+ sleep 1
+ echo -n '.'
+ CNT=$(($CNT+1))
+ BLKIDS="$(blkid | grep -v '[a-z]: ')" #filter-out non-partitions.
+ #ex line: /dev/sda2: LABEL="intern1p2" UUID="cd5ef69b-883d-4744-bc1d-551154131db2" TYPE="ext4"
+ if [ -z "$WKG_DEV" ];then
+  WKG_DEV="$(echo "${BLKIDS}" | grep -E "\"${WKG_UUID}\"|\"${WKG_LABEL}\"" | cut -f 1 -d ':' | cut -f 3 -d '/')"
+ else #it was passed as boot param...
+  WDfnd="$(echo "${BLKIDS}" | grep "/dev/${WKG_DEV}:" | cut -f 1 -d ':' | cut -f 3 -d '/')"
+  [ "$WDfnd" ] && WKG_DEV="${WDfnd}"
+ fi
+ [ "$WKG_DEV" ] && break
+done
+[ -z "$WKG_DEV" ] && err_exit "Could not find the working-partition /dev/${WKG_DEV}"
+
+Wdevs=$(echo -n "$WKG_DEV" | tr '\n' ' ' | wc -w) #precaution.
+[ $Wdevs -gt 1 ] && err_exit "${Wdevs} partitions have conflicting id ${WKG_UUID} ${WKG_LABEL}"
+
+#20240324 test if have cap_sys_mount patch in kernel
+CSMflg=0
+capsh --supports=cap_sys_mount 2>/dev/null
+if [ $? -eq 0 ];then #kernel has cap_sys_mount separated from cap_sys_admin
+ CSMflg=1
+fi
+
+#calc the drive name...
+WKG_PARTNUM="${WKG_DEV##*[a-z]}"
+WKG_DRV="${WKG_DEV%[0-9]}"
+WKG_DRV="${WKG_DRV%[0-9]}"
+[ "${WKG_DRV:0:3}" == "mmc" ] && Pw=1
+[ "${WKG_DRV:0:3}" == "nvm" ] && Pw=1
+[ $Pw -eq 1 ] && WKG_DRV="${WKG_DRV%p}"
+
+#20240324 read optional qfix= kernel boot parameter
+BROKENVID=0
+LOCKDOWN=0 #only allow setting via menu.
+[ "$qfix" ] && QFIX=$qfix #kernel boot param
+if [ "$QFIX" ];then
+ for ONEFIX in `echo -n "$QFIX" | tr ',' ' '`
+ do
+  case $ONEFIX in
+   vid|VID) BROKENVID=1 ;;
+  esac
+ done
+fi
+
+FREEK=`grep '^MemFree:' /proc/meminfo | tr -s ' ' | cut -f 2 -d ' '` #free RAM
+
+###temporary mount working partition###
+mkdir /tempmnt
+WKG_FS="$(echo "$BLKIDS" | grep "^/dev/${WKG_DEV}:" | grep -o 'TYPE="[a-z0-9]*"' | cut -f 2 -d '"')"
+[ "$WKG_FS" != "btrfs" ] && err_exit "Partition /dev/${WKG_DEV} is required to have a btrfs filesystem"
+export WKG_FS
+
+#note: 7create-drive-img populated quirkyvoid/1/@qv with zstd:15
+mount -o rw,compress-force=zstd:3,noatime,subvol=/ -t btrfs /dev/${WKG_DEV} /tempmnt
+[ $? -ne 0 ] && err_exit "Could not mount the working-partition /dev/${WKG_DEV}"
+
+SNAPDEF="$(cat /tempmnt/${WKG_DIR}snapshot-default)" #ex: 1
+PATHDEF="${WKG_DIR}${SNAPDEF}"
+QV="${WKG_DIR}${SNAPDEF}/@qv"
+#...path to rootfs might be /mnt/sdc2/quirkyvoid/1/@qv where WKG_DIR='quirkyvoid/' SNAPDEF='1'
+
+#choose language 2-letter code...
+if [ -z "$QLANG" ];then #set if kernel param.
+ if [ ! -f /tempmnt/${QV}/.qlang ];then
+  #ask language code...
+  EXIT='bad'
+  /sbin/ask-language #currently using dialog so don't need /dev/fb0
+  QLANG="$(cat /qlang)"        #ex: fr
+  BASELANG="$(cat /DEFLANG12)" #ex: fr_FR
+  echo -n "$QLANG" > /tempmnt/${QV}/.qlang
+ else
+  QLANG="$(cat /tempmnt/${QV}/.qlang)"
+ fi
+fi
+if [ -e /nls/${QLANG}/init.str -a "$QLANG" != "en" ];then
+. /nls/${QLANG}/init.str
+fi
+export QLANG
+
+#dropout in initrd...
+if [ -s /tempmnt/${QV}/.debug.flg ];then
+ grep -q '^dropout' /tempmnt/${QV}/.debug.flg #has to be inside @qv
+ if [ $? -eq 0 ];then
+  DROPOUT="$(cat /tempmnt/${QV}/.debug.flg)"
+  DROPOUT="${DROPOUT:7:1}"
+  rm -f /tempmnt/${QV}/.debug.flg
+  sync
+ fi
+fi
+
+sync
+umount /tempmnt
+######
+
+echo -e "\n  ${S114:-Working-partition:} ${WKG_DEV}"
+
+###execute TRIM on ssd###
+TRIMflg=''
+TESTdiscard="$(cat /sys/block/${WKG_DRV}/queue/discard_granularity 2>/dev/null)"
+if [ "$TESTdiscard" ];then
+ if [ "$TESTdiscard" != "0" ];then
+  TRIMflg='1'
+ fi
+fi
+export TRIMflg #read in /sbin/fscheck
+
+###resize working-partition###
+RSflg=0
+sizeB=$(fdisk -u -l /dev/${WKG_DRV} | grep "^/dev/${WKG_DEV} " | tr -s ' ' | rev | cut -f 4 -d ' ' | rev)
+Wsize="$((${sizeB}/2/1024))M"
+P2M='1253' #woofQV edits this.
+if [ "$Wsize" == "848M" -o "$Wsize" == "${P2M}M" -o "$Wsize" == "880M" ];then #current skeleton.
+ #starting sector of wkg partition...
+ Wstart="$(fdisk -u -l /dev/${WKG_DRV} | grep "^/dev/${WKG_DEV} " | tr -s ' ' | rev | cut -f 6 -d ' ' | rev)"
+ #need to be paranoid here, to get this right, restrict to my skeletons... 1 + 15MiB
+ if [ "$Wstart" == "32768" ];then
+  #this has to be done with all partitions in WKG_DRV unmounted...
+  echo -n -e "\\033[1;35m${S120:-Resizing working-partition to fill drive}\\033[0;39m\n " #purple
+  echo -e "d\n${WKG_PARTNUM}\nn\np\n${WKG_PARTNUM}\n${Wstart}\n\nw" | fdisk -u /dev/${WKG_DRV} > /dev/null 2>&1
+  #fdisk should have informed kernel to rescan partition table, however precaution...
+  partprobe /dev/${WKG_DRV}
+  newsizeB="$(fdisk -u -l /dev/${WKG_DRV} | grep "^/dev/${WKG_DEV} " | tr -s ' ' | rev | cut -f 4 -d ' ' | rev)"
+  Wnewsize="$((${newsizeB}/2/1024))M"
+  if [ "$Wnewsize" == "848M" -o "$Wnewsize" == "${P2M}M" -o "$Wnewsize" == "880M" ];then
+   echo -e "\\033[1;31m ${S121:-ERROR: unable to resize working-partition}\\033[0;39m" #red.
+   err_exit "${S121:-ERROR: unable to resize working-partition}"
+  else
+   RSflg=1
+  fi 
+ fi
+fi
+
+###mount working-partition, top-level###
+mkdir -p /mnt/${WKG_DEV}
+#seems reasonable to permit higher commit interval if more ram...
+if [ $FREEK -gt 3000 ];then
+ COMMIT='240' #4 minutes
+else
+ COMMIT='30'
+fi
+mount -o rw,noatime,compress-force=zstd:3,subvol=/,commit=${COMMIT} -t btrfs /dev/${WKG_DEV} /mnt/${WKG_DEV}
+[ $? -ne 0 ] && err_exit "Could not mount the working-partition /dev/${WKG_DEV}"
+
+if [ $RSflg -eq 1 ];then
+ echo " ${S122:-Resizing btrfs filesystem to fill working-partition, size:} ${Wnewsize}"
+ btrfs filesystem resize max /mnt/${WKG_DEV}
+ [ $? -ne 0 ] && err_exit "${S124:-Unable to resize working-partition. Unsafe to continue}"
+fi
+
+###keyboard hw profile###
+#keyboard hardware profile, as need to detect if kb changed...
+#keyboard detection based upon existence of *::capslock folder...
+NEW_KB_HW_PROFILE="$(ls -1 -d /sys/class/input/*/*::capslock 2>/dev/null | cut -f 1-5 -d '/' | xargs -I XXX cat XXX/name | tr -d '\n'| sed -e 's%[^0-9a-zA-Z]%%g' | cut -c 1-60)"
+
+###handle 1st or subsequent bootup###
+ALLOW_ASK_PW=''; PW=''
+if [ ! -d /mnt/${WKG_DEV}/${PATHDEF}/@data ];then
+ #@data will be unencrypted subvolume...
+ btrfs subvolume create /mnt/${WKG_DEV}/${PATHDEF}/@data
+ #@home and @files will be encrypted subvolumes...
+ btrfs subvolume create /mnt/${WKG_DEV}/${PATHDEF}/@home
+ #@files is at a higher level, is bind-mounted into whatever is the default snapshot...
+ btrfs subvolume create /mnt/${WKG_DEV}/${WKG_DIR}@files
+
+ while [ 1 ];do
+  ask_kb #sets $KEYMAP
+  if [ $? -eq 0 ];then
+   gunzip -c /lib/keymaps/${KEYMAP}.gz | loadkmap
+   ask_pw 0 #sets $PW
+   [ $? -eq 1 ] && continue #back button pressed.
+  fi
+  break
+ done
+
+ if [ "$PW" ];then
+  PASSPHRASE="$(echo -n ${PW}xxxx | argon2 ${SALT} -l 32 -r)" #64 byte hash generated from password.
+  echo -n "$PASSPHRASE" > /PASSPHRASE
+  fscryptctl add_key /mnt/${WKG_DEV} < /PASSPHRASE > /FSKEYID 2>/dev/null
+  if [ $? -eq 0 ];then
+   ALLOW_ASK_PW='yes'
+   FSKEYID="$(cat /FSKEYID)"
+   fscryptctl set_policy ${FSKEYID} /mnt/${WKG_DEV}/${PATHDEF}/@home
+   fscryptctl set_policy ${FSKEYID} /mnt/${WKG_DEV}/${WKG_DIR}@files
+  else
+   echo -en "\\033[1;31m" #red foreground.
+   echo "${S145:-Sorry, the folders in the working partition cannot be encrypted. The password will only be set for root login.}" #red
+   echo -e "\\033[0;39m"
+   sleep 2
+  fi
+ fi
+ 
+ #populate @home and @files...
+ cp -a /skeleton/files/* /mnt/${WKG_DEV}/${WKG_DIR}@files/
+ #cp -a /skeleton/home/* /mnt/${WKG_DEV}/${PATHDEF}/@home/
+ #20240326 woofqv has populated rootfs/home, move content to @home...
+ cp -a /mnt/${WKG_DEV}/${QV}/home/* /mnt/${WKG_DEV}/${PATHDEF}/@home/
+ rm -rf /mnt/${WKG_DEV}/${QV}/home
+ mkdir /mnt/${WKG_DEV}/${QV}/home
+ #note: /skeleton/data must not exist, see above test.
+ mkdir /mnt/${WKG_DEV}/${PATHDEF}/@data/appimage
+ mkdir /mnt/${WKG_DEV}/${PATHDEF}/@data/flatpak
+ mkdir /mnt/${WKG_DEV}/${PATHDEF}/@data/woofQV
+ mkdir /mnt/${WKG_DEV}/${PATHDEF}/@data/woofQV/converted-pkgs
+ mkdir /mnt/${WKG_DEV}/${PATHDEF}/@data/woofQV/dl-pet
+ mkdir /mnt/${WKG_DEV}/${PATHDEF}/@data/woofQV/dl-xbps
+
+ mkdir -p /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd
+ echo "KEYMAP='${KEYMAP}'" > /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/CONFIG
+ echo "ALLOW_ASK_PW='${ALLOW_ASK_PW}'" >> /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/CONFIG
+ echo "KB_HW_PROFILE='${NEW_KB_HW_PROFILE}'" >> /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/CONFIG
+ echo -n "${KEYMAP}" > /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/keymap.${NEW_KB_HW_PROFILE}
+
+ #make sure this has 700 perms...
+ chmod 700 /mnt/${WKG_DEV}/${QV}/root
+else
+ #subsequent bootups.
+ fscryptctl get_policy /mnt/${WKG_DEV}/${PATHDEF}/@data >/dev/null 2>&1
+ if [ $? -eq 0 ];then
+  POLICYflg=''
+ else
+  POLICYflg='xxx'
+ fi
+ 
+ touch /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/CONFIG
+ . /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/CONFIG #has KEYMAP, ALLOW_ASK_PW
+ 
+ #keyboard hardware profiling...
+ if [ ! -f /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/keymap.${NEW_KB_HW_PROFILE} ];then
+  ask_kb
+  echo -n "$KEYMAP" > /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/keymap.${NEW_KB_HW_PROFILE}
+  sed -i -e "s%^KEYMAP=.*%KEYMAP='${KEYMAP}'%" /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/CONFIG
+  sed -i -e "s%^KB_HW_PROFILE.*%KB_HW_PROFILE='${NEW_KB_HW_PROFILE}'%" /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/CONFIG
+  . /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/CONFIG
+ fi
+ if [ "$KB_HW_PROFILE" != "$NEW_KB_HW_PROFILE" ];then
+  KEYMAP="$(cat /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/keymap.${NEW_KB_HW_PROFILE})"
+  sed -i -e "s%^KEYMAP=.*%KEYMAP='${KEYMAP}'%" /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/CONFIG
+  sed -i -e "s%^KB_HW_PROFILE.*%KB_HW_PROFILE='${NEW_KB_HW_PROFILE}'%" /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/CONFIG
+  . /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/CONFIG
+ fi
+ [ "$KEYMAP" != "us" ] && gunzip -c /lib/keymaps/${KEYMAP}.gz | loadkmap
+ 
+ if [ -z "$POLICYflg" ];then
+  #folder has fscrypt enabled.
+  echo
+  if [ "$ALLOW_ASK_PW" == "yes" ];then
+   while [ 1 ];do
+    ask_pw 1 #sets $PW
+    PASSPHRASE="$(echo -n ${PW}xxxx | argon2 ${SALT} -l 32 -r)" #64 byte hash generated from password.
+    echo -n "$PASSPHRASE" > /PASSPHRASE
+    fscryptctl add_key /mnt/${WKG_DEV} < /PASSPHRASE > /FSKEYID
+    if [  -d /mnt/${WKG_DEV}/${PATHDEF}/@files/downloads ];then
+     break
+    else
+     FSKEYID="$(cat /FSKEYID)"
+     fscryptctl remove_key ${FSKEYID} /mnt/${WKG_DEV}
+    fi
+    echo -e "\n\\e[1;30;43m ${S146:-Password incorrect. Try again} \\e[0;;m"
+   done
+   menu_delay_func #ask_pw calls menu_func, but some operations have to be done after pw entry.
+   echo
+  fi
+ else
+  menu_func nopw
+  menu_delay_func
+ fi
+
+ echo -n "$KEYMAP" > /mnt/${WKG_DEV}/${QV}/etc/keymap
+fi
+
+###preset country settings for after switch_root###
+#note, this already done above. um, but not on 1st bootup. keep as precaution...
+if [ "$KEYMAP" ];then
+ if [ ! -s /mnt/${WKG_DEV}/${QV}/etc/keymap ];then
+  echo -n "$KEYMAP" > /mnt/${WKG_DEV}/${QV}/etc/keymap
+ fi
+fi
+
+###set date and time###
+#see TZ set early in script.
+#20240320 settimeofday() error, see: https://bkhome.org/news/202402/hwclock-fail-in-easyvoid-603.html
+# getting this error in initrd. now have static hwclock with old musl
+# ...it does not accept -l requires --localtime
+CLKflg=1
+if [ -e /sys/class/rtc/rtc0 ];then
+ if [ -s /mnt/${WKG_DEV}/${QV}/etc/clock ];then
+. /mnt/${WKG_DEV}/${QV}/etc/clock #has HWCLOCKTIME=localtime or utc
+  case "$HWCLOCKTIME" in
+   localtime) hwclock -s --localtime -f /dev/rtc0; CLKflg=$? ;;
+   utc)       hwclock -s -u -f /dev/rtc0; CLKflg=$? ;;
+  esac
+ else #first bootup, assume hw clock is localtime...
+  hwclock -s -l -f /dev/rtc0
+ fi
+fi
+if [ $CLKflg -ne 0 ];then
+ if [ -s /mnt/${WKG_DEV}/${QV}/var/local/shutdown_date_saved ];then
+  date -s "$(cat /mnt/${WKG_DEV}/${QV}/var/local/shutdown_date_saved)" > /dev/null
+ fi
+fi
+#rpi does not have a hardware clock, set it to something sane at 1st bootup...
+YEAR=$(date +%Y) #ex: 1970
+if [ $YEAR -lt 2020 ];then
+ #set date same as init file...
+ fDATE="$(stat -c %y /init | cut -f 1,2 -d ':')"
+ DATE="$(date -s "$fDATE")"
+else
+ DATE="$(date)"
+fi
+export DATE #ex: Tue Mar  3 07:09:34 +08 2020
+
+###trim###
+if [ "$TRIMflg" ];then
+ [ ! -f /mnt/${WKG_DEV}/${PATHDEF}/.easyos-bootcnt ] && echo -n '0' > /mnt/${WKG_DEV}/${PATHDEF}/.os-bootcnt
+ BOOTCNT=$(cat /mnt/${WKG_DEV}/${PATHDEF}/.os-bootcnt)
+ BOOTCNT=$(($BOOTCNT+1))
+ if [ $BOOTCNT -gt 20 ];then
+  BOOTCNT=0
+  echo -e "\\033[1;35m${S150:-Executing fstrim on SSD working-partition}\\033[0;39m\n " #purple
+  fstrim -v /mnt/${WKG_DEV}
+ fi
+ echo -n "$BOOTCNT" > /mnt/${WKG_DEV}/${PATHDEF}/.os-bootcnt
+fi
+
+[ "$DROPOUT" == "1" ] && exit_to_initrd " ${S151:-Exited from init script, before recovery & maintenance operations.}"
+
+###recovery, maintenance###
+KERNELNAME=vmlinuz
+export KERNELNAME
+if [ -s /mnt/${WKG_DEV}/${QV}/.fsckme.flg ];then
+ fscheck "${WKG_DRV}" "${WKG_DEV}" "${QV}/" "${WKG_FS}" #ex: improper shutdown
+ [ $? -ne 0 ] && err_exit "${S160:-Fatal error when filesystem check}"
+fi
+
+###set root password###
+grep -q -F 'root:$1$FD.MrIhr$BsfBOUpaBH4TPKcq0VcSk0:' /mnt/${WKG_DEV}/${QV}/etc/shadow
+if [ $? -eq 0 ];then
+ #original password. need to set it.
+ rootPW=''
+ if [ "$PW" ];then
+  rootPW="$PW"
+ else
+  ask_root_pw
+ fi
+ if [ "$rootPW" ];then
+  echo -e "\\033[1;35m${S201:-First-bootup security setup...}\\033[0;39m" #purple
+  echo "  ${S202:-Setting password for administrator}"
+  ePW="$(cryptpw -m SHA512 ${rootPW})" #note: busybox mkpasswd is an alias for cryptpw
+  sed -i '/^root/d' /mnt/${WKG_DEV}/${QV}/etc/shadow
+  echo "root:${ePW}:17693:0:99999:7:::" >> /mnt/${WKG_DEV}/${QV}/etc/shadow
+ fi
+fi
+
+###gpg###
+if [ ! -f /mnt/${WKG_DEV}/${QV}/root/.gnupg/pubring.gpg ];then
+ echo
+ echo "${S304:-Creating gnupg signed key pair, at /root/.gnupg}"
+ #generate hash from password...
+ PASSPHRASE="$(echo -n ${rootPW}xxxx | argon2 ${SALT} -l 32 -r)" #64 byte hash.
+ mkdir -p /mnt/${WKG_DEV}/${QV}/root/.gnupg
+ chmod 700 /mnt/${WKG_DEV}/${QV}/root/.gnupg
+ cat >foo <<EOF
+Key-Type: RSA
+Key-Length: 2048
+Subkey-Type: RSA
+Subkey-Length: 2048
+Name-Real: QuirkyOS user ${RANDOM}
+Name-Comment: passphrase is hash from password
+Name-Email: noone@nowhere.com
+Expire-Date: 0
+Passphrase: ${PASSPHRASE}
+%commit
+%echo done
+EOF
+ GNUPGHOME="/mnt/${WKG_DEV}/${QV}/root/.gnupg" gpg --batch --gen-key foo
+fi
+
+###hardware profiling###
+#want hardware-profiling for /etc/modprobe.d ...
+ModprobeHardwareProfile=''
+mkdir -p /mnt/${WKG_DEV}/${QV}/etc/modprobe.d
+#class ids are: 0300 video controller, 0403 audio device, 0106 sata controller, 0c03 usb controller, 0600 host bridge
+#note, must use busybox lspci...
+newModprobeHardwareProfile="$(lspci | grep -E 'Class 0300:|Class 0403:' | cut -f 4 -d ' ' | tr '\n' '+')" #ex: 8086:3e91+8086:3e91+
+if [ "$newModprobeHardwareProfile" ];then
+ if [ -f  /mnt/${WKG_DEV}/${QV}/etc/modprobe.d/ModprobeHardwareProfile ];then
+  . /mnt/${WKG_DEV}/${QV}/etc/modprobe.d/ModprobeHardwareProfile
+  if [ ! -d /mnt/${WKG_DEV}/${QV}/etc/modprobe.d.${ModprobeHardwareProfile} ];then
+   cp -a /mnt/${WKG_DEV}/${QV}/etc/modprobe.d /mnt/${WKG_DEV}/${QV}/etc/modprobe.d.${ModprobeHardwareProfile}
+  fi
+ fi
+ if [ "$ModprobeHardwareProfile" != "newModprobeHardwareProfile" ];then
+  if [ -d /mnt/${WKG_DEV}/${QV}/etc/modprobe.d.${newModprobeHardwareProfile} ];then
+   rm -rf /mnt/${WKG_DEV}/${QV}/etc/modprobe.d
+   cp -a /mnt/${WKG_DEV}/${QV}/etc/modprobe.d.${newModprobeHardwareProfile} /mnt/${WKG_DEV}/${QV}/etc/modprobe.d
+  else
+   rm -f /mnt/${WKG_DEV}/${QV}/etc/modprobe.d/*
+  fi
+ fi
+ #make sure they are synced...
+ echo "ModprobeHardwareProfile='${newModprobeHardwareProfile}'" > /mnt/${WKG_DEV}/${QV}/etc/modprobe.d/ModprobeHardwareProfile
+ rm -rf /mnt/${WKG_DEV}/${QV}/etc/modprobe.d.${newModprobeHardwareProfile}
+ cp -a /mnt/${WKG_DEV}/${QV}/etc/modprobe.d /mnt/${WKG_DEV}/${QV}/etc/modprobe.d.${newModprobeHardwareProfile}
+ touch /mnt/${WKG_DEV}/${QV}/etc/modprobe.d.${newModprobeHardwareProfile}/gpu.conf
+ touch /mnt/${WKG_DEV}/${QV}/etc/modprobe.d.${newModprobeHardwareProfile}/blacklist.conf
+fi
+
+###broken video###
+if [ $BROKENVID -eq 1 ];then
+ #note: BROKENVID will need to be a kernel param, set via boot-manager menu.
+ #prevent kernel drm gpu modules from loading...
+ #instead of modeprobe.blacklist=nouveau modeprobe.blacklist=i915 modeprobe.blacklist=radeon modeprobe.blacklist=amdgpu modeprobe.blacklist=gma500_gfx
+ echo 'blacklist amdgpu
+blacklist gma500_gfx
+blacklist i915
+blacklist nouveau
+blacklist radeon' > /mnt/${WKG_DEV}/${QV}/etc/modprobe.d/gpu.conf
+ # so whatever framebuffer currently active, run xorgwizard-cli...
+ # firstly, get rid of previous settings...
+ mkdir -p /mnt/${WKG_DEV}/${QV}/etc/X11
+ rm -f /mnt/${WKG_DEV}/${QV}/etc/X11/xorg.conf 2>/dev/null
+ rm -rf /mnt/${WKG_DEV}/${QV}/etc/xorg.conf.d 2>/dev/null
+ # now set a flag, /root/.profile will run xorgwizard-cli...
+ touch /mnt/${WKG_DEV}/${QV}/.brokenvideo
+fi
+
+###setup PUPSTATE###
+echo "PUPMODE=2
+WKG_UUID='${WKG_UUID}'
+WKG_DEV='${WKG_DEV}'
+WKG_FS='${WKG_FS}'
+WKG_DIR='${WKG_DIR}'
+WKG_SUBDIR='${PATHDEF}'
+WKG_ROOTFS='${QV}'
+BOOT_PW_FLG='${PW/*[a-zA-Z0-9]*/X}'" > /mnt/${WKG_DEV}/${QV}/etc/rc.d/PUPSTATE
+
+if [ "$QLANG" ];then
+ grep -q "^LANG=${QLANG}_" /mnt/${WKG_DEV}/${QV}/etc/profile
+ if [ $? -ne 0 ];then
+  #oh, busybox ash does not support ${QLANG^^} capitalization
+  QLcaps="$(echo -n "$QLANG" | tr '[a-z]' '[A-Z]')"
+  sed -i -e "s%^LANG=.*%LANG=${QLANG}_${QLcaps}.UTF-8%" /mnt/${WKG_DEV}/${QV}/etc/profile
+ fi
+fi
+
+#log stuff for debugging...
+mkdir -p /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/initrd-debug
+echo "$BLKIDS" > /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/initrd-debug/BLKIDS
+ls -l /dev > /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/initrd-debug/ls-dev
+cat /proc/fb > /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/initrd-debug/proc-fb
+
+###hacks###
+#@qv has the official btrfs-progs, so overwrite with fscrypt-enabled progs...
+#do this every bootup, in case btrfs-progs got updated.
+cp -a -f /bin/btrfs /mnt/${WKG_DEV}/${QV}/usr/bin/
+[ -e /bin/btrfstune ] && cp -a -f /bin/btrfstune /mnt/${WKG_DEV}/${QV}/usr/bin/
+[ -e /bin/mkfs.btrfs ] && cp -a -f /bin/mkfs.btrfs /mnt/${WKG_DEV}/${QV}/usr/bin/
+#having failure with hwclock. this one compiled with old musl lib works...
+if [ -e /bin/hwclock ];then
+ #--remove-destination in case target is a busybox symlink...
+ cp -a -f --remove-destination /bin/hwclock /mnt/${WKG_DEV}/${QV}/usr/bin/
+fi
+#--remove-destination security precaution...
+cp -a -f --remove-destination /bin/capsh /mnt/${WKG_DEV}/${QV}/usr/bin/capsh.static
+
+echo -n '' > /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/hdparm-power-down
+if [ $LOCKDOWN -eq 1 ];then
+ Pw=0
+ SWP_DEV="$(echo -n "${BLKIDS}" | grep 'TYPE="swap"' | cut -f 1 -d ':' | cut -f 3 -d '/' | head -n 1)"
+ SWP_DRV="${SWP_DEV%[0-9]}"
+ SWP_DRV="${SWP_DRV%[0-9]}"
+ [ "${SWP_DRV:0:3}" == "mmc" ] && Pw=1
+ [ "${SWP_DRV:0:3}" == "nvm" ] && Pw=1
+ [ $Pw -eq 1 ] && SWP_DRV="${WKG_DRV%p}"
+ #20240326 find any rotating platter drives...
+ #note btrfs automatically looks at /sys/block/${WKG_DRV}/queue/rotational when mount.
+ #so don't need this ssd detection. but i have it for lockdown.
+ touch /HDDS
+ SDDRVS="$(echo "$BLKIDS" | grep -o '^/dev/sd[a-z]' | sort -u | tr '\n' ' ')"
+ for aDRV in $SDDRVS
+ do
+  #restrict to internal sata platter drives...
+  readlink /sys/block/${aDRV##*/} | grep -q '/ata[0-9]'
+  if [ $? -eq 0 ];then
+   HDDflg="$(cat /sys/block/${aDRV##*/}/queue/rotational)" #1 if magnetic platter drv, 0 if ssd.
+   if [ "${HDDflg}" == "1" ];then
+    echo "${aDRV}" >> /HDDS
+    if [ "${aDRV}" != "${WKG_DRV}" -a "${aDRV}" != "${SWP_DRV}" ];then
+     echo "${aDRV}" > /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/hdparm-power-down
+     #ref: https://www.linux-magazine.com/Online/Features/Tune-Your-Hard-Disk-with-hdparm
+     cttyhack /bin/hdparm -Y ${aDRV} >/dev/null 2>&1
+     sleep 0.1
+    fi
+   fi
+  fi
+ done
+fi
+
+[ "$DROPOUT" == "2" ] && exit_to_initrd " ${S222:-Exited from init script, before moving mount points to wkg f.s.}"
+
+###prepare to switch_root###
+#mount subvol @qv, compressed...
+#note, 7create-drive-img populates @qv with zstd:15
+mount -o rw,compress-force=zstd:3,noatime,subvol=/${QV},commit=${COMMIT} -t btrfs /dev/${WKG_DEV} /newroot
+
+mount -o move /sys /newroot/sys
+SECFSflg=0
+if [ -e /newroot/sys/kernel/security ];then #requires CONFIG_SECURITYFS
+ mount -t securityfs securityfs /newroot/sys/kernel/security
+ [ $? -eq 0 ] && SECFSflg=1
+fi
+
+mount -o move /dev /newroot/dev
+mkdir -p /newroot/dev/pts
+mount -t devpts devpts /newroot/dev/pts
+HALFK=$(($FREEK/2))
+QTRK=$(($FREEK/4))
+mkdir -p /newroot/dev/shm
+mount -t tmpfs -o size=${QTRK}k shmfs /newroot/dev/shm
+
+mount -t tmpfs -o size=${HALFK}k tmpfs /newroot/tmp
+
+if [ ! -e /newroot/dev/ppp ];then
+ mknod /newroot/dev/ppp c 108 0 #jafadmin: gpptp needs /dev/ppp
+fi
+
+#mount these folders inside @qv (the rootfs after switch_root)...
+mkdir -p /newroot/data
+mount --bind /mnt/${WKG_DEV}/${PATHDEF}/@data /newroot/data
+mount --bind /mnt/${WKG_DEV}/${PATHDEF}/@home /newroot/home
+mount --bind /mnt/${WKG_DEV}/${WKG_DIR}@files /newroot/files
+
+mount -o move /proc /newroot/proc
+
+[ "$DROPOUT" == "3" ] && exit_to_initrd " ${S232:-Exited from init script, just before switch_root.}"
+
+###switch###
+if [ $LOCKDOWN -eq 1 ];then
+ #20240329 keep swap partition...
+ #20240328 remove all other device nodes... doesn't work...
+ #find /newroot/dev -mindepth 1 -maxdepth 1 -type b \( -name 'sd*' -o -name 'nvme*' -o -name 'mmc*' \) -and -not "${WKG_DEV}" -delete
+ for aFND in $(find /newroot/dev -mindepth 1 -maxdepth 1 -type b -name 'sd*' -o -name 'nvme*' -o -name 'mmc*' | tr '\n' ' ')
+ do
+  aDEV="${aFND##*/}"
+  if [ "${aDEV}" != "${WKG_DEV}" -a "${aDEV}" != "${WKG_DRV}" -a "${aDEV}" != "${SWP_DEV}" ];then
+   rm -f ${aFND}
+  fi
+ done
+ if [ $SECFSflg -eq 1 ];then
+  echo confidentiality > /newroot/sys/kernel/security/lockdown
+ fi
+ #capsh --drop=cap_sys_mount,cap_mknod -- -c "exec switch_root /newroot /sbin/init"
+ #...kernel crash. do it this way...
+ exec switch_root /newroot /sbin/capsh.static --drop=cap_mknod,cap_sys_mount -- -c "exec /sbin/init"
+else
+ exec switch_root /newroot /sbin/init
+fi
+###end###

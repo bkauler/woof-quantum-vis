@@ -1,0 +1,56 @@
+#!/bin/ash
+#d/l packages to build the getting-started rootfs.
+#20240318
+
+export LANG=C
+RP="$(realpath ${0})"
+L1="${RP/buildquantumvis*/buildquantumvis}"
+xARCH="$(arch)"
+mkdir -p /tmp/woofQV
+. /var/local/woofQV/VARS #has E1
+
+. ${L1}/configure/${xARCH}/DISTRO_SPECS
+
+#d/l static xbps
+if [ -d ${E1}/dl-start ];then
+ rm -rf ${E1}/dl-start
+fi
+mkdir -p ${E1}/dl-start
+cd ${E1}/dl-start
+
+F1="xbps-static-latest.${xARCH}-musl.tar.xz"
+if [ ! -f ${F1} ];then
+ download_file https://repo-default.voidlinux.org/static/sha256sums.txt
+ SHAa="$(grep -F "$F1" sha256sums.txt | cut -f 1 -d ' ')"
+ rm -f sha256sums.txt
+ download_file https://repo-default.voidlinux.org/static/${F1}
+ SHAb="$(sha256sum ${F1} | cut -f 1 -d ' ')"
+ if [ "$SHAa" != "$SHAb" ];then
+  echo "sha256sum wrong"
+  rm -f ./${F1} 2>/dev/null
+  exit 1
+ fi
+ echo "pkg ${F1} has been downloaded"
+fi
+
+#d/l busybox static pet
+download_file https://distro.ibiblio.org/easyos/${DISTRO_TARGETARCH}/packages/pet/Packages-pet-void-official
+if [ $? -ne 0 ];then
+ echo 'd/l busybox pet failed'
+ exit 2
+fi
+BB="$(grep -F '|busybox|' Packages-pet-void-official | cut -f 8 -d '|')"
+#ex: busybox-1.36.1-static-amd64.pet
+rm -f Packages-pet-void-official
+if [ ! -f ${BB} ];then
+ download_file https://distro.ibiblio.org/easyos/${DISTRO_TARGETARCH}/packages/pet/pet_packages-void/${BB}
+ if [ $? -ne 0 ];then
+  echo "ERROR downloading pet void database file"
+  rm -f ./${BB} 2>/dev/null
+  exit 2
+ fi
+ echo "pkg ${BB} has been downloaded"
+fi
+
+exit 0
+###end###

@@ -1,0 +1,114 @@
+#!/bin/ash
+#131217 called from rc.sysinit, as background process.
+#150303 append space in echo text.
+#170920 init script in initrd, creates /.sfschg.flg if sfs layers changed (and has prev version if a version upgrade)
+#200528 moved profile update out of /usr/bin/seamonkeyQNEW, dumb place to have it.
+#200609 if an sfs has been removed, ex firefox, it may have left behind a .desktop file.
+#200729 sanity checks when updating seamonkey profile.
+#200820 moved 200609 up, to be sure fixmenus run before jwm has started.
+#200827 200609: removing old .desktop files code moved to rc.sysinit
+#20211207 check that /root/.mozilla/seamonkey exists.
+#20230718 rebuild /etc/xdg/rox.sourceforge.net
+#20231010 don't know why, 20230718 not always rebuild sendto when needed.
+#20231103 change how test exist /.sfschg.flg: as passed flag.
+#20231115 client scripts must all run as root.
+#20240304 easyvoid version update. 20240306
+
+#20231103
+if [ "$1" ];then
+ CHGflg=1
+else
+ CHGflg=0
+fi
+
+#20230718 when update, not first pristine-boot... 20231010...
+#if [ -f /.sfschg.flg -a -f /etc/networkmodules ];then
+if [ -f /etc/networkmodules ];then #avoid 1st boot.
+ if [ $CHGflg -eq 1 ];then
+  #init script in initrd erases /etc/xdg when update, need to rebuild right-click
+  #menu if there are user-installed packages...
+  echo -n "build-rox-sendto " > /dev/console
+  build-rox-sendto
+  
+  #20231115
+  #client start scripts must all start as root. this will enable any client, say
+  #blender, to run chromium -- pw will be asked for.
+  #future client start scripts will have sudo-sh code, this is for older scripts...
+  for aCLIENT in /home/*
+  do
+   if [ -x /usr/bin/${aCLIENT##*/} ];then
+    grep -q 'exec sudo-sh' /usr/bin/${aCLIENT##*/}
+    if [ $? -ne 0 ];then
+     sed -i -e 's%#!/bin/bash%#!/bin/bash\nif [ "$(whoami)" != "root" ];then exec sudo-sh ${PPID} ${0} ${@}; fi%' /usr/bin/${aCLIENT##*/}
+    fi
+   fi
+  done
+ fi
+fi
+
+#20240304 version update. ref: initrd, easy-update
+#need to merge user-installed entries into pkgdb-0.38.plist...
+if [ $CHGflg -eq 1 ];then
+ if [ -f /var/db/FIXME ];then #created in init, initrd
+  echo "rc.update: merging user-installed entries into pkgdb-0.38.plist"
+  rm -f /var/db/FIXME
+  PDB="$(find /var/db/xbps -maxdepth 1 -type f -name 'pkgdb-0.*.plist' | tail -n 1)"
+  if [ ! -z "$PDB" ];then
+   Pfile="${PDB##*/}"
+   /usr/local/petget/support/pkgdb-merge-users "$PDB"
+   if [ $? -eq 0 -a -s /mnt/wkg/data/update/${Pfile}NEW ];then
+    cp -a -f /mnt/wkg/data/update/${Pfile}NEW /var/db/xbps/${Pfile}
+    #also copy the hidden files...
+    cp -a -f /mnt/wkg/data/update/extracted-user-files/.* /var/db/xbps/
+    #also update pkgs to latest... 20240306 always have path...
+    /usr/bin/xbps-install --yes --sync
+    #update /root/.packages/Packages-void-current & -nonfree...
+    /usr/local/petget/xbps-to-pupdb
+    for aNVR in $(grep '|void|' /root/.packages/user-installed-packages | cut -f 2,3,4 -d '|' | tr '\n' ' ')
+    do
+     aN="$(echo -n "$aNVR" | cut -f 1 -d '|')"
+     aVR="$(echo -n "$aNVR" | cut -f 2,3 -d '|' | tr '|' '_')"
+     /usr/bin/xbps-install --yes --ignore-file-conflicts ${aN}
+     xNVR="$(xbps-query --show ${aN} --property pkgver)"
+     if [ "${aN}-${aVR}" != "${xNVR}" -a ! -z "${xNVR}" ];then
+      #seems there has been a pkg version update.
+      /usr/local/petget/xbps-user-postupdate "${aN}" "${xNVR}"
+     fi
+    done
+   fi
+  fi
+ fi
+fi
+
+#131217 only do this on very first boot... 170920...
+if [ $CHGflg -eq 1 -o ! -f /etc/networkmodules ];then
+ echo -n " network-drivers-list " >/dev/console
+ /usr/sbin/updatenetmoduleslist.sh
+fi
+
+#200528 moved this out of /usr/bin/seamonkeyQNEW, dumb place to have it...
+#200516 sm 2.53.2 new profile... 200729 sanity checks...
+if [ -d /root/.mozilla/seamonkey ];then #20211207
+ HOMEDIR="/root/.mozilla/seamonkey"
+ OLDPROFILE=''; NEWPROFILE=''
+ SMPROFILES="$(find ${HOMEDIR} -mindepth 1 -maxdepth 1 -type d -name '*.default' | tr '\n' ' ')"
+ for aSMPROFILE in ${SMPROFILES}
+ do
+  if [ -f ${aSMPROFILE}/places.sqlite ];then
+   [ "$OLDPROFILE" ] && mv -f ${OLDPROFILE} ${OLDPROFILE}OLD #200729 in case more than one.
+   OLDPROFILE="${aSMPROFILE}"
+  fi
+  [ ! -f ${aSMPROFILE}/places.sqlite ] && NEWPROFILE="${aSMPROFILE}"
+ done
+ if [ "$OLDPROFILE" -a "$NEWPROFILE" ];then
+  cp -a -f ${OLDPROFILE}/cookies.sqlite ${NEWPROFILE}/ 2>/dev/null
+  cp -a -f ${OLDPROFILE}/favicons.sqlite ${NEWPROFILE}/ 2>/dev/null
+  cp -a -f ${OLDPROFILE}/formhistory.sqlite ${NEWPROFILE}/ 2>/dev/null
+  cp -a -f ${OLDPROFILE}/permissions.sqlite ${NEWPROFILE}/ 2>/dev/null
+  cp -a -f ${OLDPROFILE}/places.sqlite ${NEWPROFILE}/ 2>/dev/null
+  mv -f ${OLDPROFILE} ${OLDPROFILE}OLD
+  sed -i -e "s%^Path=.*%Path=${NEWPROFILE##*/}%" ${HOMEDIR}/profiles.ini #200729 sanity check.
+ fi
+fi
+
+###end###

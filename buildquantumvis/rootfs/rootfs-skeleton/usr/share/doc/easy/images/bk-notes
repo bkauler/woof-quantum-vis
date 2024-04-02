@@ -1,0 +1,5 @@
+20240323
+--------
+in woofQV there is folder "choices", 6post-process-rootfs will choose
+which ones to copy-up determined by build-choices.
+See bk-notes in choices folder.

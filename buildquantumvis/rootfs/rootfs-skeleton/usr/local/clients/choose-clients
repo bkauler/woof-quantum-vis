@@ -1,0 +1,127 @@
+#!/bin/bash
+#20230805 called from /usr/sbin/loginmanager
+#20231003 more exclude. 20240309 fix exclude logic for scripts.
+
+export TEXTDOMAIN=clients
+export OUTPUT_CHARSET=UTF-8
+
+mkdir -p /tmp/loginmanager
+touch /root/.clients-status
+CLIENTStrue="$(grep 'true$' /root/.clients-status | cut -f 1 -d '=')"
+echo -n "$CLIENTStrue" > /tmp/loginmanager/CLIENTStrue
+
+echo -n '' > /tmp/loginmanager/LIST
+echo -n '' > /tmp/loginmanager/APPS
+xAPPS="$(grep -h -v '^NoDisplay=true' /usr/share/applications/*.desktop | grep '^Exec=' | cut -f 2 -d '=' | grep -v '^ec-' | grep -v '/' | cut -f 1 -d ' ' | grep -v '\.install$' | sort -u)"
+#narrow down the list a bit more...
+for aAPP in $xAPPS
+do
+ if [ "$aAPP" == "" ];then continue; fi
+ #20231003 some to definitely exclude...
+ case "$aAPP" in
+  awf-gtk2|awf-gtk3|bluepup|bluetooth-sendto|bootmanager|butniso2cd|ccrypt_gui) continue ;;
+  cdburner-wizard|chooselocale|cups_shell|date-time-wizard) continue ;;
+  default*|droidcam|easy*|eventmanager|ffconvert|ff*) continue ;;
+  filemnt|firewall_ng|flapi|Floppy_Formatter|flsynclient|fluid|ghostview|glade) continue ;;
+  gparted_shell|gtk3*|hostname-set|icon_switcher|input-wizard|ipinfo|jwmthememaker) continue ;;
+  limine-installer|loginmanager|momanager|mount-img|moveicons|mscw|mtpaintsnapshot.sh) continue ;;
+  notification-daemon|partview|pburn|Pdisk|petget|pmount|pprocess|Pudd|pupx) continue ;;
+  pupzip|pwsget|qsync|quicksetup|qwallpaper|rox|rxvt|sakura|screeny|set_*|set-*) continue ;;
+  tas|timezone-set|touchpad-toggle|urxvt*|usbviewshell|vv-dl-latest|wcpufreq|xarchive) continue ;;
+  xdelt_gui|xfdiff-cut|xfontsel|xorgwizard|xvkbd-wrapper|youtubedl-gui|zarfywrapper) continue ;;
+  gfnrename|gfontsel|gpptp|gtk*|pgprs|precord|prename|pupcamera|xdelta_gui) continue ;;
+ esac
+ xFspec="$(which $aAPP)"
+ if [ "$xFspec" == "" ];then continue; fi
+ if [ -h "$xFspec" ];then
+  Fspec="$(readlink -e "$xFspec")"
+  if [ "$Fspec" == "" ];then continue; fi
+ else
+  Fspec="$xFspec"
+ fi
+ Fsh="$(LANG=C file "$Fspec" | grep -o 'shell script')"
+ if [ "$Fsh" == "shell script" ];then
+  grep -q 'exec sudo-sh' "$Fspec"
+  if [ $? -eq 0 ];then
+   #20240309 this may be a script that is already for the app to run non-root.
+   #could check /root/.clients-status, or see if .bin0 exists..
+   #a bit tricky here. appimages and flatpaks have .bin and not .bin0 and it is not
+   #intended that they be allowed to switch to run as root, as the startup script
+   #must stay as it is. so...
+   if [ ! -e /usr/bin/${aAPP}.bin0 ];then
+    continue
+   fi
+  fi
+ fi
+ #shell script may just exec to another shell script...
+ if [ ! -h "$xFspec" ];then
+  if [ "$Fsh" == "shell script" ];then
+   Fexec="$(grep -o '^exec .*' "$xFspec" | head -n 1 | tr -s ' ' | cut -f 2 -d ' ')"
+   if [ "$Fexec" != "" ];then
+    if [ "${Fexec:0:1}" == "/" ];then
+     Fdest="$Fexec"
+    else
+     Fdest="$(which "${Fexec##*/}" >/dev/null)"
+    fi
+    if [ "$Fdest" != "" ];then
+     Fsh="$(LANG=C file "$Fdest" | grep -o 'shell script')"
+     if [ "$Fsh" == "shell script" ];then
+      grep -q 'exec sudo-sh' "$Fdest"
+      if [ $? -eq 0 ];then continue; fi
+     fi
+    fi
+   fi
+  fi
+ fi
+ echo "$aAPP" >> /tmp/loginmanager/APPS
+done
+APPS="$(cat /tmp/loginmanager/APPS)"
+
+for aAPP in $APPS
+do
+ [ "$aAPP" == "" ] && continue
+ grep -q -x "$aAPP" /tmp/loginmanager/CLIENTStrue
+ if [ $? -eq 0 ];then
+  echo -n "${aAPP} ${aAPP} on " >> /tmp/loginmanager/LIST
+ else
+  echo -n "${aAPP} ${aAPP} off " >> /tmp/loginmanager/LIST
+ fi
+done
+LIST="$(cat /tmp/loginmanager/LIST)"
+
+rm -f /tmp/loginmanager/nonrootapps1 2>/dev/null
+EXECME="Xdialog --screen-center --wrap --wmclass \"module16\" --title \"$(gettext 'Client Manager')\" --left --stdout --separator \" \" --buildlist \"$(gettext 'On the right pane are applications that will run non-root, each as its own user. Any app may be moved from the left pane to the right pane, so that it will also run non-root. Or, an app may be moved from right to left, so it will run as the root user.')\" 0 65 14 ${LIST} >/tmp/loginmanager/nonrootapps1"
+eval $EXECME
+RETVAL=$?
+[ $RETVAL -ne 0 ] && exit
+[ ! -s /tmp/loginmanager/nonrootapps1 ] && exit
+
+NRA="$(cat /tmp/loginmanager/nonrootapps1 | tr ' ' '\n')"
+echo -n "$NRA" > /tmp/loginmanager/nonrootapps2
+
+M1="$(gettext 'This app will now run non-root, as its own user:')"
+M2="$(gettext 'This app will now run as the root user:')"
+for aAPP in $APPS
+do
+ [ "$aAPP" == "" ] && continue
+ grep -q -x ${aAPP} /tmp/loginmanager/nonrootapps2
+ if [ $? -eq 0 ];then
+  grep -q -x ${aAPP} /tmp/loginmanager/CLIENTStrue #see if change
+  if [ $? -ne 0 ];then
+   /usr/local/clients/setup-client ${aAPP}=true
+   if [ $? -eq 0 ];then
+    popup "level=top background=#a0ffa0 terminate=ok process=wait|<big>${M1} ${aAPP}</big>"
+   fi
+  fi
+ else
+  grep -q -x ${aAPP} /tmp/loginmanager/CLIENTStrue #see if change
+  if [ $? -eq 0 ];then
+   /usr/local/clients/setup-client ${aAPP}=false
+   if [ $? -eq 0 ];then
+    popup "level=top background=#a0ffa0 terminate=ok process=wait|<big>${M2} ${aAPP}</big>"
+   fi
+  fi
+ fi
+done
+
+###end###

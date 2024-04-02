@@ -1,0 +1,9 @@
+echo 'FIXUPHACK: zip' 1>&2 #for error log.
+
+mkdir -p usr/bin
+#keep only these (requires bash)...
+GLOBIGNORE='zip:zipcloak:zipnote:zipsplit'
+cd usr/bin
+rm *
+cd ../../
+unset GLOBIGNORE

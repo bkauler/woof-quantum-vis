@@ -1,0 +1,43 @@
+#!/bin/bash
+#041222 called from 0setup
+#20230902 remove any utf8 characters, puppy db doesn't like.
+#20230914 fix when in running easyos (curr. dir /root/.packages)
+#20240113 ONE_PKGLISTS_COMPAT exported from 0setup
+#20240212 called from /usr/local/woofV/rootfs/1update-pkg-dbs
+#20240225 support new easyvoid. 
+#20240315 support quirkyvoid. 20240318
+
+xARCH="$(arch)"
+
+if [ -f ./THISISINTMPWOOFV ];then #20240212
+ #running in woofv
+. /usr/local/woofV/configure/DISTRO_SPECS
+ SUPPORT='/usr/local/woofV/support'
+elif [ -f ./THISISINTMPWOOFQV ];then #20240315
+ #running in woofqv
+ L1="$(cat ./THISISINTMPWOOFQV)"
+ SUPPORT="${L1}/support"
+. ${L1}/configure/${xARCH}/DISTRO_SPECS
+else
+. /etc/DISTRO_SPECS
+ SUPPORT='/usr/local/petget/support'
+fi
+
+echo "$(LANG=${LANGorig} gettext 'Extracting the Void xml database from the archive')"
+mv -f ${ONE_PKGLISTS_COMPAT}pre ${xARCH}-repodata.tar.zst
+rm *.plist 2>/dev/null
+tar --zstd -xf ${xARCH}-repodata.tar.zst
+rm ${xARCH}-repodata.tar.zst
+#remove any utf8 characters...
+iconv -c -f utf-8 -t ascii index.plist > index.plistFIXED
+mv -f index.plistFIXED index.plist
+echo
+echo "$(LANG=${LANGorig} gettext 'Converting the Void xml database to the Puppy PPM format (@JamesBond)')"
+rm -f ${ONE_PKGLISTS_COMPAT}
+${SUPPORT}/cvt.sh > ${ONE_PKGLISTS_COMPAT}
+grep -q 'nonfree' <<< ${ONE_PKGLISTS_COMPAT}
+if [ $? -eq 0 ];then
+ sed -i -e 's%[|]current[|]%|current/nonfree|%' ${ONE_PKGLISTS_COMPAT}
+fi
+
+###end###

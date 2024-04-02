@@ -1,0 +1,35 @@
+[general]
+#the boot-partition may have Syslinux, reFind or Limine config files.
+#if so, there are strings that can be translated.
+#Please type translation only between the last two % characters. For example: s%"done"%"fertig"%
+#Keep all formatting exactly the same, that is retain all " ' < > / \ characters.
+# -- do not replace the " and ' with left-side or right-side quote characters.
+#Keep all variables as-is, exs: ${DROPOUT} $DROPOUT -- do not translate!
+#Note: do not use UTF-8 characters in these boot manager menus.
+
+[_syslinux.cfg]
+#/syslinux.cfg
+s%Normal startup%%
+s%Filesystem check%%
+s%Commandline only, do not start X%%
+s%Rollback to last saved session%%
+s%Rollback to pristine first bootup%%
+
+[_EFI_BOOT_refind.conf]
+#/EFI/BOOT/refind.conf
+s%normal bootup%%
+s%Filesystem check%%
+s%Commandline only, do not start X%%
+s%Rollback to last saved session%%
+s%Rollback to pristine first bootup%%
+
+[ _limine.cfg ]
+#/limine.cfg
+s%EasyOS Limine Boot Manager%%
+s%EasyOS Dunfell bootup%%
+s%EasyOS Kirkstone bootup%%
+s%EasyOS Bookworm bootup%%
+s%  Options...%%
+s%Fix broken video%%
+s%Run Xorg Video Wizard to fix broken video%%
+

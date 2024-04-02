@@ -1,0 +1,40 @@
+#!/bin/sh
+#folder 'rootfs-skeleton' is the skeleton rootfs for creating easyVoid.
+#'rootfs-skeleton' is read in script '2create-start-rootfs'
+
+export LANG=C
+
+RP="$(realpath ${0})"
+L1="${RP/buildquantumvis*/buildquantumvis}"
+xARCH="$(arch)"
+
+. /etc/rc.d/PUPSTATE
+. ${L1}/configure/${xARCH}/DISTRO_SPECS
+mkdir -p /tmp/woofQV
+
+#VARS file is in rootfs/rootfs-skeleton, so will exist in running quirkyvoid.
+#for other distro, create it...
+if [ ! -f /var/local/woofQV/VARS ];then
+ mkdir -p /var/local/woofQV
+ if [ -d /mnt/wkg ];then #easyos
+  mkdir -p /mnt/wkg/woofQV
+  echo "E1='/mnt/wkg/woofQV'" > /var/local/woofQV/VARS
+ else
+  mkdir -p /data/woofQV
+  echo "E1='/data/woofQV'" > /var/local/woofQV/VARS
+ fi
+fi
+. /var/local/woofQV/VARS #has E1
+
+if [ -e ${E1}/rootfs-skeleton ];then
+ rm -rf ${E1}/rootfs-skeleton
+fi
+
+cp -a ${L1}/rootfs/rootfs-skeleton ${E1}/
+
+find ${E1}/rootfs-skeleton -type f -name EMPTYDIRMARKER -delete
+
+sync
+echo
+echo "Created: ${E1}/rootfs-skeleton"
+###end###

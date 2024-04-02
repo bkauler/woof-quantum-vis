@@ -1,0 +1,10 @@
+
+#easyvoid
+#delete everything except these two...
+mv -f usr/bin/adb /tmp/woofQV/adb
+mv -f usr/bin/fastboot /tmp/woofQV/fastboot
+rm -rf ./*
+mkdir -p usr/bin
+mv -f /tmp/woofQV/adb usr/bin/adb
+mv -f /tmp/woofQV/fastboot usr/bin/fastboot
+

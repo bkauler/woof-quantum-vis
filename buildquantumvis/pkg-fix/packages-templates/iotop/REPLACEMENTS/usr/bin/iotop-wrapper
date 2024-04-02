@@ -1,0 +1,8 @@
+#!/bin/ash
+if [ -e usr/bin/iotop-py ];then
+ IOTOPEXE='iotop-py'
+else
+ IOTOPEXE='iotop'
+fi
+exec urxvt -bg '#f0f0f0' -fg black -name iotop -fn 'xft:Roboto Mono:style=Regular:pixelsize=14' -fb 'xft:Roboto Mono:style=Bold:pixelsize=14' -e ${IOTOPEXE} -o -a
+
