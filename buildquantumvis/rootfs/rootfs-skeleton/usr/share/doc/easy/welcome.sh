@@ -15,7 +15,7 @@
 #20221111 improve explanation boot and working drives.
 #20230214 desktop image translated text overlay by svg.
 #20230530 no longer have separate sfs icon on desktop. pkg icon has 4 package managers.
-#20240322 quirkyvoid.
+#20240322 quantumvis.
 
 export TEXTDOMAIN=easyhelp
 export OUTPUT_CHARSET=UTF-8

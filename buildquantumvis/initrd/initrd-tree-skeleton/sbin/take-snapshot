@@ -2,8 +2,8 @@
 #take a snapshot.
 
 WKG_DEV="$1" #ex: sdc2
-WKG_DIR="$2" #ex: quirkyvoid/
-PATHDEF="$3" #ex: quirkyvoid/1
+WKG_DIR="$2" #ex: quantumvis/
+PATHDEF="$3" #ex: quantumvis/1
 
 #we want to take snapshots of these:
 #/mnt/${WKG_DEV}/${WKG_DIR}@files

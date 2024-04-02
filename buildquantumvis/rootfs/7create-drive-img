@@ -35,8 +35,8 @@ mkfs.btrfs -L QV2 --uuid ${UUID2} btrfs-file
 mkdir -p btrfs-mount
 #max compr here, but in initrd will mount with zstd:3
 busybox mount -o loop,compress-force=zstd:15,noatime -t btrfs btrfs-file btrfs-mount
-mkdir -p btrfs-mount/quirkyvoid/1
-cp -a ../rootfs btrfs-mount/quirkyvoid/1/qv
+mkdir -p btrfs-mount/quantumvis/1
+cp -a ../rootfs btrfs-mount/quantumvis/1/qv
 sync
 #free space in bytes...
 FREEB=$(btrfs filesystem usage -b btrfs-mount | grep 'Free (estimated):' | sed -e 's%[^0-9(]*%%g' | cut -f 2 -d '(')
@@ -145,7 +145,7 @@ INTERFACE_RESOLUTION=800x600
     PROTOCOL=linux
     KERNEL_PATH=boot://1/vmlinuz
     MODULE_PATH=boot://1/initrd
-    KERNEL_CMDLINE=rw wkg_uuid=${UUID2} wkg_dir=quirkyvoid/
+    KERNEL_CMDLINE=rw wkg_uuid=${UUID2} wkg_dir=quantumvis/
 
 :  ${OPTIONSFIELD}
 ::${FBVFIELD}
@@ -154,7 +154,7 @@ INTERFACE_RESOLUTION=800x600
     PROTOCOL=linux
     KERNEL_PATH=boot://1/vmlinuz
     MODULE_PATH=boot://1/initrd
-    KERNEL_CMDLINE=rw qfix=vid nomodeset wkg_uuid=${UUID2} wkg_dir=quirkyvoid/
+    KERNEL_CMDLINE=rw qfix=vid nomodeset wkg_uuid=${UUID2} wkg_dir=quantumvis/
 " > img_mntpt/limine.cfg
 
 mkdir -p img_mntpt/EFI/BOOT
@@ -181,18 +181,18 @@ echo "Populating working-partition"
 mkdir -p img_mntpt2
 #mount top-level without compression... 20240326 with compression...
 busybox mount -o offset=${OFF2},loop,compress-force=zstd:3,noatime -t btrfs ${SKELETON_NAME}.img img_mntpt2
-mkdir -p img_mntpt2/quirkyvoid/1
+mkdir -p img_mntpt2/quantumvis/1
 #create a subvolume...
-btrfs subvolume create img_mntpt2/quirkyvoid/1/@qv
-btrfs property set img_mntpt2/quirkyvoid/1/@qv compression zstd
-echo -n '1' > img_mntpt2/quirkyvoid/snapshot-default
-echo "1|${DISTRO_VERSION}|This is the original subvolume" > img_mntpt2/quirkyvoid/snapshot-record
+btrfs subvolume create img_mntpt2/quantumvis/1/@qv
+btrfs property set img_mntpt2/quantumvis/1/@qv compression zstd
+echo -n '1' > img_mntpt2/quantumvis/snapshot-default
+echo "1|${DISTRO_VERSION}|This is the original subvolume" > img_mntpt2/quantumvis/snapshot-record
 sync
 sleep 2
 busybox umount img_mntpt2
 
 #max compr here, but in initrd will mount with zstd:3
-busybox mount -o offset=${OFF2},loop,compress-force=zstd:15,noatime,subvol=quirkyvoid/1/@qv -t btrfs ${SKELETON_NAME}.img img_mntpt2
+busybox mount -o offset=${OFF2},loop,compress-force=zstd:15,noatime,subvol=quantumvis/1/@qv -t btrfs ${SKELETON_NAME}.img img_mntpt2
 echo "Copying rootfs into img file..."
 cp -a ../rootfs/* img_mntpt2/
 sync

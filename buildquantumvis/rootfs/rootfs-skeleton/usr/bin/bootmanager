@@ -64,7 +64,7 @@
 #20220525 changed extra-sfss-repo path.
 #20221023 may be running as zeus super-user. 20221031 hmmm, maybe still need bump to root.
 #20230626 new sudo-sh replaces sudo.
-#20240319 quirkyvoid
+#20240319 quantumvis
 
 #20230626
 if [ "$(whoami)" != "root" ];then

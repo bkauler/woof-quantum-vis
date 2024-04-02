@@ -51,7 +51,7 @@
 #20221023 may be running as zeus super-user. 20221031 think still need to bump to root.
 #20230603 enter pw if mount ext4 partition with encrypted fs.
 #20230626 new sudo-sh
-#20240322 quirkyvoid: wkg-part mounted multiple times.
+#20240322 quantumvis: wkg-part mounted multiple times.
 
 export TEXTDOMAIN=drive_all
 export OUTPUT_CHARSET=UTF-8
@@ -71,10 +71,10 @@ if [ "$(whoami)" != "root" ];then exec sudo-sh ${PPID} ${0} ${@}; fi
 
 #20240322 ex:
 ## mount | grep 'sdc2'
-#/dev/sdc2 on / type btrfs (rw,relatime,space_cache=v2,subvolid=256,subvol=/quirkyvoid/@qv)
+#/dev/sdc2 on / type btrfs (rw,relatime,space_cache=v2,subvolid=256,subvol=/quantumvis/@qv)
 #/dev/sdc2 on /data type btrfs (rw,relatime,space_cache=v2,subvolid=5,subvol=/)
-#/dev/sdc2 on /home type btrfs (rw,relatime,space_cache=v2,subvolid=257,subvol=/quirkyvoid/@home)
-#/dev/sdc2 on /files type btrfs (rw,relatime,space_cache=v2,subvolid=258,subvol=/quirkyvoid/@files)
+#/dev/sdc2 on /home type btrfs (rw,relatime,space_cache=v2,subvolid=257,subvol=/quantumvis/@home)
+#/dev/sdc2 on /files type btrfs (rw,relatime,space_cache=v2,subvolid=258,subvol=/quantumvis/@files)
 ## df | grep 'sdc2'
 #/dev/sdc2        30027776    1323760  28150608   5% /
 #/dev/sdc2        30027776    1323760  28150608   5% /data
@@ -246,7 +246,7 @@ if [ "$PARAM1" = "unmount" ];then #v403 chose unmount from drive icon menu.
  [ "$MNTPT" = "" ] && [ "$DRV_CATEGORY" = "optical" ] && eject_cd /dev/$ONEDRVNAME
  [ "$MNTPT" = "" ] && exit #precaution.
  NOTUNMOUNTABLE=''
- #20240322 handle quirkyvoid...
+ #20240322 handle quantumvis...
  if [ "$ONEDRVNAME" == "$WKG_DEV" ];then
   #it is multiple-mounted, however if mounted on /mnt/ then that can be unmounted
   #except this condition...

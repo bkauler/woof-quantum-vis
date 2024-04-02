@@ -1,6 +1,6 @@
 #!/bin/ash
 #(c) copyright Barry Kauler 2024. license GPL v3 (/usr/share/doc/legal)
-#20240320 rewrite for quirkyvoid.
+#20240320 rewrite for quantumvis.
 
 #we have a problem, top-level /.config and /.local getting created, try this fix:
 export HOME='/root'

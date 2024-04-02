@@ -33,7 +33,7 @@
 #20230328 ask if current .img is elsewhere.
 #20230503 cannot update fscrypt v1 to v2.  20230504
 #20231108 offer to update nvidia sfs. (see also initrd init). 20231109 check nv major version.
-#20240302 support easyvoid. 20240304 20240319 quirkyvoid
+#20240302 support easyvoid. 20240304 20240319 quantumvis
 
 export TEXTDOMAIN=easy-update
 export OUTPUT_CHARSET=UTF-8

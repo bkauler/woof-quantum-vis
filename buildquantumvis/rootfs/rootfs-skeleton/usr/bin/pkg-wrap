@@ -3,7 +3,7 @@
 #called via "pkg" desktop icon.
 #20230408 add Flatpak Installer. 
 #20230408 inside container, only offer PKGget
-#20240319 quirkyvoid no sfs
+#20240319 quantumvis no sfs
 
 export TEXTDOMAIN=pkg-wrap
 export TEXTDOMAINDIR=/usr/share/locale

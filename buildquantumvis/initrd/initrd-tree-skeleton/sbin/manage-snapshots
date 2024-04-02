@@ -2,8 +2,8 @@
 #choose a snapshot to boot into.
 
 WKG_DEV="$1" #ex: sdc2
-WKG_DIR="$2" #ex: quirkyvoid/
-PATHDEF="$3" #ex: quirkyvoid/1
+WKG_DIR="$2" #ex: quantumvis/
+PATHDEF="$3" #ex: quantumvis/1
 
 if [ -f /nls/${QLANG}/manage-snapshots.str ];then
 .  /nls/${QLANG}/manage-snapshots.str

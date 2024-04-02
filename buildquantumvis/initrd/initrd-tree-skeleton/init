@@ -191,7 +191,7 @@ menu_func() {
   SNAPTAKE)
    /sbin/take-snapshot "${WKG_DEV}" "${WKG_DIR}" "${PATHDEF}"
    if [ $? -eq 0 ];then
-    PATHDEF="$(cat /NEWPATHDEF)" #ex: quirkyvoid/2
+    PATHDEF="$(cat /NEWPATHDEF)" #ex: quantumvis/2
     SNAPDEF="${PATHDEF##*/}"
     QV="${PATHDEF}/@qv"
     DISTRO_VERSION="$(cat /TODAYDATE)"
@@ -210,7 +210,7 @@ menu_func() {
   SNAPBOOT)
    /sbin/manage-snapshots "${WKG_DEV}" "${WKG_DIR}" "${PATHDEF}"
    if [ $? -eq 0 ];then
-    PATHDEF="$(cat /NEWPATHDEF)" #ex: quirkyvoid/2
+    PATHDEF="$(cat /NEWPATHDEF)" #ex: quantumvis/2
     SNAPDEF="${PATHDEF##*/}"
     QV="${PATHDEF}/@qv"
     #. /mnt/${WKG_DEV}/${QV}/etc/DISTRO_SPECS
@@ -370,7 +370,7 @@ fi
 #users may forget to put a trailing slash... a leading slash is not allowed...
 [ "$WKG_DIR" ] && [ "${WKG_DIR##*/}" ] && WKG_DIR="${WKG_DIR}/"
 [ "$WKG_DIR" ] && [ "${WKG_DIR:0:1}" == "/" ] && WKG_DIR="${WKG_DIR:1:99}"
-#ex: WKG_DIR=quirkyvoid/
+#ex: WKG_DIR=quantumvis/
 
 SALT="aprilandvincent" #for folder encryption.
 
@@ -437,14 +437,14 @@ WKG_FS="$(echo "$BLKIDS" | grep "^/dev/${WKG_DEV}:" | grep -o 'TYPE="[a-z0-9]*"'
 [ "$WKG_FS" != "btrfs" ] && err_exit "Partition /dev/${WKG_DEV} is required to have a btrfs filesystem"
 export WKG_FS
 
-#note: 7create-drive-img populated quirkyvoid/1/@qv with zstd:15
+#note: 7create-drive-img populated quantumvis/1/@qv with zstd:15
 mount -o rw,compress-force=zstd:3,noatime,subvol=/ -t btrfs /dev/${WKG_DEV} /tempmnt
 [ $? -ne 0 ] && err_exit "Could not mount the working-partition /dev/${WKG_DEV}"
 
 SNAPDEF="$(cat /tempmnt/${WKG_DIR}snapshot-default)" #ex: 1
 PATHDEF="${WKG_DIR}${SNAPDEF}"
 QV="${WKG_DIR}${SNAPDEF}/@qv"
-#...path to rootfs might be /mnt/sdc2/quirkyvoid/1/@qv where WKG_DIR='quirkyvoid/' SNAPDEF='1'
+#...path to rootfs might be /mnt/sdc2/quantumvis/1/@qv where WKG_DIR='quantumvis/' SNAPDEF='1'
 
 #choose language 2-letter code...
 if [ -z "$QLANG" ];then #set if kernel param.
@@ -715,7 +715,7 @@ fi
 KERNELNAME=vmlinuz
 export KERNELNAME
 if [ -s /mnt/${WKG_DEV}/${QV}/.fsckme.flg ];then
- fscheck "${WKG_DRV}" "${WKG_DEV}" "${QV}/" "${WKG_FS}" #ex: improper shutdown
+ fscheck "${WKG_DRV}" "${WKG_DEV}" "${QV}" "${WKG_FS}" #ex: improper shutdown
  [ $? -ne 0 ] && err_exit "${S160:-Fatal error when filesystem check}"
 fi
 

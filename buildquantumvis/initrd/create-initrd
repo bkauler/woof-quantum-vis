@@ -29,7 +29,7 @@ sync
 sed -i -e "s%^P2M=.*%P2M='${P2M}'%" ${E1}/initrd/initrd-tree/init
 
 #populate initrd with static binaries...
-#hwclock ref: https://bkhome.org/news/202402/hwclock-fail-in-easyvoid-603.html --quirkyvoid still have this problem, in initrd.
+#hwclock ref: https://bkhome.org/news/202402/hwclock-fail-in-easyvoid-603.html --quantumvis still have this problem, in initrd.
 #note: this capsh recognizes cap_sys_mount (41) patched kernel.
 for aS in argon2 btrfs btrfstune busybox capsh dialog fdisk fscryptctl gpg hwclock idump mkfs.btrfs mp readlink vercmp
 do
