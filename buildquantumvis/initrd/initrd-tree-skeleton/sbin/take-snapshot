@@ -6,9 +6,10 @@ WKG_DIR="$2" #ex: quantumvis/
 PATHDEF="$3" #ex: quantumvis/1
 
 #we want to take snapshots of these:
-#/mnt/${WKG_DEV}/${WKG_DIR}@files
+#/mnt/${WKG_DEV}/${WKG_DIR}@qv
 #/mnt/${WKG_DEV}/${PATHDEF}/@home
-#/mnt/${WKG_DEV}/${PATHDEF}/@data
+#20240403 no longer have @data subvolume...
+##/mnt/${WKG_DEV}/${PATHDEF}/@data
 
 if [ -f /nls/${QLANG}/take-snapshot.str ];then
 .  /nls/${QLANG}/take-snapshot.str
@@ -56,12 +57,13 @@ if [ $? -ne 0 ];then
  rm -rf /mnt/${WKG_DEV}/${WKG_DIR}${SNAPNEW}
  exit 3
 fi
-btrfs subvolume snapshot /mnt/${WKG_DEV}/${PATHDEF}/@data /mnt/${WKG_DEV}/${WKG_DIR}${SNAPNEW}/@data
-if [ $? -ne 0 ];then
- echo "${S110:-Failed to create snapshot:} /mnt/${WKG_DEV}/${WKG_DIR}${SNAPNEW}/@data"
- rm -rf /mnt/${WKG_DEV}/${WKG_DIR}${SNAPNEW}
- exit 4
-fi
+#20240403 @data no longer exists...
+#btrfs subvolume snapshot /mnt/${WKG_DEV}/${PATHDEF}/@data /mnt/${WKG_DEV}/${WKG_DIR}${SNAPNEW}/@data
+#if [ $? -ne 0 ];then
+# echo "${S110:-Failed to create snapshot:} /mnt/${WKG_DEV}/${WKG_DIR}${SNAPNEW}/@data"
+# rm -rf /mnt/${WKG_DEV}/${WKG_DIR}${SNAPNEW}
+# exit 4
+#fi
 #note: @files does not get snapshotted, but must be a subvolume as may be encrypted.
 
 TODAYDATE="$(date +%y%m%d)"

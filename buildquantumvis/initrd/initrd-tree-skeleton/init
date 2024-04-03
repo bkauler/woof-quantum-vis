@@ -255,7 +255,7 @@ menu_delay_func() {
    touch /mnt/${WKG_DEV}/${QV}/root/bootcnt.txt #see /root/.profile
   ;;
   FSCHECK)
-   echo -n "${WKG_DEV},${WKG_FS},REQUEST" > /mnt/${WKG_DEV}/${QV}.fsckme.flg
+   echo -n "${WKG_DEV},${WKG_FS},REQUEST" > /mnt/${WKG_DEV}/${QV}/.fsckme.flg
   ;;
  esac
 }
@@ -541,9 +541,10 @@ NEW_KB_HW_PROFILE="$(ls -1 -d /sys/class/input/*/*::capslock 2>/dev/null | cut -
 
 ###handle 1st or subsequent bootup###
 ALLOW_ASK_PW=''; PW=''
-if [ ! -d /mnt/${WKG_DEV}/${PATHDEF}/@data ];then
- #@data will be unencrypted subvolume...
- btrfs subvolume create /mnt/${WKG_DEV}/${PATHDEF}/@data
+#20240403 @data no longer exists...
+if [ ! -d /mnt/${WKG_DEV}/${WKG_DIR}@files ];then
+ ##@data will be unencrypted subvolume...
+ #btrfs subvolume create /mnt/${WKG_DEV}/${PATHDEF}/@data
  #@home and @files will be encrypted subvolumes...
  btrfs subvolume create /mnt/${WKG_DEV}/${PATHDEF}/@home
  #@files is at a higher level, is bind-mounted into whatever is the default snapshot...
@@ -583,47 +584,47 @@ if [ ! -d /mnt/${WKG_DEV}/${PATHDEF}/@data ];then
  cp -a /mnt/${WKG_DEV}/${QV}/home/* /mnt/${WKG_DEV}/${PATHDEF}/@home/
  rm -rf /mnt/${WKG_DEV}/${QV}/home
  mkdir /mnt/${WKG_DEV}/${QV}/home
- #note: /skeleton/data must not exist, see above test.
- mkdir /mnt/${WKG_DEV}/${PATHDEF}/@data/appimage
- mkdir /mnt/${WKG_DEV}/${PATHDEF}/@data/flatpak
- mkdir /mnt/${WKG_DEV}/${PATHDEF}/@data/woofQV
- mkdir /mnt/${WKG_DEV}/${PATHDEF}/@data/woofQV/converted-pkgs
- mkdir /mnt/${WKG_DEV}/${PATHDEF}/@data/woofQV/dl-pet
- mkdir /mnt/${WKG_DEV}/${PATHDEF}/@data/woofQV/dl-xbps
+ ##note: /skeleton/data must not exist, see above test.
+ #mkdir /mnt/${WKG_DEV}/${PATHDEF}/@data/appimage
+ #mkdir /mnt/${WKG_DEV}/${PATHDEF}/@data/flatpak
+ #mkdir /mnt/${WKG_DEV}/${PATHDEF}/@data/woofQV
+ #mkdir /mnt/${WKG_DEV}/${PATHDEF}/@data/woofQV/converted-pkgs
+ #mkdir /mnt/${WKG_DEV}/${PATHDEF}/@data/woofQV/dl-pet
+ #mkdir /mnt/${WKG_DEV}/${PATHDEF}/@data/woofQV/dl-xbps
 
- mkdir -p /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd
- echo "KEYMAP='${KEYMAP}'" > /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/CONFIG
- echo "ALLOW_ASK_PW='${ALLOW_ASK_PW}'" >> /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/CONFIG
- echo "KB_HW_PROFILE='${NEW_KB_HW_PROFILE}'" >> /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/CONFIG
- echo -n "${KEYMAP}" > /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/keymap.${NEW_KB_HW_PROFILE}
+ mkdir -p /mnt/${WKG_DEV}/${QV}/data/settings/initrd
+ echo "KEYMAP='${KEYMAP}'" > /mnt/${WKG_DEV}/${QV}/data/settings/initrd/CONFIG
+ echo "ALLOW_ASK_PW='${ALLOW_ASK_PW}'" >> /mnt/${WKG_DEV}/${QV}/data/settings/initrd/CONFIG
+ echo "KB_HW_PROFILE='${NEW_KB_HW_PROFILE}'" >> /mnt/${WKG_DEV}/${QV}/data/settings/initrd/CONFIG
+ echo -n "${KEYMAP}" > /mnt/${WKG_DEV}/${QV}/data/settings/initrd/keymap.${NEW_KB_HW_PROFILE}
 
  #make sure this has 700 perms...
  chmod 700 /mnt/${WKG_DEV}/${QV}/root
 else
  #subsequent bootups.
- fscryptctl get_policy /mnt/${WKG_DEV}/${PATHDEF}/@data >/dev/null 2>&1
+ fscryptctl get_policy /mnt/${WKG_DEV}/${WKG_DIR}@files >/dev/null 2>&1
  if [ $? -eq 0 ];then
   POLICYflg=''
  else
   POLICYflg='xxx'
  fi
  
- touch /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/CONFIG
- . /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/CONFIG #has KEYMAP, ALLOW_ASK_PW
+ touch /mnt/${WKG_DEV}/${QV}/data/settings/initrd/CONFIG
+ . /mnt/${WKG_DEV}/${QV}/data/settings/initrd/CONFIG #has KEYMAP, ALLOW_ASK_PW
  
  #keyboard hardware profiling...
- if [ ! -f /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/keymap.${NEW_KB_HW_PROFILE} ];then
+ if [ ! -f /mnt/${WKG_DEV}/${QV}/data/settings/initrd/keymap.${NEW_KB_HW_PROFILE} ];then
   ask_kb
-  echo -n "$KEYMAP" > /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/keymap.${NEW_KB_HW_PROFILE}
-  sed -i -e "s%^KEYMAP=.*%KEYMAP='${KEYMAP}'%" /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/CONFIG
-  sed -i -e "s%^KB_HW_PROFILE.*%KB_HW_PROFILE='${NEW_KB_HW_PROFILE}'%" /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/CONFIG
-  . /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/CONFIG
+  echo -n "$KEYMAP" > /mnt/${WKG_DEV}/${QV}/data/settings/initrd/keymap.${NEW_KB_HW_PROFILE}
+  sed -i -e "s%^KEYMAP=.*%KEYMAP='${KEYMAP}'%" /mnt/${WKG_DEV}/${QV}/data/settings/initrd/CONFIG
+  sed -i -e "s%^KB_HW_PROFILE.*%KB_HW_PROFILE='${NEW_KB_HW_PROFILE}'%" /mnt/${WKG_DEV}/${QV}/data/settings/initrd/CONFIG
+  . /mnt/${WKG_DEV}/${QV}/data/settings/initrd/CONFIG
  fi
  if [ "$KB_HW_PROFILE" != "$NEW_KB_HW_PROFILE" ];then
-  KEYMAP="$(cat /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/keymap.${NEW_KB_HW_PROFILE})"
-  sed -i -e "s%^KEYMAP=.*%KEYMAP='${KEYMAP}'%" /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/CONFIG
-  sed -i -e "s%^KB_HW_PROFILE.*%KB_HW_PROFILE='${NEW_KB_HW_PROFILE}'%" /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/CONFIG
-  . /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/CONFIG
+  KEYMAP="$(cat /mnt/${WKG_DEV}/${QV}/data/settings/initrd/keymap.${NEW_KB_HW_PROFILE})"
+  sed -i -e "s%^KEYMAP=.*%KEYMAP='${KEYMAP}'%" /mnt/${WKG_DEV}/${QV}/data/settings/initrd/CONFIG
+  sed -i -e "s%^KB_HW_PROFILE.*%KB_HW_PROFILE='${NEW_KB_HW_PROFILE}'%" /mnt/${WKG_DEV}/${QV}/data/settings/initrd/CONFIG
+  . /mnt/${WKG_DEV}/${QV}/data/settings/initrd/CONFIG
  fi
  [ "$KEYMAP" != "us" ] && gunzip -c /lib/keymaps/${KEYMAP}.gz | loadkmap
  
@@ -636,7 +637,7 @@ else
     PASSPHRASE="$(echo -n ${PW}xxxx | argon2 ${SALT} -l 32 -r)" #64 byte hash generated from password.
     echo -n "$PASSPHRASE" > /PASSPHRASE
     fscryptctl add_key /mnt/${WKG_DEV} < /PASSPHRASE > /FSKEYID
-    if [  -d /mnt/${WKG_DEV}/${PATHDEF}/@files/downloads ];then
+    if [  -d /mnt/${WKG_DEV}/${WKG_DIR}@files/downloads ];then
      break
     else
      FSKEYID="$(cat /FSKEYID)"
@@ -831,10 +832,10 @@ if [ "$QLANG" ];then
 fi
 
 #log stuff for debugging...
-mkdir -p /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/initrd-debug
-echo "$BLKIDS" > /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/initrd-debug/BLKIDS
-ls -l /dev > /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/initrd-debug/ls-dev
-cat /proc/fb > /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/initrd-debug/proc-fb
+mkdir -p /mnt/${WKG_DEV}/${QV}/data/settings/initrd/initrd-debug
+echo "$BLKIDS" > /mnt/${WKG_DEV}/${QV}/data/settings/initrd/initrd-debug/BLKIDS
+ls -l /dev > /mnt/${WKG_DEV}/${QV}/data/settings/initrd/initrd-debug/ls-dev
+cat /proc/fb > /mnt/${WKG_DEV}/${QV}/data/settings/initrd/initrd-debug/proc-fb
 
 ###hacks###
 #@qv has the official btrfs-progs, so overwrite with fscrypt-enabled progs...
@@ -850,7 +851,7 @@ fi
 #--remove-destination security precaution...
 cp -a -f --remove-destination /bin/capsh /mnt/${WKG_DEV}/${QV}/usr/bin/capsh.static
 
-echo -n '' > /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/hdparm-power-down
+echo -n '' > /mnt/${WKG_DEV}/${QV}/data/settings/initrd/hdparm-power-down
 if [ $LOCKDOWN -eq 1 ];then
  Pw=0
  SWP_DEV="$(echo -n "${BLKIDS}" | grep 'TYPE="swap"' | cut -f 1 -d ':' | cut -f 3 -d '/' | head -n 1)"
@@ -873,7 +874,7 @@ if [ $LOCKDOWN -eq 1 ];then
    if [ "${HDDflg}" == "1" ];then
     echo "${aDRV}" >> /HDDS
     if [ "${aDRV}" != "${WKG_DRV}" -a "${aDRV}" != "${SWP_DRV}" ];then
-     echo "${aDRV}" > /mnt/${WKG_DEV}/${PATHDEF}/@data/settings/initrd/hdparm-power-down
+     echo "${aDRV}" > /mnt/${WKG_DEV}/${QV}/data/settings/initrd/hdparm-power-down
      #ref: https://www.linux-magazine.com/Online/Features/Tune-Your-Hard-Disk-with-hdparm
      cttyhack /bin/hdparm -Y ${aDRV} >/dev/null 2>&1
      sleep 0.1
@@ -913,7 +914,7 @@ fi
 
 #mount these folders inside @qv (the rootfs after switch_root)...
 mkdir -p /newroot/data
-mount --bind /mnt/${WKG_DEV}/${PATHDEF}/@data /newroot/data
+#mount --bind /mnt/${WKG_DEV}/${PATHDEF}/@data /newroot/data
 mount --bind /mnt/${WKG_DEV}/${PATHDEF}/@home /newroot/home
 mount --bind /mnt/${WKG_DEV}/${WKG_DIR}@files /newroot/files
 
