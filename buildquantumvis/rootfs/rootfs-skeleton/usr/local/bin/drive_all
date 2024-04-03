@@ -69,18 +69,16 @@ if [ "$(whoami)" != "root" ];then exec sudo-sh ${PPID} ${0} ${@}; fi
 #$@ ex: usbdrv btrfs
 #see more passed params examples further down.
 
-#20240322 ex:
+#ex:
 ## mount | grep 'sdc2'
-#/dev/sdc2 on / type btrfs (rw,relatime,space_cache=v2,subvolid=256,subvol=/quantumvis/@qv)
-#/dev/sdc2 on /data type btrfs (rw,relatime,space_cache=v2,subvolid=5,subvol=/)
-#/dev/sdc2 on /home type btrfs (rw,relatime,space_cache=v2,subvolid=257,subvol=/quantumvis/@home)
+#/dev/sdc2 on / type btrfs (rw,relatime,space_cache=v2,subvolid=256,subvol=/quantumvis/1/@qv)
+#/dev/sdc2 on /home type btrfs (rw,relatime,space_cache=v2,subvolid=257,subvol=/quantumvis/1/@home)
 #/dev/sdc2 on /files type btrfs (rw,relatime,space_cache=v2,subvolid=258,subvol=/quantumvis/@files)
 ## df | grep 'sdc2'
 #/dev/sdc2        30027776    1323760  28150608   5% /
 #/dev/sdc2        30027776    1323760  28150608   5% /data
 #/dev/sdc2        30027776    1323760  28150608   5% /home
 #/dev/sdc2        30027776    1323760  28150608   5% /files
-
 
 CURPOS="`cat /tmp/desktop_drives_curpos`" #120110
 rm -f /tmp/desktop_drives_curpos #120110
