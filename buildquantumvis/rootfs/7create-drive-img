@@ -33,14 +33,14 @@ UUID2="$(uuidgen -r)" #ex: bf250e04-a570-488c-bc45-b6a1ded8f8a0
 #mkfs.btrfs -O quota -L QV2 --uuid ${UUID2} btrfs-file
 mkfs.btrfs -L QV2 --uuid ${UUID2} btrfs-file
 mkdir -p btrfs-mount
-#max compr here, but in initrd will mount with zstd:3
-busybox mount -o loop,compress-force=zstd:15,noatime -t btrfs btrfs-file btrfs-mount
+#max compr here, but in initrd will mount with zstd:3  20240405 change :15 to :3
+busybox mount -o loop,compress-force=zstd:3,noatime -t btrfs btrfs-file btrfs-mount
 mkdir -p btrfs-mount/quantumvis/1
 cp -a ../rootfs btrfs-mount/quantumvis/1/qv
 sync
 #free space in bytes...
 FREEB=$(btrfs filesystem usage -b btrfs-mount | grep 'Free (estimated):' | sed -e 's%[^0-9(]*%%g' | cut -f 2 -d '(')
-CUTB=$(dc -e"${FREEB} 0.99 * p" | cut -f 1 -d '.')
+CUTB=$(dc -e"${FREEB} 0.98 * p" | cut -f 1 -d '.')
 CUTK=$((${CUTB}/1024))
 CUTM=$((${CUTK}/1024))
 #btrfs filesystem resize -${CUTM}M btrfs-mount
@@ -191,8 +191,8 @@ sync
 sleep 2
 busybox umount img_mntpt2
 
-#max compr here, but in initrd will mount with zstd:3
-busybox mount -o offset=${OFF2},loop,compress-force=zstd:15,noatime,subvol=quantumvis/1/@qv -t btrfs ${SKELETON_NAME}.img img_mntpt2
+#max compr here, but in initrd will mount with zstd:3  20240405 change :15 to :3
+busybox mount -o offset=${OFF2},loop,compress-force=zstd:3,noatime,subvol=quantumvis/1/@qv -t btrfs ${SKELETON_NAME}.img img_mntpt2
 echo "Copying rootfs into img file..."
 cp -a ../rootfs/* img_mntpt2/
 sync
