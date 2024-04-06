@@ -53,7 +53,7 @@ export CDRECORD MKISOFS
 . /etc/rc.d/PUPSTATE #variables created at bootup
 . /etc/DISTRO_SPECS
 
-echo "${DISTRO_NAME} $(gettext 'is now shutting down...')" > /dev/console #120130
+echo "${DISTRO_NAME_SHORT} $(gettext 'is now shutting down...')" > /dev/console
 
 #100315 improper shutdown check. see /etc/rc.d/rc.sysinit, /init in initramfs, and /sbin/init...
 if [ -f /.fsckme.flg ];then #20220801

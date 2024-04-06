@@ -36,7 +36,7 @@
 #20240302 easyvoid: app to run non-root. 20240306 full path /usr/bin/xbps-install
 #20240307 cannot run non-root in container.
 #20240308 WKGFREEK is empty in a container.
-#20240318
+#20240318 20240405
 
 export TEXTDOMAIN=petget___installpreview.sh
 export OUTPUT_CHARSET=UTF-8
@@ -256,6 +256,9 @@ if [ $EVflg -eq 1 ];then #20240227
       [ -z "$aDT" ] && continue
       grep -q '^NoDisplay=true' ${aDT}
       if [ $? -ne 0 ];then
+       #20240405 vlc.desktop has "Exec=/usr/bin/vlc --started-from-file %U"
+       #somewhere else knocks off that %U, but also need to get rid of /usr/bin/...
+       sed -i -e 's|^Exec=/usr/bin/|Exec=|' ${aDT}
        EXEC="$(grep '^Exec=' ${aDT} | cut -f 2 -d '=' | cut -f 1 -d ' ' | head -n 1)"
        grep -q '/' <<<${EXEC}
        if [ $? -ne 0 ];then

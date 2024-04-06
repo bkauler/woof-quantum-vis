@@ -39,7 +39,7 @@ PKGCAT_Filesystem_storage=" gdmap "
 
 PKGCAT_Graphic_Sub=" agave aqsis aqsl aqsltell autoq3d autotrace blender calibrate_lens_gui cortina dfo djvusmooth eqsl evolvotron fontforge fontypython fracplanet frogr fyre g3dviewer gextractwinicons gliv gpe-screenshot gpick gpixpod grafx2 hugin javamorph k3d memaker mm3d pixelize ploader plotdrop posterazor postr ptbatchergui rgbpaint robocut sagcad screenie-qt structure-synth sunflow trimage veusz wings3d xaos xv "
 PKGCAT_Graphic_paint=" gimp gimp-help gnome-paint gthumb gthumb-import gwyddion krita lprof mtpaint mypaint nip2 pinta price qcomicbook qtpfsgui scantailor simple-image-reducer xpaint xsddiagram "
-PKGCAT_Graphic_draw=" cenon fontmatrix inkscape inkscapelite inkview latexdraw pencil qelectrotech tgif varicad xaralx xfig "
+PKGCAT_Graphic_draw=" cenon fontmatrix inkscape inkscapelite inkview latexdraw pencil qelectrotech solvespace tgif varicad xaralx xfig "
 PKGCAT_Graphic_flow=" dia dia-gnomeless "
 PKGCAT_Graphic_viewer=" apvlv camorama cbrpager djvulibre-djview4 eog feh flphoto flpsed font-manager font-sampler fotoxx geeqie-standard gimageview gnome-specimen gpe-gallery gpicview gqview gview lrfviewer meshlab mirage mupdf pdf-presenter-console piqsl preview ristretto viewnior "
 PKGCAT_Graphic_camera=" camera darktable fotoprint f-spot gphoto2 gtkam kornelix-fotoxx luciole lynkeos phatch phatch-inspector rapid-photo-downloader rawstudio rawtherapee shotwell shotwell-viewer ufraw "
