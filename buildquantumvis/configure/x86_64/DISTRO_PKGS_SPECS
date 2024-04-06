@@ -430,7 +430,27 @@ yes|hicolor-icon-theme|hicolor-icon-theme|exe,dev>null,doc>null|compat:current|
 yes|hostname|hostname|exe,dev,doc,nls|compat:kirkstone| #20240201
 yes|hotplug2stdout|hotplug2stdout|exe,dev>null,doc>null|compat:kirkstone|
 yes|htop|htop|exe,dev|compat:current|
-yes|hunspell|hunspell,libhunspell1.7,hunspell-da_DK,hunspell-de_DE,hunspell-el_GR,hunspell-en*,hunspell-es_ES,hunspell-fr_FR,hunspell-hr_HR,hunspell-it_IT,hunspell-nl_NL,hunspell-pl_PL,hunspell-pt*,hunspell-ro_RO,hunspell-ru_RU,hunspell-sl_SI,hunspell-sr_SR,hunspell-sv_SE|exe,doc>null|compat:current|
+no|hunspell|hunspell,libhunspell1.7,hunspell-da_DK,hunspell-de_DE,hunspell-el_GR,hunspell-en*,hunspell-es_ES,hunspell-fr_FR,hunspell-hr_HR,hunspell-it_IT,hunspell-nl_NL,hunspell-pl_PL,hunspell-pt*,hunspell-ro_RO,hunspell-ru_RU,hunspell-sl_SI,hunspell-sr_SR,hunspell-sv_SE|exe,doc>null|compat:current|
+yes|hunspell|hunspell|exe|compat:current| #20240406 dep libhunspell1.7
+yes|hunspell-da_DK|hunspell-da_DK|exe|compat:current| #20240406
+yes|hunspell-de_DE|hunspell-de_DE|exe|compat:current| #20240406
+yes|hunspell-el_GR|hunspell-el_GR|exe|compat:current| #20240406
+yes|hunspell-en_US|hunspell-en_US|exe|compat:current| #20240406
+yes|hunspell-en_GB|hunspell-en_GB|exe|compat:current| #20240406
+yes|hunspell-en_AU|hunspell-en_AU|exe|compat:current| #20240406
+yes|hunspell-es_ES|hunspell-es_ES|exe|compat:current| #20240406
+yes|hunspell-fr_FR|hunspell-fr_FR|exe|compat:current| #20240406
+yes|hunspell-hr_HR|hunspell-hr_HR|exe|compat:current| #20240406
+yes|hunspell-it_IT|hunspell-it_IT|exe|compat:current| #20240406
+yes|hunspell-nl_NL|hunspell-nl_NL|exe|compat:current| #20240406
+yes|hunspell-pl_PL|hunspell-pl_PL|exe|compat:current| #20240406
+yes|hunspell-pt_PT|hunspell-pt_PT|exe|compat:current| #20240406
+yes|hunspell-pt_BR|hunspell-pt_BR|exe|compat:current| #20240406
+yes|hunspell-ro_RO|hunspell-ro_RO|exe|compat:current| #20240406
+yes|hunspell-ru_RU|hunspell-ru_RU|exe|compat:current| #20240406
+yes|hunspell-sl_SI|hunspell-sl_SI|exe|compat:current| #20240406
+yes|hunspell-sr_SR|hunspell-sr_SR|exe|compat:current| #20240406
+yes|hunspell-sv_SE|hunspell-sv_SE|exe|compat:current| #20240406
 yes|hunspell-devel|hunspell-devel|dev|compat:current| #20240130
 no|hwclock-static|hwclock-static|exe|pet:void| #20240211 20240213  20240323 now copy from initrd.
 yes|hyphen|hyphen|exe,doc>null|compat:current| #20240112 libreoffice
@@ -1037,7 +1057,20 @@ yes|liburing-devel|liburing-devel|dev|compat:current| #20240130
 yes|mbedtls|mbedtls|exe,doc>null|compat:current| #20230917
 yes|mbedtls-devel|mbedtls-devel|dev|compat:current| #20240130
 yes|mdview|mdview|exe,dev>null,doc>null|compat:kirkstone|
-yes|mesa|mesa,mesa-vaapi,mesa-vdpau,mesa-vulkan-radeon,mesa-dri,mesa-ati-dri,mesa-intel-dri,mesa-nouveau-dri,libglvnd,glew,glu,lm_sensors,glxinfo|exe,doc>null|compat:current| #20230917
+no|mesa|mesa,mesa-vaapi,mesa-vdpau,mesa-vulkan-radeon,mesa-dri,mesa-ati-dri,mesa-intel-dri,mesa-nouveau-dri,libglvnd,glew,glu,lm_sensors,glxinfo|exe,doc>null|compat:current| #20230917
+yes|mesa|mesa|exe|compat:current| #20240406
+yes|mesa-vaapi|mesa-vaapi|exe|compat:current| #20240406
+yes|mesa-vdpau|mesa-vdpau|exe|compat:current| #20240406
+yes|mesa-vulkan-radeon|mesa-vulkan-radeon|exe|compat:current| #20240406
+yes|mesa-dri|mesa-dri|exe|compat:current| #20240406
+yes|mesa-ati-dri|mesa-ati-dri|exe|compat:current| #20240406
+yes|mesa-intel-dri|mesa-intel-dri|exe|compat:current| #20240406
+yes|mesa-nouveau-dri|mesa-nouveau-dri|exe|compat:current| #20240406
+yes|libglvnd|libglvnd|exe|compat:current| #20240406
+yes|glew|glew|exe|compat:current| #20240406
+yes|glu|glu|exe|compat:current| #20240406
+yes|lm_sensors|lm_sensors|exe|compat:current| #20240406
+yes|glxinfo|glxinfo|exe|compat:current| #20240406
 yes|libglvnd-devel|libglvnd-devel|dev|compat:current| #20240130
 yes|glew-devel|glew-devel|dev|compat:current| #20240130
 yes|mesa-dri|mesa-dri|exe,dev>exe,doc>null|compat:current| #20230917 .so symlinks were going into dev
@@ -1121,7 +1154,8 @@ yes|pa-applet|pa-applet|exe,dev,doc>null|compat:kirkstone|
 no|pam|pam,pam-libs|exe,doc>null|compat:current| #left out pam-base. 20240113 20240129 no
 no|pam-devel|pam-devel|dev|compat:current| #20240130
 yes|pam-libs|pam-libs|exe,doc>null|compat:current| #20240129
-yes|pango|pango,pango-xft|exe,doc>null|compat:current|
+yes|pango|pango|exe|compat:current|
+yes|pango-xft|pango-xft|exe|compat:current| #20240406
 yes|pango-devel|pango-devel|dev|compat:current| #20240130
 yes|pangomm|pangomm|exe,doc>null|compat:current|
 yes|pangomm-devel|pangomm-devel|dev|compat:current| #20240130
@@ -1135,7 +1169,7 @@ yes|pcdripper|pcdripper|exe|pet:noarch|
 yes|pciutils|pciutils|exe,doc>null|compat:current|
 yes|pciutils-devel|pciutils-devel|dev|compat:current| #20240130
 yes|pclock|pclock|exe|pet:noarch| #replaces ptimer, pstopwatch.
-yes|pcre|pcre,libpcre|exe,doc>null|compat:current|
+yes|pcre|pcre|exe|compat:current| #dep libpcre
 yes|pcre-devel|pcre-devel|dev|compat:current| #20240130
 yes|pcre2-devel|pcre2-devel|dev|compat:current| #20240130
 yes|pctorrent|pctorrent|exe|pet:noarch| #needs ctorrent.
@@ -1161,7 +1195,7 @@ yes|picscale|picscale|exe,dev>null,doc>null|compat:kirkstone|
 yes|pinentry|pinentry,pinentry-gtk|exe,doc>null|compat:current| #note there is no pinentry-devel
 yes|pixman|pixman|exe,doc>null|compat:current|
 yes|pixman-devel|pixman-devel|dev|compat:current| #20240130
-yes|pkgconfig|pkgconf,libpkgconf|dev,doc>null|compat:current|
+yes|pkgconfig|pkgconf|dev|compat:current| #dep libpkgconf
 yes|pkgconf-devel|pkgconf-devel|dev|compat:current| #20240130
 yes|pmcputemp|pmcputemp|exe,doc>null|pet:void| #new version 1.2. does the oe one not work
 yes|pmirror|pmirror|exe|pet:noarch
@@ -1170,7 +1204,9 @@ no|pmusic|pmusic|exe|pet:noarch| #20240223 use deadbeef instead
 yes|pngoverlay-cairo|pngoverlay-cairo|exe,dev>null|compat:kirkstone|
 yes|polkit|polkit|exe,doc>null|compat:current|
 no|polkit-devel|polkit-devel|dev|compat:current| #20240130
-yes|poppler|poppler,libpoppler,poppler-glib,poppler-cpp|exe,doc>null|compat:current|
+yes|poppler|poppler|exe|compat:current| #dep libpoppler
+yes|poppler-cpp|poppler-cpp|exe|compat:current| #20240406
+yes|poppler-glib|poppler-glib|exe|compat:current| #20240406
 yes|poppler-devel|poppler-devel|dev|compat:current| #20240130
 yes|poppler-cpp-devel|poppler-cpp-devel|dev|compat:current| #20240130
 yes|poppler-glib-devel|poppler-glib-devel|dev|compat:current| #20240118
@@ -1201,7 +1237,7 @@ yes|Pup-SysInfo|Pup-SysInfo|exe,doc>null|pet:noarch| #instead of hardinfo.
 yes|pup-tools|pup-tools|exe,dev>null,doc>null|compat:kirkstone|
 yes|pupx|pupx|exe|pet:noarch
 yes|pwsget|pwsget|exe|pet:noarch
-yes|python3|python3|dev,doc>null|compat:current|
+yes|python3|python3|exe|compat:current| #20240406
 yes|python3-devel|python3-devel|dev|compat:current| #20240118
 yes|python3-appdirs|python3-appdirs|exe,doc>null|compat:current| #20240115d inkscape
 yes|python3-asn1crypto|python3-asn1crypto|dev,doc>null|compat:current|
@@ -1236,13 +1272,13 @@ yes|python3-requests|python3-requests|exe,doc>null|compat:current| #symphytum wa
 yes|python3-scour|python3-scour|exe,doc>null|compat:current| #20240115d inkscape
 yes|python3-setuptools|python3-setuptools|exe,doc>null|compat:current| #remove exe>dev, symphytum wants.
 yes|python3-six|python3-six|exe,doc>null|compat:current| #pitivi needs this.
-yes|python3-tiny|python3|exe,dev>null,doc>null|compat:current|
+no|python3-tiny|python3|exe,dev>null,doc>null|compat:current| #20240406 removed.
 yes|python3-urllib3|python3-urllib3|exe,doc>null|compat:current| #20230917
 yes|qpdf|qpdf,libqpdf|exe,doc>null|compat:current|
 yes|libqpdf-devel|libqpdf-devel|dev|compat:current| #20240130
 yes|rdesktop|rdesktop,libsamplerate,libpcsclite|exe,doc>null|compat:current|
 yes|libsamplerate-devel|libsamplerate-devel|dev|compat:current| #20240130
-yes|readline|readline,libreadline8,libhistory8|exe,doc>null|compat:current|
+yes|readline|readline|exe|compat:current| #20240406 deps libreadline8 libhistory8
 yes|readline-devel|readline-devel|dev|compat:current| #20240130
 yes|redshift|redshift|exe,dev,doc>null|compat:kirkstone|
 yes|refind|refind|exe,dev,doc>null|compat:kirkstone|
@@ -1258,7 +1294,9 @@ yes|rsync|rsync|exe,doc>null|compat:current| #20240119
 yes|rubix|rubix|exe,dev>null,doc>null|compat:kirkstone|
 yes|rxvt-unicode|rxvt-unicode|exe,dev>null,doc>null|compat:kirkstone|
 yes|sakura|sakura|exe,dev,doc>null|compat:kirkstone|
-yes|samba|samba,samba-libs,samba-cups,smbclient|exe,doc>null|compat:current|
+yes|samba|samba|exe|compat:current|
+yes|samba-cups|samba-cups|exe|compat:current| #20240406
+yes|samba-libs|samba-libs|exe|compat:current| #20240406
 yes|samba-devel|samba-devel|dev|compat:current| #20240130
 yes|sane|sane|exe,doc>null|compat:current| #20240112 libreoffice
 yes|sane-devel|sane-devel|dev|compat:current| #20240118
@@ -1278,7 +1316,7 @@ yes|sdl-sound|SDL_sound|exe,doc>null|compat:current|
 yes|SDL_sound-devel|SDL_sound-devel|dev|compat:current| #20240130
 yes|sdl-ttf|SDL_ttf|exe,doc>null|compat:current|
 yes|SDL_ttf-devel|SDL_ttf-devel|dev|compat:current| #20240130
-yes|sed|sed|exe,dev>null,doc>null|compat:current|
+yes|sed|sed|exe|compat:current|
 yes|serf|serf,serf-devel|dev,doc>null|compat:current|
 yes|sessreg|sessreg|exe,doc>null|compat:current| #20240129
 yes|setcolortemperature|setcolortemperature|exe,dev,doc>null|compat:kirkstone|
@@ -1291,6 +1329,7 @@ yes|simple-mtpfs|simple-mtpfs|exe|pet:void| #new. used by pupmtp builtin to woof
 yes|simple_xcursor_creator|simple_xcursor_creator|exe|pet:noarch|
 yes|slang|slang|exe,doc>null|compat:current| #20230915 dep of NetworkManager
 yes|slang-devel|slang-devel|dev|compat:current| #20240130
+yes|smbclient|smbclient|exe|compat:current| #20240406
 yes|smbnetfs|smbnetfs|exe,dev,doc>null|compat:kirkstone|
 yes|smproxy|smproxy|exe,doc>null|compat:current| #20240129
 yes|solvespace|solvespace|exe,doc>null|compat:current| #20240115b solvespace
