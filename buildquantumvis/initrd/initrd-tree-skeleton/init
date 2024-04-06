@@ -1,6 +1,6 @@
 #!/bin/sh
 #(c) Copyright Barry Kauler, 2024. Licence: GPL v3 (/usr/share/doc/legal).
-#simple script in initramfs to boot Quirky Linux.
+#simple script in initramfs to boot QV.
 
 #text colors: 34=blue, 33=yellow, 32=green, 31=red, 35=purple, 36=aquablue, 38=black
 #background colors: 40=black 41=red 42=green 43=yellow 44=blue 45=magenta 46=cyan 47=white
@@ -375,7 +375,7 @@ fi
 SALT="aprilandvincent" #for folder encryption.
 
 loadfont < /lib/consolefonts/zap-ext-vga16.psfu #20230522
-echo -n -e "\\033[1;32mQuirky Void\\033[0;39m\n" #bright green
+echo -n -e "\\033[1;32mQV\\033[0;39m\n" #bright green
 echo
 
 ###find drives###
