@@ -1,5 +1,0 @@
-
-mv -f usr/bin/tar /tmp/woofQV/tar
-rm -rf ./*
-mkdir -p usr/bin
-mv -f /tmp/woofQV/tar usr/bin/tar

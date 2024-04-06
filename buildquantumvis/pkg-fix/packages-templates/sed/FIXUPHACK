@@ -1,5 +1,0 @@
-
-mv -f usr/bin/sed /tmp/woofQV/
-rm -rf ./*
-mkdir -p usr/bin
-mv -f /tmp/woofQV/sed usr/bin/sed

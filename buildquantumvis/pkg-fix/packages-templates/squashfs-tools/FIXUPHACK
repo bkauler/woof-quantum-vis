@@ -1,8 +1,0 @@
-
-mv -f usr/bin/mksquashfs /tmp/woofQV/mksquashfs
-mv -f usr/bin/unsquashfs /tmp/woofQV/unsquashfs
-rm -rf ./*
-mkdir -p usr/bin
-mv -f /tmp/woofQV/mksquashfs usr/bin/mksquashfs
-mv -f /tmp/woofQV/unsquashfs usr/bin/unsquashfs
-
