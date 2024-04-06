@@ -1,3 +1,4 @@
+#!/bin/sh
 
 #it may have both...
 if [ -f ./usr/share/usb.ids.gz ];then

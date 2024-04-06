@@ -1,8 +1,4 @@
-
-#190901
-if [ -f usr/bin/mpv ];then
- if [ -f usr/share/applications/mpv.desktop ];then
-  echo '[Desktop Entry]
+[Desktop Entry]
 Type=Application
 Name[af]=MPV multimedia speler
 Name[am]=MPV መልቲሚዲያ ማጫወቻ
@@ -27,20 +23,20 @@ Name[dv]=އްރެޔަލޭޕް އާޑިމީޓިލްމަ ވީޕީމްއެ
 Name[ee]=MPV multimedia ƒomɔ̃
 Name[el]=MPV multimedia player
 Name[eo]=MPV plurmedia ludilo
-Name[es]=MPV reproductor multimedia
+Name[es]=MPV: reproductor multimedia
 Name[et]=MPV multimeediumipleier
 Name[eu]=MPV multimedia erreproduzitzailea
 Name[fa]=MPV ﯼﺍ ﻪﻧﺎﺳﺭ ﺪﻨﭼ ﻩﺪﻨﻨﮐ ﺶﺨﭘ
 Name[fi]=MPV multimediasoitin
 Name[fj]=Misini ni multimedia MPV
 Name[fo]=MPV multimedia player
-Name[fr]=Lecteur multimédia monospace
+Name[fr]=Lecteur multimédia : MPV
 Name[fy]=MPV multimediaspieler
 Name[ga]=Imreoir ilmheán MPV
 Name[gd]=Cluicheadair ioma-mheadhain MPV
 Name[gl]=reprodutor multimedia MPV
 Name[gn]=MPV reproductor multimedia rehegua
-Name[gu]=MPV મલ્ટીમીડિયા પ્લેયર
+Name[gu]=એમપીવી મલ્ટીમીડિયા પ્લેયર
 Name[ha]=MPV multimedia player
 Name[he]=MPV הידמיטלומ ןגנ
 Name[hi]=एमपीवी मल्टीमीडिया प्लेयर
@@ -81,6 +77,7 @@ Name[my]=MPV မာလ်တီမီဒီယာပလေယာ
 Name[ne]=MPV मल्टिमिडिया प्लेयर
 Name[nl]=MPV-multimediaspeler
 Name[no]=MPV multimediaspiller
+Name[ny]=MPV multimedia player
 Name[om]=Taphattuu maltimidiyaa MPV
 Name[or]=MPV ମଲ୍ଟିମିଡ଼ିଆ ପ୍ଲେୟାର |
 Name[pa]=MPV ਮਲਟੀਮੀਡੀਆ ਪਲੇਅਰ
@@ -147,7 +144,7 @@ Comment[co]=Ghjucà filmi è canzoni
 Comment[cs]=Přehrávejte filmy a písničky
 Comment[cy]=Chwarae ffilmiau a chaneuon
 Comment[da]=Afspil film og sange
-Comment[de]=Spielen Sie Filme und Lieder ab
+Comment[de]=Filme und Songs abspielen
 Comment[dv]=ންޅެކު އްތަވަލަ އިކާތަމުލްފި
 Comment[ee]=Ƒo sinimawo kple hadzidziwo
 Comment[el]=Παίξτε ταινίες και τραγούδια
@@ -159,7 +156,7 @@ Comment[fa]=ﮓﻨﻫﺁ ﻭ ﻢﻠﯿﻓ ﺶﺨﭘ
 Comment[fi]=Toista elokuvia ja kappaleita
 Comment[fj]=Vakatagitaka na iyaloyalo kei na sere
 Comment[fo]=Spæl/Spælið filmar og sangir.
-Comment[fr]=Lire des films et des chansons
+Comment[fr]=Lecteur de fichiers audio et vidéo
 Comment[fy]=Spielje films en ferskes
 Comment[ga]=Seinn scannáin agus amhráin
 Comment[gd]=Cluich ceòl agus filmichean
@@ -206,6 +203,7 @@ Comment[my]=ရုပ်ရှင်များနှင့် သီချင�
 Comment[ne]=चलचित्र र गीतहरू प्ले गर्नुहोस्
 Comment[nl]=Speel films en liedjes af
 Comment[no]=Spill filmer og sanger
+Comment[ny]=Sewerani mafilimu ndi nyimbo
 Comment[om]=Fiilmii fi sirboota taphachiisi
 Comment[or]=ଚଳଚ୍ଚିତ୍ର ଏବଂ ଗୀତ ଚଲାନ୍ତୁ |
 Comment[pa]=ਫਿਲਮਾਂ ਅਤੇ ਗੀਤ ਚਲਾਓ
@@ -214,7 +212,7 @@ Comment[ps]=ﻝﻭږﻏ ﯤﺭﺪﻨﺳ ﻭﺍ ﻪﻧﻮﻤﻠﻓ
 Comment[pt]=Reproduzir filmes e músicas
 Comment[qu]=Películakunata hinaspa takikunata tocay
 Comment[ro]=Redați filme și cântece
-Comment[ru]=Воспроизведение фильмов и песен
+Comment[ru]=Мультимедийный проигрыватель MPV
 Comment[rw]=Kina firime nindirimbo
 Comment[sa]=चलचित्रं गीतं च वादयन्तु
 Comment[sd]=ﻮﻳڏﻴﮐ ﺎﻧﺎﮔ ۽ ﻥﻮﻤﻠﻓ
@@ -260,20 +258,4 @@ Categories=X-Multimedia-mediaplayer
 MimeType=application/ogg;application/x-ogg;application/mxf;application/sdp;application/smil;application/x-smil;application/streamingmedia;application/x-streamingmedia;application/vnd.rn-realmedia;application/vnd.rn-realmedia-vbr;audio/aac;audio/x-aac;audio/vnd.dolby.heaac.1;audio/vnd.dolby.heaac.2;audio/aiff;audio/x-aiff;audio/m4a;audio/x-m4a;application/x-extension-m4a;audio/mp1;audio/x-mp1;audio/mp2;audio/x-mp2;audio/mp3;audio/x-mp3;audio/mpeg;audio/mpeg2;audio/mpeg3;audio/mpegurl;audio/x-mpegurl;audio/mpg;audio/x-mpg;audio/rn-mpeg;audio/musepack;audio/x-musepack;audio/ogg;audio/scpls;audio/x-scpls;audio/vnd.rn-realaudio;audio/wav;audio/x-pn-wav;audio/x-pn-windows-pcm;audio/x-realaudio;audio/x-pn-realaudio;audio/x-ms-wma;audio/x-pls;audio/x-wav;video/mpeg;video/x-mpeg2;video/x-mpeg3;video/mp4v-es;video/x-m4v;video/mp4;application/x-extension-mp4;video/divx;video/vnd.divx;video/msvideo;video/x-msvideo;video/ogg;video/quicktime;video/vnd.rn-realvideo;video/x-ms-afs;video/x-ms-asf;audio/x-ms-asf;application/vnd.ms-asf;video/x-ms-wmv;video/x-ms-wmx;video/x-ms-wvxvideo;video/x-avi;video/avi;video/x-flic;video/fli;video/x-flc;video/flv;video/x-flv;video/x-theora;video/x-theora+ogg;video/x-matroska;video/mkv;audio/x-matroska;application/x-matroska;video/webm;audio/webm;audio/vorbis;audio/x-vorbis;audio/x-vorbis+ogg;video/x-ogm;video/x-ogm+ogg;application/x-ogm;application/x-ogm-audio;application/x-ogm-video;application/x-shorten;audio/x-shorten;audio/x-ape;audio/x-wavpack;audio/x-tta;audio/AMR;audio/ac3;audio/eac3;audio/amr-wb;video/mp2t;audio/flac;audio/mp4;application/x-mpegurl;video/vnd.mpegurl;application/vnd.apple.mpegurl;audio/x-pn-au;video/3gp;video/3gpp;video/3gpp2;audio/3gpp;audio/3gpp2;video/dv;audio/dv;audio/opus;audio/vnd.dts;audio/vnd.dts.hd;audio/x-adpcm;application/x-cue;audio/m3u;
 X-KDE-Protocols=ftp,http,https,mms,rtmp,rtsp,sftp,smb
 Keywords=mpv;media;player;video;audio;tv;
-' > usr/share/applications/mpv.desktop
- fi
-fi
 
-#190901
-mkdir -p usr/share/pixmaps
-if [ -f usr/share/icons/hicolor/32x32/apps/mpv.png ];then
- ln -snf  ../icons/hicolor/32x32/apps/mpv.png usr/share/pixmaps/mpv.png
-fi
-
-#20220831 change from root/.config/mpv to etc/mpv
-#20210610 default conf files. ref: https://wiki.archlinux.org/title/mpv#Configuration
-mkdir -p etc/mpv
-cp -a -f usr/share/doc/mpv/*.conf etc/mpv/
-echo '' >> etc/mpv/mpv.conf
-echo 'sub-auto=fuzzy' >> etc/mpv/mpv.conf
-echo 'sub-bold=yes' >> etc/mpv/mpv.conf

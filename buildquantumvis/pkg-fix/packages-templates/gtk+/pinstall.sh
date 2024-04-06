@@ -1,3 +1,4 @@
+#!/bin/sh
 
 #140128 quirky tahr, .so files now all in devx, but bacon needs some...
 #welcome1stboot needs libgtk-x11-2.0.so

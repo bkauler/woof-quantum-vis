@@ -1,8 +1,4 @@
-echo 'FIXUPHACK: solvespace' 1>&2 #for error log.
-
-mkdir -p usr/share/applications
-
-echo '[Desktop Entry]
+[Desktop Entry]
 Version=1.0
 Name[af]=SolveSpace parametriese 3D CAD
 Name[am]=SolveSpace ፓራሜትሪክ 3D CAD
@@ -27,14 +23,14 @@ Name[dv]=ވެއެ ޑީއޭސީ ޑީ3 ކްރިޓްމެރަޕެ ސްޕޭސްވްލ
 Name[ee]=SolveSpace ƒe nɔnɔmetata 3D CAD
 Name[el]=SolveSpace παραμετρικό 3D CAD
 Name[eo]=SolveSpace parametrika 3D CAD
-Name[es]=SolveSpace paramétrico 3D CAD
+Name[es]=SolveSpace: CAD 2D/3D paramétrico
 Name[et]=SolveSpace parameetriline 3D CAD
 Name[eu]=SolveSpace 3D CAD parametrikoa
 Name[fa]=SolveSpace 3 ﯼﺮﺘﻣﺍﺭﺎﭘD CAD
 Name[fi]=SolveSpace parametrinen 3D CAD
 Name[fj]=SolveSpace parametric 3D CAD
 Name[fo]=SolveSpace parametric 3D CAD
-Name[fr]=CAO 3D paramétrique SolveSpace
+Name[fr]=Dessins 2D/3D : SolveSpace
 Name[fy]=SolveSpace parametryske 3D CAD
 Name[ga]=SolveSpace paraiméadrach 3D CAD
 Name[gd]=SolveSpace parametric 3D CAD
@@ -42,7 +38,7 @@ Name[gl]=CAD 3D paramétrico SolveSpace
 Name[gn]=SolveSpace paramétrico CAD 3D rehegua
 Name[gu]=સોલ્વસ્પેસ પેરામેટ્રિક 3D CAD
 Name[ha]=SolveSpace parametric 3D CAD
-Name[he]=SolveSpace 3 ירטמרפD CAD
+Name[he]=3D CAD לש ירטמרפ SolveSpace
 Name[hi]=सॉल्वस्पेस पैरामीट्रिक 3डी सीएडी
 Name[hr]=Parametarski 3D CAD SolveSpace
 Name[ht]=SolveSpace parametrik 3D CAD
@@ -81,6 +77,7 @@ Name[my]=SolveSpace parametric 3D CAD
 Name[ne]=SolveSpace प्यारामेट्रिक 3D CAD
 Name[nl]=SolveSpace parametrische 3D CAD
 Name[no]=SolveSpace parametrisk 3D CAD
+Name[ny]=SolveSpace parametric 3D CAD
 Name[om]=SolveSpace paarameetrikii 3D CAD
 Name[or]=SolveSpace ପାରାମେଟ୍ରିକ୍ 3D CAD |
 Name[pa]=SolveSpace ਪੈਰਾਮੀਟ੍ਰਿਕ 3D CAD
@@ -151,7 +148,7 @@ Comment[dv]=ވެކެއެޑީއޭސީ ޑީ3/ޑީ2 ކްރިޓްމެރެޕެ
 Comment[ee]=A parametric 2d/3d CAD
 Comment[el]=Ένα παραμετρικό 2d/3d CAD
 Comment[eo]=Parametra 2d/3d CAD
-Comment[es]=Un CAD paramétrico 2d/3d
+Comment[es]=SolveSpace: CAD 2D/3D paramétrico
 Comment[et]=Parameetriline 2d/3d CAD
 Comment[eu]=2d/3d CAD parametriko bat
 Comment[fa]=2d/3d ﮏﯾﺮﺘﻣﺍﺭﺎﭘ CAD ﮏﯾ
@@ -205,6 +202,7 @@ Comment[my]=parametric 2d/3d CAD တစ်ခု
 Comment[ne]=एक प्यारामेट्रिक 2d/3d CAD
 Comment[nl]=Een parametrische 2D/3D CAD
 Comment[no]=En parametrisk 2d/3d CAD
+Comment[ny]=A parametric 2d/3d CAD
 Comment[om]=CAD 2d/3d paarameetrikii ta’e
 Comment[or]=ଏକ ପାରାମିଟ୍ରିକ୍ 2d / 3d CAD |
 Comment[pa]=ਇੱਕ ਪੈਰਾਮੀਟ੍ਰਿਕ 2d/3d CAD
@@ -257,32 +255,4 @@ MimeType=application/x-solvespace
 Icon=solvespace.png
 Type=Application
 Categories=X-Graphic-draw
-Keywords=parametric;cad;2d;3d;' > usr/share/applications/solvespace.desktop
-
-#20210422 dunfell oe has this. it is ok, but using my own...
-if [ -f usr/share/mime/packages/solvespace-slvs.xml ];then
- rm -f usr/share/mime/packages/solvespace-slvs.xml
-fi
-
-#191228 this file is wrong in buster deb...
-mkdir -p usr/share/mime/packages
-echo '<?xml version="1.0" encoding="UTF-8"?>
-<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
-
-  <mime-type type="application/x-solvespace">
-    <comment>SolveSpace file</comment>
-    <glob pattern="*.slvs"/>
-  </mime-type>
-  
-</mime-info>' > usr/share/mime/packages/solvespace.xml
-
-#20210422 have compiled in dunfell oe
-if [ -f usr/bin/solvespace-cli ];then
- rm -f usr/bin/solvespace-cli
-fi
-
-#20210422 have compiled in dunfell oe
-if [ ! -e usr/share/pixmaps/solvespace.png ];then
- ln -s ../icons/hicolor/16x16/apps/solvespace.png solvespace.png
-fi
-
+Keywords=parametric;cad;2d;3d;

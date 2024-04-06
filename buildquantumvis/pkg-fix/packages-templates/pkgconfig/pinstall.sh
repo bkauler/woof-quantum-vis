@@ -1,5 +1,4 @@
-#131210 the official script doesn't work right.
-#150928
+#!/bin/sh
 
 mkdir -p etc/profile.d
 mkdir -p usr/share/pkgconfig

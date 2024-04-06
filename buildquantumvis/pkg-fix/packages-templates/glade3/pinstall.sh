@@ -1,3 +1,4 @@
+#!/bin/sh
 
 #120410 added, but not sure if we need this...
 if [ ! -e usr/share/pixmaps/glade-3.png ];then
