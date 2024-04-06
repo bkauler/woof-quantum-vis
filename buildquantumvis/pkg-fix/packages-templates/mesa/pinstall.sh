@@ -48,3 +48,9 @@ if [ "${PREFIX}dri" != "usr/lib/dri" ];then
   ln -s --relative ${PREFIX}dri usr/lib/dri
  fi
 fi
+
+#20240113 easyvoid
+#as far as i know, only wine uses direct3d. the lib is 26MB
+if [ -d usr/lib/d3d ];then
+ rm -rf usr/lib/d3d
+fi

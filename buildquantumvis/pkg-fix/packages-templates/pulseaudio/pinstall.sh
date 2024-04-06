@@ -2,9 +2,6 @@
 
 echo 'pulseaudio template'
 
-#20201020
-#/etc/init.d/bluealsa is in woofq/rootfs-skeleton
-#make sure it is not executable... well, why not remove it...
-if [ -e etc/init.d/bluealsa ];then
- rm -f etc/init.d/bluealsa
-fi
+#20240405 don't really need to do this...
+rm -f etc/xdg/autostart/pulseaudio.desktop 2>/dev/null
+

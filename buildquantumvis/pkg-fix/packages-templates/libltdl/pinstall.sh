@@ -3,5 +3,5 @@
 LIBLTDL="`find usr/lib -maxdepth 1 -type f -name libltdl.so.* | head -n 1`"
 if [ "$LIBLTDL" ];then
  BASELTDL="`basename $LIBLTDL`"
- ln -s $BASELTDL usr/lib/libltdl.so.3 2>/dev/null
+ ln -snf $BASELTDL usr/lib/libltdl.so.3 2>/dev/null
 fi

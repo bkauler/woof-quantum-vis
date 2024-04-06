@@ -62,3 +62,40 @@ if [ "$FFver" ];then
  sed -i '/mstone/d' root/.mozilla/firefox/9nma1n9v.default-release/prefs.js
  echo "user_pref(\"browser.startup.homepage_override.mstone\", \"${FFver}\");" >> root/.mozilla/firefox/9nma1n9v.default-release/prefs.js
 fi
+
+#20240406
+if [ -d usr/share/idl ];then
+ rm -rf usr/share/idl
+fi
+
+#170427 yocto pyro, poppler wants this...
+[ -f usr/lib/firefox/libmozsqlite3.so ] && ln -s firefox/libmozsqlite3.so usr/lib/libmozsqlite3.so
+
+#170511 oe build
+if [ -f usr/share/applications/mozilla-firefox.desktop ];then
+ rm -f usr/share/applications/mozilla-firefox.desktop
+fi
+
+#20230310 debian bookworm
+if [ -f usr/share/applications/firefox-esr.desktop ];then
+ rm -f usr/share/applications/firefox-esr.desktop
+fi
+
+#20231105
+#ref: https://github.com/OldManYellsAtCloud/meta-browser/issues/50
+if [ -f usr/lib/firefox/defaults/pref/vendor.js ];then
+ sed -i '/autoDisableScopes/d' usr/lib/firefox/defaults/pref/vendor.js
+fi
+
+#20231219 updating within ff is broken, bring this back, so user cannot override:
+mkdir -p usr/lib/firefox/distribution
+echo '{
+	"policies":
+	{
+		"DisableAppUpdate":true,
+		"DontCheckDefaultBrowser":true
+	}
+}
+' > usr/lib/firefox/distribution/policies.json
+
+

@@ -5,8 +5,8 @@
  if [ "$FNDMNG2" ];then
   DIRMNG="$(dirname $FNDMNG2)"
   BASEMNG="$(basename $FNDMNG2)"
-  ln -s $BASEMNG ${DIRMNG}/libmng.so.1 2>/dev/null
-  ln -s $BASEMNG ${DIRMNG}/libmng.so.2 2>/dev/null
+  ln -snf $BASEMNG ${DIRMNG}/libmng.so.1 2>/dev/null
+  ln -snf $BASEMNG ${DIRMNG}/libmng.so.2 2>/dev/null
  fi
 
 
