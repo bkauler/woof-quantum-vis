@@ -1,7 +1,7 @@
 #One or more words that identify this distribution:
-DISTRO_NAME='Quirky Void'
+DISTRO_NAME='Quantum Vis'
 #20230304 ...keep for compatibility existing scripts, add these...
-DISTRO_NAME_LONG='Quirky Void'
+DISTRO_NAME_LONG='Quantum Vis'
 DISTRO_NAME_NORMAL='QV'
 DISTRO_NAME_SHORT='QV'
 #version number of this distribution:
