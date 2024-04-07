@@ -21,7 +21,6 @@
 #200804 fix /.fsckme.flg
 #200820 unmount securityfs.
 #20210525 easysave.ext4 is not a stray-mounted.
-#20220524 rename mnt/easy_ro to mnt/.easy_ro, ditto easy_rw ref: easy-remaster, easy-containers, init
 #20220524 attempt kill anything using /files
 #20220531 fix automatic save at shutdown.
 #20220801 move /.fsckme.flg to /

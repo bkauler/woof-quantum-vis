@@ -9,9 +9,10 @@
 #110803 workaround for 'pngoverlay' needs X runnning, also avoid cpu overhead at first startup.
 #110826 do not need 110803 workaround. rc.update no longer calls this script. (in fact, this script is not being used at all)
 #110912 modify jwm to use menu icon 'start-button.png' if present.
-#20210409 now have pngoverlay-cairo, created by 01micko (dunfell series: compiled in oe). see also: easy-containers, icon_switcher, 3buildeasydistro, dir2sfs
+#20210409 now have pngoverlay-cairo, created by 01micko
 #20220414 also switch the builtin containers "www", "console", "dunfell".
 #20220416 icon pets now have easy48.png, changed from logo48.png
+#20240407 qv no containers.
 
 . /etc/rc.d/PUPSTATE #110803
 #110826 no longer needed...
@@ -80,25 +81,6 @@ else #old code...
   rm -f /usr/local/lib/X11/pixmaps/pngoverlay
  fi
 fi
-
-#20220414 also switch builtin container icons...
-#20220416 remove "${aCONT/easy/logo}48.png" as icon pets now have easy48.png...
-cd /usr/local/lib/X11/pixmaps
-for aCONT in www console easy
-do
- #if [ -f /usr/local/lib/X11/pixmaps/ec-${aCONT}48.png ];then
-  if [ -f /usr/local/lib/X11/pixmaps/${aCONT}48.png ];then
-   rm -f /usr/local/lib/X11/pixmaps/ec-${aCONT}48.png 2>/dev/null
-   if [ "$PNGOVERLAYEXE" ];then
-    ${PNGOVERLAYEXE} ${aCONT}48.png ec-overlay48.png ec-${aCONT}48.png
-   else
-    cp -f /usr/sbin/pngoverlay /usr/local/lib/X11/pixmaps/
-    ./pngoverlay ${aCONT}48.png ec-overlay48.png ec-${aCONT}48.png
-    rm -f /usr/local/lib/X11/pixmaps/pngoverlay
-   fi
-  fi
- #fi
-done
 
 #110912 modify jwm to use menu icon 'start-button.png' if present...
 #note, similar code also in 3builddistro in Woof.

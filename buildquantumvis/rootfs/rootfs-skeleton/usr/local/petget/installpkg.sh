@@ -223,11 +223,7 @@ SIZEB=`stat --format=%s ${DLPKG_PATH}/${DLPKG_BASE}`
 SIZEK=`expr $SIZEB \/ 1024`
 EXPK=`expr $SIZEK \* 4` #estimated worst-case expanded size. 170629 change 5 to 4.
 NEEDK=$EXPK #140208 need this much free space in f.s.
-if [ "$ecTMPK" ];then #180624 see /usr/local/easy_containers/ec-chroot-admin
- TMPK="$ecTMPK"
-else
- TMPK=`df -k /tmp | grep '^tmpfs' | tr -s ' ' | cut -f 4 -d ' '` #free space in /tmp
-fi
+TMPK=`df -k /tmp | grep '^tmpfs' | tr -s ' ' | cut -f 4 -d ' '` #free space in /tmp
 [ ! $TMPK ] && TMPK=$EXPK #151115 hack, livecd/frugal do not mount /tmp with tmpfs.
 if [ $EXPK -gt $TMPK ];then
  #140103 remove question, seems not needed...

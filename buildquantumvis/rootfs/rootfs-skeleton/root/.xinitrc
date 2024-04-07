@@ -22,6 +22,7 @@
 #20220526 support EOS_SUPPORT_CONTAINERS==0
 #20230602 toggle touchpad on/off
 #20230720 default.jpg/.png mismatch.
+#20240407 qv no containers.
 
 . /etc/rc.d/PUPSTATE #20220526 has EOS_SUPPORT_CONTAINERS
 
@@ -121,10 +122,6 @@ fi
 #  sed -i -e "$iPTN" /root/Choices/ROX-Filer/PuppyPin
 # fi
 #fi
-
-#180409 easyos, check containerized-apps still on desktop...
-#note, created in /usr/local/easy_containers/easy-containers, but session-wipe may remove desktop icons.
-[ -x /usr/local/easy_containers/ec-fix-desktop ] && /usr/local/easy_containers/ec-fix-desktop
 
 userresources=$HOME/.Xresources
 usermodmap=$HOME/.Xmodmap

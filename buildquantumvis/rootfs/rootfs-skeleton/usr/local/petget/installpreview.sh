@@ -24,7 +24,6 @@
 #151116 16 deps is too high, reduce DEP_CNT max to 14. so, 14x30 = 420
 #170715 linuxcbon: /root/Startup/freememapplet_tray used to write to /tmp/pup_event_sizefreem, but no more.
 #170815 now PKGget. 170823 indexgen.sh no longer used.
-#180619 df might not work in a container, so ec-chroot-admin exports ecSIZEFREEM
 #181122 q*.sfs renamed to easy*.sfs
 #190219 bug fix.
 #200405 no deps, add button to download only.
@@ -422,14 +421,7 @@ DB_description="`echo -n "$DB_ENTRY" | cut -f 10 -d '|'`"
 
 [ "$DB_description" = "" ] && DB_description="$(gettext 'no description available')"
 
-#180619 df might not work in a container, so ec-chroot-admin exports ecSIZEFREEM...
-#170715 /root/Startup/freememapplet_tray used to write to this file, but no more...
-#SIZEFREEM=`cat /tmp/pup_event_sizefreem | head -n 1` #100821 bug in Lucid 5.1, file had two identical lines.
-if [ "$ecSIZEFREEM" ];then #190219 bug fix.
- SIZEFREEM="$ecSIZEFREEM"
-else
- SIZEFREEM=`df -m | grep ' /$' | tr -s ' ' | cut -f 4 -d ' '`
-fi
+SIZEFREEM=`df -m | grep ' /$' | tr -s ' ' | cut -f 4 -d ' '`
 
 SIZEFREEK=`expr $SIZEFREEM \* 1024`
 
