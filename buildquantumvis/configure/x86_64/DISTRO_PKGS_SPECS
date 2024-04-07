@@ -650,7 +650,7 @@ no|libgexiv2|libgexiv2|exe,doc>null|compat:current| #20240115c gimp
 no|libgexiv2-devel|libgexiv2-devel|dev|compat:current| #20240130
 yes|libgfortran|libgfortran|exe,doc>null|compat:current| #20240118 needed by python3-numpy
 yes|libgfortran-devel|libgfortran-devel|dev|compat:current| #20240118
-yes|libgif|giflib|exe,doc>null|compat:current|
+yes|giflib|giflib|exe,doc>null|compat:current| #20240407
 no|libgimp|libgimp|exe,doc>null|compat:current| #20240115c gimp
 yes|libgit2|libgit2|exe,dev,doc>null|compat:kirkstone|
 yes|libglade|libglade|exe,dev,doc>null|compat:kirkstone| #20240112 needed by gtk2 planner.
@@ -719,7 +719,7 @@ yes|libldns-devel|libldns-devel|dev|compat:current| #20240130
 yes|liblilv|liblilv|exe,doc>null|compat:current| #20240112 libreoffice
 yes|liblrdf|liblrdf|exe,doc>null|compat:current| #20240112 libreoffice
 yes|liblrdf-devel|liblrdf-devel|dev|compat:current| #20240118
-yes|libltdl|libtool,libltdl|exe,doc>null|compat:current|
+yes|libltdl|libltdl|exe,doc>null|compat:current| #20240407
 yes|libltdl-devel|libltdl-devel|dev|compat:current| #20240130
 yes|liblz4|liblz4|exe,doc>null|compat:current|
 yes|liblz4-devel|liblz4-devel|dev|compat:current| #20240130
@@ -909,7 +909,7 @@ yes|libtirpc|libtirpc|exe,doc>null|compat:current|
 yes|libtirpc-devel|libtirpc-devel|dev|compat:current| #20240130
 yes|libtommath|libtommath|exe,doc>null|compat:current| #20240112 libreoffice
 yes|libtommath-devel|libtommath-devel|dev|compat:current| #20240118
-yes|libtool|libtool|dev,doc>null|compat:current|
+yes|libtool|libtool|dev|compat:current|
 yes|libtracker|libtracker|exe,doc>null|compat:current| #20240112 libreoffice
 yes|libtubo|libtubo|exe,dev,doc>null|compat:kirkstone|
 yes|libunbound|libunbound|exe,doc>null|compat:current|
