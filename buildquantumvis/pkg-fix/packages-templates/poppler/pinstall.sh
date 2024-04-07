@@ -26,5 +26,5 @@ if [ "$REALLIB" ];then
  ln -snf ${BASELIB} ${PATHLIB}/libpoppler.so.46
  ln -snf ${BASELIB} ${PATHLIB}/libpoppler.so.48
  ln -snf ${BASELIB} ${PATHLIB}/libpoppler.so.67
- ln -snf ${BASELIB} ${PATHLIB}/libpoppler.so.120
+ ln -snf ${BASELIB} ${PATHLIB}/libpoppler.so.120 #kirkstone
 fi
