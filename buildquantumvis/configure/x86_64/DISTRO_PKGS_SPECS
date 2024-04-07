@@ -105,6 +105,7 @@ yes|cairomm|cairomm|exe,doc>null|compat:current|
 yes|cairomm-devel|cairomm-devel|dev,doc>null|compat:current| #20240130
 yes|c-ares|c-ares|exe,doc>null|compat:current| #20240130
 yes|c-ares-devel|c-ares-devel|dev,doc>null|compat:current|
+yes|ccrypt|ccrypt|exe|compat:current| #20240407
 yes|cddetect|cddetect|exe,dev>null,doc>null|compat:kirkstone|
 yes|cddetect_quick|cddetect-quick|exe,dev>null,doc>null|compat:kirkstone|
 yes|cdparanoia|cdparanoia|exe|compat:current| #20240218
@@ -1236,6 +1237,7 @@ yes|pupradio|pupradio|exe,doc>null|pet:noarch
 yes|Pup-SysInfo|Pup-SysInfo|exe,doc>null|pet:noarch| #instead of hardinfo.
 yes|pup-tools|pup-tools|exe,dev>null,doc>null|compat:kirkstone|
 yes|pupx|pupx|exe|pet:noarch
+yes|pv|pv|exe|compat:current| #20240407
 yes|pwsget|pwsget|exe|pet:noarch
 yes|python3|python3|exe|compat:current| #20240406
 yes|python3-devel|python3-devel|dev|compat:current| #20240118
