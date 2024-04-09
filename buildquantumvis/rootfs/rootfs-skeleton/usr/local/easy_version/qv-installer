@@ -1,11 +1,28 @@
 #!/bin/bash
 
+export TEXTDOMAIN=qv-installer
+export OUTPUT_CHARSET=UTF-8
+
 IMG="$1"
 
-echo "QV Installer is a partly-manual and partly-automatic script to install QV into the partitions of an internal drive. Or, an external (USB) drive if you wish."
-echo "The first option to get out of the way, is if you want to install QV to the entire drive, internal or external, this script is not appropriate. Instead use 'EasyDD', that you will find in the Setup category of the menu (or open a terminal wherever you have downloaded the QV drive-image file and run it; for example '# easydd qv-200421-amd64.img'"
+if [ -t 0 ];then
+ true #we are running this from a terminal, good.
+else
+ exit 13
+fi
+
+#####################
+clear
+echo -en '\033[1;35m' #1;35 foreground bright magenta
+echo -n "$(gettext 'Welcome to QV Installer')"
+echo -e '\033[0;39m' #reset foreground to default
 echo
-echo "Continuing in this script, you have a drive with partitions, and you want to install QV into one or more of those partitions..."
+echo "$(gettext 'QV Installer is a partly-manual and partly-automatic script to install QV into the partitions of an internal drive. Or, an external drive if you wish.')" | fold -s -w ${COLUMNS}
+echo
+echo "$(gettext 'The first option to get out of the way, is if you want to install QV to the entire drive, internal or external, this script is not appropriate. Instead use EasyDD, that you will find in the Setup category of the menu. Or, open a terminal wherever you have downloaded the QV drive-image file and run it.')" | fold -s -w ${COLUMNS}
+echo "$(gettext 'For example:') \"# easydd qv-240421-amd64.img\""
+echo
+echo "$(gettext 'Continuing in this script, you have a drive with partitions, and you want to install QV into one or more of those partitions...')" | fold -s -w ${COLUMNS}
 echo
 
 BAD=0
@@ -42,40 +59,98 @@ if ! which uuidgen >/dev/null; then
 fi
 
 if [ ! -f "${IMG}" -o -z "${IMG}" ];then
- echo "ERROR name of QV img file needs to be passed on commandline."
- echo "Please open a terminal wherever you have downloaded the image file, then run this script. For example:"
+ echo -n -e "\033[1;31m" #red, bright
+ echo -n "$(gettext 'ERROR: name of QV img file needs to be passed on commandline.')"
+ echo -e "\033[0;39m"
+ echo "$(gettext 'Please open a terminal wherever you have downloaded the image file, then run this script. For example:')" | fold -s -w ${COLUMNS}
  echo "# qv-installer qv-240413-amd64.img"
  BAD=1
 fi
 
+
 if [ $BAD -eq 1 ];then
- echo -n "Press ENTER to abort script: "
+ echo
+ echo -n "$(gettext 'Press ENTER to abort script:') "
+ read getout
  exit 1
 fi
-
-echo "This script is for installing QV to a Windows computer, with x86_64 CPU; that is, Intel or AMD 64-bit CPU. Before continuing, you need to know what type of BIOS firmware it has. Nearly all PCs manufactored from 2012 onwards will have UEFI firmware; prior to that most will be traditional BIOS. You must know which one your PC has."
-echo
-echo "For traditional BIOS PCs, you must install a bootloader. QV Installer does not install a bootloader; you must do that yourself. The choices are GRUB v1, GRUB v2, GRUB4DOS, Syslinux, LILO, and Limine."
-echo "If you already have Linux installed, then there will be a bootloader. Most mainstream Linux distributions will install GRUB. If you already have a bootloader, then a new menu entry can be made in it for booting QV."
-echo "Note that QV has 'Limine Installer', to install the Limine bootloader, though note it is a work-in-progress so use at your own risk. Limine Installer can be found in the Setup category of the menu."
-echo
-echo "For UEFI PCs, you would normally also need to install a bootloader. However, the UEFI firmware does have a basic bootloader builtin; what this does is look for vfat partitions with the 'esp' flag set, and will offer to boot from one of those."
-echo "There will already be an esp boot partition, for booting Windows or Linux; however, if you create another one, just for QV, then the UEFI bootloader will detect it and it becomes a choice to boot from."
-echo
-echo "Another factor to consider; if your PC has Windows installed, Windows will not be happy if you do something like use Gparted (the partition manager tool in QV) to say shrink the partition Windows is installed in and create a esp boot partition and a btrfs partition to install QV. Windows has its own Partition Manager, and this must be used if you want to shrink the Windows partition. After freeing up space on the drive, then you can use Gparted."
-echo
-echo "Decisions, decisions! Fully digest the above paragraphs, and if necessary abort this script and create the required partitions. Something else important to consider, before continuing this script:"
-echo "QV is going to be installed into a partition with btrfs filesystem; however, most bootloaders do not recognize btrfs partitions. Or even if they do, there may be issues. QV has two files required for bootup; vmlinuz (the Linux kernel) and initrd. It is recommended to put these into a vfat boot partition; easily found by the bootloader."
-echo "As mentioned above, with a UEFI PC you could create a new esp boot partition and put those files into it. Or, use an existing boot partition -- but then, does it have enough free space? vmlinuz is about 7.5MB and initrd about 7.1MB -- so will need at least 15MB free space."
-echo "So, think about the boot partition as well, before continuing with this script."
-echo
-echo "Something else to consider! Some mainstream Linux distributions, such as Fedora or OpenSuse, by default run in a btrfs partition. Others, such as Debian, default to running in a ext4 partition."
-echo "So, if you have already installed a Linux distribution that has created a btrfs partition, then you are likely good-to-go for installing QV. Reason is, QV will install into a directory in the already-existing btrfs partition, leaving the rest of the partition as-is."
-echo "If you have a PC with only Windows, has never had Linux installed, then you might want to consider going this route; install Fedora or OpenSuse first. These have sophisticated installers, that will do most things automatically, and you will end up with partitions that you can use to install QV. And the Linux installer will also have installed a bootloader, probably GRUB v2."
-
-echo
-echo -n "Press ENTER key to continue, anything else to abort: "
+echo -n "$(gettext 'Press ENTER to continue, CTRL-C to quit:') "
 read keepgoing
+
+##################
+clear
+echo -en '\033[1;35m' #1;35 foreground bright magenta
+echo -n "$(gettext 'About BIOS and bootloaders')"
+echo -e '\033[0;39m' #reset foreground to default
+echo
+echo "$(gettext 'This script is for installing QV to a Windows computer, with x86_64 CPU; that is, Intel or AMD 64-bit CPU. Before continuing, you need to know what type of BIOS firmware it has. Nearly all PCs manufactored from 2012 onwards will have UEFI firmware; prior to that most will be traditional BIOS.')" | fold -s -w ${COLUMNS}
+echo
+echo "$(gettext 'For traditional BIOS PCs, you must install a bootloader. QV Installer does not install a bootloader; you must do that yourself. The choices are GRUB v1, GRUB v2, GRUB4DOS, Syslinux, LILO, and Limine.')" | fold -s -w ${COLUMNS}
+echo
+echo "$(gettext 'For UEFI PCs, you would normally also need to install a bootloader. However, the UEFI firmware does have a basic bootloader builtin; what this does is look for vfat partitions with the esp flag set, and will offer to boot from one of those.')" | fold -s -w ${COLUMNS}
+echo
+echo "$(gettext 'If you are a newcomer to Linux and find this subject of bootloaders to be intimidating, an easy path is to install one of the mainstream Linux distributions first, such as Fedora or openSUSE.')" | fold -s -w ${COLUMNS}
+echo "$(gettext 'These distributions have sophisticated installers, that will install GRUB for you. You may afterward run this script to install QV and edit the GRUB menu to add QV.')" | fold -s -w ${COLUMNS}
+echo
+echo -n "$(gettext 'Press ENTER for more information, CTRL-C to quit:') "
+read keepgoing
+
+####################
+clear
+echo -en '\033[1;35m' #1;35 foreground bright magenta
+echo -n "$(gettext 'About partitions')"
+echo -e '\033[0;39m' #reset foreground to default
+echo
+echo "$(gettext 'QV needs to install into a partition with a btrfs filesystem. There are also two files, vmlinuz and initrd, that need to be in the boot partition.')" | fold -s -w ${COLUMNS}
+echo
+echo "$(gettext 'A Linux beginner is recommended to install one of the mainstream distributions first, which will create the partitions. Then you be able to share those partitions to install QV.')" | fold -s -w ${COLUMNS}
+echo
+echo "$(gettext 'Alternatively, you can create the partitions yourself. QV has Gparted, which is a partition manager, that can create partitions in the drive.')" | fold -s -w ${COLUMNS}
+echo "$(gettext 'However, if you need to shrink the partition that Windows is installed in, to create free space for creating new partitions, do that in Windows. Windows has its own partition manager; use that to shrink the partition, then you may use Gparted to create new ones in the free space.')" | fold -s -w ${COLUMNS}
+echo
+echo "$(gettext 'If you take the DIY route, there is an easy option to consider, if you have a PC with UEFI firmware. There will already be a boot partition, for booting Windows or Linux; however, if you create another one, just for QV, then the UEFI bootloader will detect it and it becomes a choice to boot from.')" | fold -s -w ${COLUMNS}
+echo "$(gettext 'This can work, because, as mentioned earlier, the UEFI has its own inbuilt bootloader.')" | fold -s -w ${COLUMNS}
+
+echo
+echo -n "$(gettext 'Press ENTER for more information, CTRL-C to quit:') "
+read keepgoing
+
+#######################
+clear
+echo -en '\033[1;35m' #1;35 foreground bright magenta
+echo -n "$(gettext 'Getting ready to install QV')"
+echo -e '\033[0;39m' #reset foreground to default
+echo
+
+echo "$(gettext 'If you take the route of installing a mainstream Linux distribution first, good, you will then have partitions that QV can be installed into, shared with the mainstream Linux installation. Some distributions, such as Fedora and openSUSE, default to creating a btrfs partition; some others may have btrfs as a non-default choice. If not, then you can use Gparted afterward to shrink the Linux partition and create a new btrfs partition.')" | fold -s -w ${COLUMNS}
+echo
+echo "$(gettext 'There are so many decisions to make about bootloaders and partitions, but in summary what you will need is two partitions, a boot partition in which to place the files vmlinuz and initrd, and a btrfs partition in which to install QV. After having installed QV, you can then tackle the bootloader problem.')" | fold -s -w ${COLUMNS}
+echo
+echo "$(gettext 'You need to create those two partitions before continuing. Or, if they already exist, good.')" | fold -s -w ${COLUMNS}
+echo "$(gettext 'They need to have a certain minimum free space. For the boot partition, at least 16MB, for the btrfs partition, at least 8GB.')" | fold -s -w ${COLUMNS}
+
+echo
+echo -n "$(gettext 'Press ENTER to install QV, CTRL-C to quit, or any other character to re-read all of the above instructions:') " | fold -s -w ${COLUMNS}
+read keepgoing
+if [ "$keepgoing" != "" ];then
+ exec $0 "$@"
+fi
+
+########################
+clear
+echo -en '\033[1;35m' #1;35 foreground bright magenta
+echo -n "$(gettext 'Install QV')"
+echo -e '\033[0;39m' #reset foreground to default
+echo
+
+echo "$(gettext 'Some notes before continuing:')"
+echo "$(gettext 'In some cases it is possible for the boot partition to be the same as the btrfs partition that QV will install into. This will require the files vmlinuz and initrd to be in the btrfs partition. However, many bootloaders do not recognize a btrfs partition. Recent versions of GRUB2 and rEFInd may, but there may be issues.')" | fold -s -w ${COLUMNS}
+echo "$(gettext 'Remember the option, if have a UEFI PC, of having a separate esp vfat boot partition just for QV. It will simplify bootloader setup, and may be required if insufficient free space in the existing boot partition.')" | fold -s -w ${COLUMNS}
+echo
+echo -n -e "\033[1;31m" #red, bright
+echo -n "$(gettext 'WARNING: the author has created this script in good faith; however, no liability is accepted for any undesired result. You continue with acceptance of this total disclaimer of responsibility.')" | fold -s -w ${COLUMNS}
+echo -e '\033[0;39m' #reset foreground to default
+
 #######################
 
 img_umount_func() {
@@ -87,50 +162,59 @@ img_umount_func() {
 }
 
 echo
-echo "Please enter the partition to install QV. This may already have a btrfs filesystem; if not,the partition will be wiped and a btrfs filesystem created."
-echo "If there is already an existing btrfs filesystem, existing content will be kept. QV will just install into a folder in the partition."
+echo "$(gettext 'Please enter the partition to install QV. This may already have a btrfs filesystem; if not,the partition will be wiped and a btrfs filesystem created.')" | fold -s -w ${COLUMNS}
+echo "$(gettext 'If there is already an existing btrfs filesystem, existing content will be kept. QV will just install into a folder in the partition.')" | fold -s -w ${COLUMNS}
 echo -n "(ex: sdc2): "
 read WKG_DEV
 
+if [ ! -e /dev/${WKG_DEV} ];then
+ echo "$(gettext 'ERROR this is not a valid partition:') /dev/${WKG_DEV}"
+ #echo "Press ENTER to abort: "
+ read getout
+ exit 10
+fi
+
 echo
-echo "Please enter the boot partition."
-echo "Files vmlinuz and initrd will be installed here."
-echo "Note, you can enter same as above; however, the bootloader must be able to recognize a btrfs partition. Recent GRUB2 and rEFInd can handle this, but there may be issues."
-echo "If you don't have a bootloader installed, or don't want to use it, use Gparted to create a new vfat esp boot partition, recommend 32MB size -- do that, then continue here."
-echo "(Technical detail: if PC has Windows installed, may need to use Windows Partition Manager to first create some free space in the drive)"
+echo "$(gettext 'Please enter the boot partition.')"
+echo "$(gettext 'Files vmlinuz and initrd will be installed here.')"
+echo "$(gettext 'Note, you can enter same as above; however, the bootloader must be able to recognize a btrfs partition. Recent GRUB2 and rEFInd can handle this, but there may be issues.')"
 echo -n "(ex: sda1): "
 read BOOT_DEV
 
 WKG_FS="$(blkid --match-tag TYPE /dev/${WKG_DEV} | cut -f 2 -d '"')"
 BOOT_FS="$(blkid --match-tag TYPE /dev/${BOOT_DEV} | cut -f 2 -d '"')"
 
+
 grep -q "^/dev/${BOOT_DEV} " /proc/mounts
 if [ $? -eq 0 ];then
- echo "ERROR /dev/${BOOT_DEV} must not be mounted. Unmount it then rerun this script."
+ echo "$(gettext 'ERROR this partition must not be mounted:') /dev/${BOOT_DEV}"
+ echo "$(gettext 'Unmount it then rerun this script.')"
  exit 5
 fi
 grep -q "^/dev/${WKG_DEV} " /proc/mounts
 if [ $? -eq 0 ];then
- echo "ERROR /dev/${WKG_DEV} must not be mounted. Unmount it then rerun this script."
+ echo "$(gettext 'ERROR this partition must not be mounted:') /dev/${WKG_DEV}"
+ echo "$(gettext 'Unmount it then rerun this script.')"
  exit 6
 fi
 
 echo
 if [ "${WKG_FS}" != "btrfs" ];then
  #create btrfs f.s.
- echo "Will now format this partition as btrfs: /dev/${WKG_DEV}"
- echo -n "Press ENTER to continue: "
+ echo "$(gettext 'Will now format this partition as btrfs:') /dev/${WKG_DEV}"
+ echo -n "$(gettext 'Press ENTER to continue:') "
  read keepgoing
  UUID2="$(uuidgen -r)" #ex: bf250e04-a570-488c-bc45-b6a1ded8f8a0
  mkfs.btrfs -L QVWKG --uuid ${UUID2} /dev/${WKG_DEV}
  if [ $? -ne 0 ];then
-  echo "ERROR, aborting."
+  echo "$(gettext 'ERROR, aborting.')"
   exit 2
  fi
 else
  UUID2="$(blkid --match-tag UUID /dev/${WKG_DEV} | cut -f 2 -d '"')"
 fi
 sync
+BOOT_UUID="$(blkid --match-tag UUID /dev/${BOOT_DEV} | cut -f 2 -d '"')"
 
 #mount the drive-img file
 BAD=0
@@ -139,11 +223,11 @@ mount-img ${IMG} quiet rw
 IMGMNTBOOT="$(find /tmp -mindepth 1 -maxdepth 1 -type d -name 'mount-img-1-vfat-loop*')"
 IMGMNTWKG="$(find /tmp -mindepth 1 -maxdepth 1 -type d -name 'mount-img-2-btrfs-loop*')"
 if [ ! -f ${IMGMNTBOOT}/vmlinuz ];then
- echo "ERROR failed to mount the vfat partition in the .img file"
+ echo "$(gettext 'ERROR failed to mount the vfat partition in the .img file.')"
  BAD=1
 fi
 if [ ! -d ${IMGMNTWKG}/quantumvis ];then
- echo "ERROR failed to mount the btrfs partition in the .img file"
+ echo "$(gettext 'ERROR failed to mount the btrfs partition in the .img file.')"
  BAD=1
 fi
 if [ $BAD -eq 1 ];then
@@ -154,58 +238,64 @@ fi
 . ${IMGMNTWKG}/quantumvis/1/@qv/etc/DISTRO_SPECS
 
 #mount the destination partitions
-mkdir -p /mnt/${BOOT_DEV}
-busybox mount -t ${BOOT_FS} /dev/${BOOT_DEV} /mnt/${BOOT_DEV}
-if [ $? -ne 0 ];then
- echo "ERROR failed to mount the boot partition /dev/${BOOT_DEV}"
- img_umount_func
- exit 3
-fi
-
-FREEK=$(df -k /mnt/${BOOT_DEV} | grep '^/dev' | tr -s ' ' | cut -f 4 -d ' ')
-FREEM=$((${FREEK}/1024))
-if [ $FREEM -lt 16 ];then
- echo "ERROR insufficient free space in /mnt/${BOOT_DEV}. Need at least 16MB."
- sync
- busybox umount /mnt/${BOOT_DEV}
- img_umount_func
- exit 7
-fi
-
 mkdir -p /mnt/${WKG_DEV}
 busybox mount -t btrfs -o compress-force=zstd:3,noatime /dev/${WKG_DEV} /mnt/${WKG_DEV}
 if [ $? -ne 0 ];then
- echo "ERROR failed to mount the btrfs partition /dev/${WKG_DEV}"
- echo -n "Press ENTER to abort: "
+ echo "$(gettext 'ERROR failed to mount the btrfs partition:') /dev/${WKG_DEV}"
+ #echo -n "$(gettext 'Press ENTER to abort:') "
  img_umount_func
  exit 4
 fi
 
-FREEM=$(df -m /mnt/${WKG_DEV} | grep '^/dev' | tr -s ' ' | cut -f 4 -d ' ')
+#FREEM=$(df -m /mnt/${WKG_DEV} | grep '^/dev' | tr -s ' ' | cut -f 4 -d ' ')
+FREEM=$(LANG=C btrfs filesystem usage -m /mnt/${WKG_DEV} | grep -o 'Free (estimated):.*' | tr '\t' ' ' | tr -s ' ' | cut -f 3 -d ' ' | cut -f 1 -d 'M' | cut -f 1 -d '.')
+[ -z "$FREEM" ] && FREEM=0
 FREEG=$((${FREEM}/1024))
 if [ $FREEG -lt 8 ];then
- echo "ERROR insufficient free space in /mnt/${WKG_DEV}. Need at least 8GB."
+ echo "$(gettext 'ERROR insufficient free space in btrfs partition. Need at least 8GB.')"
  sync
  busybox umount /mnt/${WKG_DEV}
  img_umount_func
  exit 8
 fi
 
+if [ "$BOOT_DEV" != "$WKG_DEV" ];then
+ mkdir -p /mnt/${BOOT_DEV}
+ busybox mount -t ${BOOT_FS} /dev/${BOOT_DEV} /mnt/${BOOT_DEV}
+ if [ $? -ne 0 ];then
+  echo "$(gettext 'ERROR failed to mount the boot partition:') /dev/${BOOT_DEV}"
+  img_umount_func
+  exit 3
+ fi
+ 
+ FREEK=$(df -k /mnt/${BOOT_DEV} | grep '^/dev' | tr -s ' ' | cut -f 4 -d ' ')
+ FREEM=$((${FREEK}/1024))
+ if [ $FREEM -lt 16 ];then
+  echo "$(gettext 'ERROR insufficient free space in boot partition. Need at least 16MB.')"
+  sync
+  busybox umount /mnt/${BOOT_DEV}
+  img_umount_func
+  exit 7
+ fi
+fi
+
 #populate boot-part
 echo
-echo "Copying vmlinuz and initrd into /mnt/${BOOT_DEV}"
+echo "$(gettext 'Copying vmlinuz and initrd into:') /mnt/${BOOT_DEV}"
 find /mnt/${BOOT_DEV} -mindepth 0 -maxdepth 0 -type d -empty | grep -q .
-if [ $? -eq 0 ];then
+if [ $? -eq 0 -a "${BOOT_FS}" == "vfat" ];then
  #partition is empty. new partition.
- echo "also EFI directory, limine.cfg and limine.sys"
+ echo "$(gettext 'also EFI directory, limine.cfg and limine.sys')"
  cp -a ${IMGMNTBOOT}/* /mnt/${BOOT_DEV}/
  PTN1="s%wkg_uuid=.*%wkg_uuid=${UUID2} wkg_dir=qv${DISTRO_VERSION}/%"
  sed -i -e "${PTN1}" /mnt/${BOOT_DEV}/limine.cfg
+ BOOTFOLDER=''
 else
- echo "copied into folder qv${DISTRO_VERSION}"
+ echo "$(gettext 'copied into folder:') qv${DISTRO_VERSION}"
  mkdir -p /mnt/${BOOT_DEV}/qv${DISTRO_VERSION}
  cp -a -f ${IMGMNTBOOT}/vmlinuz /mnt/${BOOT_DEV}/qv${DISTRO_VERSION}/
  cp -a -f ${IMGMNTBOOT}/initrd /mnt/${BOOT_DEV}/qv${DISTRO_VERSION}/
+ BOOTFOLDER="/qv${DISTRO_VERSION}"
 fi
 
 #btrfs-send -receive to wkg-part
@@ -215,26 +305,68 @@ cp -a -f ${IMGMNTWKG}/quantumvis/snapshot-record /mnt/${WKG_DEV}/qv${DISTRO_VERS
 
 #btrfs send ${IMGMNTWKG}/quantumvis/1/@qv | pv | btrfs receive /mnt/${WKG_DEV}/qv${DISTRO_VERSION}/1/ 
 #...nah, do it this way...
-echo "Populating /mnt/${WKG_DEV}/qv${DISTRO_VERSION}/1/@qv/"
-echo "this may take awhile..."
+echo "$(gettext 'Populating:') /mnt/${WKG_DEV}/qv${DISTRO_VERSION}/1/@qv/"
+echo "$(gettext 'this may take awhile...')"
 btrfs subvolume create /mnt/${WKG_DEV}/qv${DISTRO_VERSION}/1/@qv
 btrfs property set /mnt/${WKG_DEV}/qv${DISTRO_VERSION}/1/@qv compression zstd
 cp -a ${IMGMNTWKG}/quantumvis/1/@qv/* /mnt/${WKG_DEV}/qv${DISTRO_VERSION}/1/@qv/
 
 sync
-#set it rw
-#btrfs property set -ts /mnt/${WKG_DEV}/qv${DISTRO_VERSION}/1/@qv ro false
-
 echo
-echo "Installed."
+echo -en '\033[1;32m\033[44m' #bright green, blue background
+echo -n "$(gettext 'Installed.')"
+echo -e '\033[0;39m\033[49m' #reset.
 
 #unmount img file
 img_umount_func
 #unmount the destination partitions
 busybox umount /mnt/${BOOT_DEV}
-busybox umount /mnt/${WKG_DEV}
+if [ "${BOOT_DEV}" != "${WKG_DEV}" ];then
+ busybox umount /mnt/${WKG_DEV}
+fi
 
 echo
-echo "Final notes:"
-echo "If you need to make a bootloader menu entry, pass these parameters on the kernel command line:"
+echo -n "$(gettext 'Press ENTER for notes about the bootloader:') "
+read keepgoing
+
+############
+clear
+echo -en '\033[1;35m' #1;35 foreground bright magenta
+echo -n "$(gettext 'Bootloader setup')"
+echo -e '\033[0;39m' #reset foreground to default
+
+echo
+echo "$(gettext 'If you need to make a bootloader menu entry, pass these parameters on the kernel command line:')"
 echo "wkg_uuid=${UUID2} wkg_dir=qv${DISTRO_VERSION}/"
+if [ ! -z "$BOOTFOLDER" ];then
+ echo "$(gettext 'vmlinuz and initrd have been installed into this folder in the boot partition:')"
+ echo "${BOOTFOLDER}"
+fi
+if [ "$BOOT_FS" != "btrfs" ];then
+ echo
+ echo "$(gettext 'Here is an example entry for the menu.lst file in GRUB4DOS:')"
+ echo "title QV Frugal (qv${DISTRO_VERSION})
+  find --set-root uuid () 3f8f077d-7a7d-4e7a-9cb5-a8b94e1f1c87
+  kernel ${BOOTFOLDER}/vmlinuz rw wkg_uuid=${UUID2} wkg_dir=qv${DISTRO_VERSION}/
+  initrd ${BOOTFOLDER}/initrd"
+fi
+echo
+echo "$(gettext 'Here is an example menu entry for /etc/grub.d/40_custom in GRUB2:')"
+echo "menuentry \"QV Frugal\" {
+insmod btrfs
+insmod search_fs_uuid
+search --no-floppy --fs-uuid --set=root e3f14616-44v2-tm5p-7761-5024487d8792
+linux ${BOOTFOLDER}/vmlinuz rw wkg_uuid=${UUID2} wkg_dir=qv${DISTRO_VERSION}/ 
+initrd ${BOOTFOLDER}/initrd
+}"
+if [ "$BOOT_FS" == "vfat" ];then
+ echo
+ echo "$(gettext 'Here is an example entry for the limine.cfg file in Limine bootloader:')"
+ echo ":QV Frugal
+    PROTOCOL=linux
+    KERNEL_PATH=uuid://${BOOT_UUID}${BOOTFOLDER}/vmlinuz
+    MODULE_PATH=uuid://${BOOT_UUID}${BOOTFOLDER}/initrd
+    KERNEL_CMDLINE=rw wkg_uuid=${UUID2} wkg_dir=qv${DISTRO_VERSION}/"
+fi
+
+###end###
