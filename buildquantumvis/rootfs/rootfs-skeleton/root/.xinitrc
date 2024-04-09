@@ -23,6 +23,7 @@
 #20230602 toggle touchpad on/off
 #20230720 default.jpg/.png mismatch.
 #20240407 qv no containers.
+#20240409 fix test sane PuppyPin
 
 . /etc/rc.d/PUPSTATE #20220526 has EOS_SUPPORT_CONTAINERS
 
@@ -51,7 +52,7 @@ done
 if [ -f /root/Choices/ROX-Filer/PuppyPinBACKUP ];then
  touch /root/Choices/ROX-Filer/PuppyPin
  #if [ "$(grep 'defaultbrowser' /root/Choices/ROX-Filer/PuppyPin)" == "" ];then
- grep -q 'www' /root/Choices/ROX-Filer/PuppyPin #20230423 change test.
+ grep -q 'defaultbrowser' /root/Choices/ROX-Filer/PuppyPin #20230423 change test. 20240409 change again.
  if [ $? -ne 0 ];then
   cp -a -f /root/Choices/ROX-Filer/PuppyPinBACKUP /root/Choices/ROX-Filer/PuppyPin
  fi
