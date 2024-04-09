@@ -16,7 +16,7 @@ $(gettext 'The OS is deployed as a disk image file, that can be written to USB-s
 $(gettext 'The OS may also be installed into a btrfs partition in a drive, in what is called <i>frugal</i> mode. This occupies a folder in the partition, allowing co-existence with whatever is already in the partition.')
 \"</label></text>
 
- <frame $(gettext 'Image file')>
+ <frame $(gettext 'Entire-drive install')>
   <hbox>
    <text use-markup=\"true\"><label>\"$(gettext 'Instructions for writing an OS image file to a drive, and configuring a desktop PC or laptop to boot from it, are posted online:')\"</label></text>
    <vbox>
@@ -29,11 +29,12 @@ $(gettext 'The OS may also be installed into a btrfs partition in a drive, in wh
  <text><label>\"  \"</label></text>
 
  <frame $(gettext 'Frugal install')>
-   <text use-markup=\"true\"><label>\"$(gettext 'For further instructions how to install into a partition in an internal drive, please click the <b>OK</b> button. Otherwise, click <b>Cancel</b>.')\"</label></text>
+   <text use-markup=\"true\"><label>\"$(gettext 'QV has a program, named <b>QV Installer</b>, for installing QV to partitions in an internal or external drive.')
+$(gettext 'QV Installer has to be run in a terminal. What you need to do, is download the latest release of QV, open a terminal where it is downloaded to, then install. For example:')
+<tt># qv-installer qv-20240519-amd64.img</tt>\"</label></text>
  </frame>
   
  <hbox>
-   <button ok></button>
    <button cancel></button>
  </hbox>
 </vbox>
@@ -44,5 +45,6 @@ RETSTRING1="$(gtkdialog --program=EI_DLG1 --center)"
 grep -q 'EXIT="OK"' <<<"${RETSTRING1}"
 [ $? -ne 0 ] && exit
 
+###end###
 
 
