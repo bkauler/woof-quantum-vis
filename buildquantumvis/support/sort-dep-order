@@ -106,11 +106,13 @@ grep -v '|$' xdb2and9ACCUM > xdb-hasdeps
 
 #create a topological list...
 echo -n '' > tlist
+echo -n '' > names-changed #20240414
 while IFS='|' read Pre Name Deps
 do
  #name is actual name (kirkstone, pet pkgs), for tlist it needs to be void name...
  F1="$(grep -h -G "^${Name}|" ${L1}/support/name-oe2void/case ${L1}/support/name-oe2void/hyphen ${L1}/support/name-oe2void/number ${L1}/support/name-oe2void/maybe | head -n 1)"
  if [ ! -z "$F1" ];then
+  echo "$F1" >> names-changed #20240414
   Name="${F1/*|/}"
  fi
  for aDep in $(sed -e 's%^[+]%%' -e 's%,[+]% %g' <<<${Deps})
@@ -149,7 +151,14 @@ do
  if [ $? -eq 0 ];then
   continue
  fi
- grep -F "|${aN}|" xdb-hasdeps >> xdb-hasdeps-sorted
+ #20240414...
+ bN="$(grep "|${aN}$" names-changed | head -n 1)"
+ if [ -z "$bN" ];then
+  grep -F "|${aN}|" xdb-hasdeps >> xdb-hasdeps-sorted
+ else
+  #change void name back to the kirkstone name...
+  grep -F "|${bN/|*/}|" xdb-hasdeps >> xdb-hasdeps-sorted
+ fi
 done
 
 #compose woof-installed-packages-dep-order...
@@ -159,14 +168,15 @@ for aP in $(cat xdb-hasdeps-sorted)
 do
  [ -z "$aP" ] && continue
  aP="${aP%|*}|" #remove the deps
- #$aP is void name. need to check if a kirkstone or pet match...
- F0="${aP%|*}" #drop trailing |, keep leading |.
- F1="$(grep -h -G "${F0}$" ${L1}/support/name-oe2void/case ${L1}/support/name-oe2void/hyphen ${L1}/support/name-oe2void/number ${L1}/support/name-oe2void/maybe | head -n 1)"
- if [ ! -z "$F1" ];then
-  oeName="${F1/|*/}"
-  grep -F "|${oeName}|" woof-installed-packages >> woof-installed-packages-dep-order
-  [ $? -eq 0 ] && continue
- fi
+ #20240414 have changed back to kirkstone or pet name above. no need for this test...
+ ##$aP is void name. need to check if a kirkstone or pet match...
+ #F0="${aP%|*}" #drop trailing |, keep leading |.
+ #F1="$(grep -h -G "${F0}$" ${L1}/support/name-oe2void/case ${L1}/support/name-oe2void/hyphen ${L1}/support/name-oe2void/number ${L1}/support/name-oe2void/maybe | head -n 1)"
+ #if [ ! -z "$F1" ];then
+ # oeName="${F1/|*/}"
+ # grep -F "|${oeName}|" woof-installed-packages >> woof-installed-packages-dep-order
+ # [ $? -eq 0 ] && continue
+ #fi
  grep -F "$aP" woof-installed-packages >> woof-installed-packages-dep-order
  [ $? -eq 0 ] && continue
  grep -F "$aP" ${L1}/configure/${xARCH}/Packages-${DISTRO_BINARY_COMPAT}-${DISTRO_COMPAT_VERSION} >> woof-installed-packages-dep-order
