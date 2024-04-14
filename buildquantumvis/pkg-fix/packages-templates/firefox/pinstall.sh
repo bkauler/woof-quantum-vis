@@ -49,13 +49,6 @@ if [ "$FFext" ];then
  rm -rf /tmp/3buildeasydistro-pinstall-ff
 fi
 
-#20230310 rootfs-skeleton/usr/bin/ec-chroot-www has this content:
-#empty -f ec-chroot www seamonkey
-#replace with firefox...
-sed -i -e 's%^empty .*%empty -f ec-chroot www firefox%' usr/bin/ec-chroot-www
-#also fix rootfs-skeleton/usr/share/applications/ec-www.desktop ...
-sed -i -e 's%Chromium%Firefox%' usr/share/applications/ec-www.desktop
-
 #20231109 update mstone entry in prefs.js... 20240220 fix... 20240321 fix
 FFver="$(grep -F '|firefox|' root/.packages/woof-installed-packages | cut -f 3 -d '|' | sed -e 's%-r[0-9]$%%')"
 if [ "$FFver" ];then
