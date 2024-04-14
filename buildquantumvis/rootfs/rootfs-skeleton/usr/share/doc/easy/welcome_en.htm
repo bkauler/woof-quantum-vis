@@ -3,7 +3,7 @@
 <head>
  <meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
  <meta content="Barry Kauler" name="author">
- <meta content="easy puppy quirky linux aufs overlay containers operating system pc" name="description">
+ <meta content="easy puppy quirky linux qv btrfs fscrypt operating system pc" name="description">
  <!-- BK makes table width scale to fit device screen width... -->
  <!-- <meta name="viewport" content="width=device-width"> -->
  <meta name="viewport" content="width=655px">
@@ -33,15 +33,15 @@
         </td>
         <td valign="top">&nbsp;&nbsp; <br>
          <b><font size="+3">Welcome,</font></b><br>
-         <font size="+3">you are using Easy for the first time!</font>
+         <font size="+3">you are using QV for the first time!</font>
         </td>
        </tr>
       </tbody>
      </table>
      <br>
-     Easy is a "new paradigm" for an Operating System, a blend of the best ideas from Puppy Linux and Quirky Linux, and a fundamental rethink of security, maintainability and ease-of-use. <br>
+     QV is a "new paradigm" for an Operating System, a blend of the best ideas from EasyOS, Puppy Linux and Quirky Linux, and a fundamental rethink of security, maintainability and ease-of-use. <br>
      <br>
-     Reading this for the first time, you want a quick overview, to grasp the basic ideas behind Easy, what is special, practical usage, and why should you even bother to switch from the OS you are currently using? <br>
+     Reading this for the first time, you want a quick overview, to grasp the basic ideas behind QV, what is special, practical usage, and why should you even bother to switch from the OS you are currently using? <br>
      <h2>The desktop</h2>
      Firstly, the desktop. It looks pretty much like any desktop, a bit retro, but we consider that to be a good thing. Rather than lengthy explanations, the best way to discover what the desktop can offer you, is just to explore. Have fun, poke around in the menu, click the icons in the tray, mouse-over will also pop-up useful information. <br>
      <br>
@@ -49,7 +49,6 @@
      
  <img src="images/desktop1.png" alt="desktop1" width="640" height="480"> 
 <!--     <div style="position:relative;width:640px;height:480px;background:url(images/desktop1.png);background-repeat: no-repeat;">
-		 <div class="t" style="top:96px;left:480px;width:144px;">Containerized<br>apps</div> --BLOB1--
 		 <div class="t" style="top:70px;left:204px;width:144px;">Install<br>mega-apps</div>
 		 <div class="t" style="top:150px;left:98px;width:216px;">Share files & printers<br>over the network</div>
 		 <div class="t" style="top:230px;left:8px;width:248px;">Connect to the Internet</div>
@@ -94,20 +93,19 @@
       </tbody>
      </table>
      <br>
-     In these example pictures, Easy is installed on a USB Flash drive, that identifies itself as sdb. There are two partitions, sdb1 is the <i>boot</i> partition, and sdb2 is the <i>working</i> partition. Note the orange rectangle -- this means sdb2 is mounted and cannot be unmounted. <br>
+     In these example pictures, QV is installed on a USB Flash drive, that identifies itself as sdb. There are two partitions, sdb1 is the <i>boot</i> partition, and sdb2 is the <i>working</i> partition. Note the orange rectangle -- this means sdb2 is mounted and cannot be unmounted. <br>
      Drive sda is an internal drive, and sda2 is mounted, and can be unmounted by clicking on the "x". <br>
      Try for yourself: click any partition, and it will mount and the file manager will open. <br>
      <br>
-     Using Easy is easy, however, to discover the hidden power, it is necessary to have some appreciation of what is going on underneath... <br>
-     <h2>How Easy works</h2>
-     It has already been stated that sdb1 is the boot-partition in the above pictures. That contains the Limine boot loader, which is the very first menu you see at power-on. The boot loader is responsible for loading the Linux kernel and the first stage of the Linux operating system. The kernel is named "vmlinuz", the first-stage file is "initrd" and the rest of EasyOS is file "easy.sfs". These files reside in sdb2, the working-partition.
+     Using QV is easy; however, to discover the hidden power, it is necessary to have some appreciation of what is going on underneath... <br>
+     <h2>How QV works</h2>
+     It has already been stated that sdb1 is the boot-partition in the above pictures. That contains the Limine boot loader, which is the very first menu you see at power-on. The boot loader is responsible for loading the Linux kernel and the first stage of the Linux operating system. The kernel is named "vmlinuz", the first-stage file is "initrd"; they are in the boot-partition. The QV operating system is in sdb2, the working-partition.<br>
      <br>
-     After bootup, if you open the file manager, and look at "/", the top-level of the directories, this is what you see: looks as you would expect, yes?
-     <br>
+     After bootup, if you open the file manager, and look at "/", the top-level of the directories, this is what you see: looks as you would expect, yes?<br>
      <table cellspacing="2" cellpadding="2" border="0" width="100%">
       <tbody>
        <tr>
-        <td valign="top"><img src="images/top-of-layers.png" alt="top-of-layers" width="546" height="305"><br>
+        <td valign="top"><img src="images/top-of-rootfs.png" alt="top-of-layers" width="608" height="314"><br>
         </td>
        </tr>
       </tbody>
@@ -130,48 +128,32 @@
      Some hints as to what those folders do: <br>
      <table cellspacing="2" cellpadding="2" border="0" width="100%">
       <tbody>
-       <tr><td valign="top"><b>containers</b></td><td valign="top">Encrypted folder for containers, as Easy is a container-friendly OS and can run apps securely</td></tr>
+       <tr>
+        <td valign="top"><b>data</b>
+        </td>
+        <td valign="top">For anything. AppImages and Flatpaks install here. Build area for woofQV.
+        </td>
+       </tr>
        <tr>
         <td valign="top"><b>files</b>
         </td>
-        <td valign="top">Encrypted folder where you keep all your own files, such as photos, downloads, documents
+        <td valign="top">Folder where you keep all your own files, such as photos, downloads, documents. Optionally encrypted.
         </td>
        </tr>
        <tr>
-        <td valign="top"><b>releases</b>
+        <td valign="top"><b>home</b>
         </td>
-        <td valign="top">Encrypted folder where complete history is recorded, for rollback and recovery
-        </td>
-       </tr>
-       <tr>
-        <td valign="top"><b>sfs</b>
-        </td>
-        <td valign="top">All SFS files are kept in here
+        <td valign="top">Each app may run as its own user; home folders are in here. Optionally encrypted.
         </td>
        </tr>
       </tbody>
      </table>
      <br>
-     The quick answer to whereabouts of that "/", is that it is on top of a layered filesystem in RAM. This means that Easy runs very fast, and there are no writes to the drive -- so running on a flash drive, it will last "forever".<br>
+     The quick answer to whereabouts of that "/", is that it is in a btrfs subvolume inside the working-partition. Which might be a meaningless explanation! In which case, read this online web page:<br>
      <br>
-     In the "/" snapshot, notice /files -- apps default to open|save|download here, but it is a link to /mnt/sdb2/easyos/files. So /files is not in RAM, it is for permanent storage of your personal files.<br>
-     <br>
-     You can just blissfully go ahead and use Easy, however, if you are intrigued by how "/" is created, and the purpose of those folders in the working partition, please read this online web page:<br>
-     <br>
-     <font size="+1"><a href="https://easyos.org/tech/how-easy-works-part-2.html">How Easy works (user perspective)</a>
+     <font size="+1"><a href="https://bkhome.org/news/202403/quirky-has-returned.html">Brief introduction to Quirky Linux</a>
      </font><br>
      <br>
-     As you are reading this, you must already have Easy installed. Probably on a USB Flash drive, which is fine. However...<br>
-     <h2>How to install Easy</h2>
-     There is absolutely no problem with running Easy indefinitely from a USB Flash stick, however, you are likely to reach that point where you would like to install Easy on the internal hard drive of your PC. <br>
-     <br>
-     No problem! In the "Setup" menu, there is "Easy Installer". Run that, and you will be guided through installing Easy to a hard drive. <br>
-     <br>
-     There is also an online web page that will clarify the details: <br>
-     <br>
-     <font size="+1">
-      <a href="https://easyos.org/install/how-to-install-easyos-on-your-hard-drive.html">How to install Easy OS on your hard drive</a>
-     </font> <br>
      <br>
      <h2>More help</h2>
      Easy has more local help documents like this one. There are also more online help documents. Also a forum. Take your pick: <br>
@@ -185,9 +167,9 @@
         </td>
        </tr>
        <tr>
-        <td valign="top"><b>Online help:</b><br>
+        <td valign="top"><b>Online blog:</b><br>
         </td>
-        <td valign="top"><font size="+1"><a href="https://easyos.org/">https://easyos.org/</a></font></td>
+        <td valign="top"><font size="+1"><a href="https://bkhome.org/news/">https://bkhome.org/news/</a></font></td>
        </tr>
        <tr>
         <td valign="top"><b>Online forum:</b><br>

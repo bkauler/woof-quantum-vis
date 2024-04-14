@@ -15,7 +15,7 @@
 #20221111 improve explanation boot and working drives.
 #20230214 desktop image translated text overlay by svg.
 #20230530 no longer have separate sfs icon on desktop. pkg icon has 4 package managers.
-#20240322 quantumvis.
+#20240322 quantumvis. 20240411 fixes.
 
 export TEXTDOMAIN=easyhelp
 export OUTPUT_CHARSET=UTF-8
@@ -187,14 +187,12 @@ MSGw3="$(gettext 'After bootup, if you open the file manager, and look at "/", t
 MSGw4a="$(gettext 'However, if you look in sdb2, the working-partition, this is what you see:')"
 MSGw4c="$(gettext 'What are those folders for, and whereabouts is "/"?')"
 MSGw5="$(gettext 'Some hints as to what those folders do:')"
-MSGw6a="$(gettext 'Encrypted folder for containers, as Easy is a container-friendly OS and can run apps securely')"
 MSGw6b="$(gettext 'Folder where you keep all your own files, such as photos, downloads, documents. Optionally encrypted.')"
 MSGw6c="$(gettext 'For anything. AppImages and Flatpaks install here. Build area for woofQV.')"
 MSGw6d="$(gettext 'Each app may run as its own user; home folders are in here. Optionally encrypted.')"
-MSGw7="$(gettext 'The quick answer to whereabouts of that "/", is that it is in a btrfs subvolume inside the working-partition. Which might be a meaningless explanation! In which case, read this online web page:')"
+MSGw7="$(gettext 'The quick answer to whereabouts of "/", is that it is folder "@qv". At bootup the initrd performs a "switch root" operation, which transforms @qv to be the root of the filesystem.')"
+MSGw7b="$(gettext 'Elaborating a little bit more: /mnt/sbd2/quantumvis/@files is "bind mounted" inside the root filesystem, at /files, and /mnt/sdb2/quantumvis/1/@home is bind-mounted at /home')"
 
-MSGw8="$(gettext 'You can just blissfully go ahead and use Easy, however, if you are intrigued by how "/" is created, and the purpose of those folders in the working partition, please read this online web page:')"
-MSGw9="$(gettext 'As you are reading this, you must already have Easy installed. Probably on a USB Flash drive, which is fine. However...')"
 MSGi1="$(gettext 'How to install Easy')"
 MSGi2="$(gettext 'There is absolutely no problem with running Easy indefinitely from a USB Flash stick, however, you are likely to reach that point where you would like to install Easy on the internal hard drive of your PC.')"
 MSGi3="$(gettext 'No problem! In the "Setup" menu, there is "Easy Installer". Run that, and you will be guided through installing Easy to a hard drive.')"
@@ -241,20 +239,17 @@ cat >> ${NEWFILE} <<_EOF
 </head>
 <body>
  <table cellspacing="2" cellpadding="2" border="0" width="655" align="center">
-  <tbody>
    <tr>
     <td valign="top">
      <table cellspacing="2" cellpadding="2" border="0" width="100%">
-      <tbody>
        <tr>
-        <td valign="top"><img src="../logo96.png" alt="easy logo" width="96" height="96"><br>
+        <td valign="top"><img src="../logo96.png" alt="easy logo" width="96" height="96">
         </td>
         <td valign="top">&nbsp;&nbsp; <br>
          <b><font size="+3">${MSGh1}</font></b><br>
          <font size="+3">${MSGh2}</font>
         </td>
        </tr>
-      </tbody>
      </table>
      <br>
      ${MSGb1} <br>
@@ -276,40 +271,34 @@ cat >> ${NEWFILE} <<_EOF
 
      <br>
      <table cellspacing="2" cellpadding="2" border="0" width="100%">
-      <tbody>
        <tr>
         <td valign="top">${MSGk1}
         </td>
         <td valign="top"><img src="images/icon-free-desk.jpg" alt="applets" width="560" height="315">
         </td>
        </tr>
-      </tbody>
      </table>
 
      <br>
      ${MSGd4}
      <table cellspacing="2" cellpadding="2" border="0" width="100%">
-      <tbody>
        <tr>
         <td valign="top">${MSGd5}
         </td>
         <td valign="top"><img src="images/tray-applets.png" alt="applets" width="314" height="32">
         </td>
        </tr>
-      </tbody>
      </table>
      <br>
      <table cellspacing="2" cellpadding="2" border="0" width="100%">
-      <tbody>
        <tr>
         <td valign="top">
          ${MSGd6} <br>
          ${MSGd7}
         </td>
-        <td valign="top"><img src="images/drive-icons.png" alt="drive-icons" width="259" height="76"><br>
+        <td valign="top"><img src="images/drive-icons.png" alt="drive-icons" width="259" height="76">
         </td>
        </tr>
-      </tbody>
      </table>
      <br>
      ${MSGd8a} <br>
@@ -322,32 +311,34 @@ cat >> ${NEWFILE} <<_EOF
      <br>
      ${MSGw3}<br>
      <table cellspacing="2" cellpadding="2" border="0" width="100%">
-      <tbody>
        <tr>
         <td valign="top"><img src="images/top-of-rootfs.png" alt="top-of-layers" width="608" height="314"><br>
         </td>
        </tr>
-      </tbody>
      </table>
      <br>
      ${MSGw4a}<br>
-     <table cellspacing="2" cellpadding="2" border="0" width="100%">
-      <tbody>
+     <table cellspacing="2" cellpadding="0" border="0" width="100%">
        <tr>
         <td valign="top">
-         <img src="images/working-partition-top.png" alt="working-partition-top"><br>
+         <img src="images/working-partition-top.png" alt="working-partition-top">
         </td>
-        <td valign="top"><img src="images/working-partition-down.png" alt="working-partition"><br>
+        <td valign="top"><img src="images/working-partition-down.png" alt="working-partition">
         </td>
        </tr>
-      </tbody>
      </table>
+     <table cellspacing="2" cellpadding="0" border="0">
+       <tr>
+        <td valign="top">
+         <img src="images/working-partition-down2.png" alt="working-partition-down2">
+        </td>
+       </tr>
+     </table>
+     <br>
      ${MSGw4c}
      <br><br>
      ${MSGw5} <br>
      <table cellspacing="2" cellpadding="2" border="0" width="100%">
-      <tbody>
-       <tr><td valign="top"><b>containers</b></td><td valign="top">${MSGw6a}</td></tr>
        <tr>
         <td valign="top"><b>data</b>
         </td>
@@ -366,20 +357,17 @@ cat >> ${NEWFILE} <<_EOF
         <td valign="top">${MSGw6d}
         </td>
        </tr>
-      </tbody>
      </table>
-     <br>
+     <br><br>
      ${MSGw7}<br>
      <br>
-     <font size="+1"><a href="https://bkhome.org/news/202403/quirky-has-returned.html">${MSGz1}</a>
-     </font><br>
+     ${MSGw7b}<br>
      <br>
      <br>
      <h2>${MSGx1}</h2>
      ${MSGx2} <br>
      <br>
      <table cellspacing="2" cellpadding="2" border="0">
-      <tbody>
        <tr>
         <td valign="top"><b>${MSGx3a}</b>
         </td>
@@ -396,14 +384,12 @@ cat >> ${NEWFILE} <<_EOF
         </td>
         <td valign="top"><font size="+1"><a href="https://forum.puppylinux.com/viewforum.php?f=63">https://forum.puppylinux.com/</a></font></td>
        </tr>
-      </tbody>
      </table>
      <br>
      ${MSGx4}<br>
      Barry Kauler<br>
     </td>
    </tr>
-  </tbody>
  </table>
  <br>
 </body>
