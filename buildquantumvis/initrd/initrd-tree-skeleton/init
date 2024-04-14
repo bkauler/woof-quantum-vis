@@ -372,6 +372,14 @@ fi
 [ "$WKG_DIR" ] && [ "${WKG_DIR:0:1}" == "/" ] && WKG_DIR="${WKG_DIR:1:99}"
 #ex: WKG_DIR=quantumvis/
 
+#20240413 vmlinuz and initrd may be in a different partition...
+[ "$boot_uuid" ] && BOOT_UUID="$boot_uuid"
+[ "$boot_label" ] && BOOT_LABEL="$boot_label"
+[ "$boot_dev" ] && BOOT_DEV="$boot_dev"
+[ "$boot_dir" ] && BOOT_DIR="$boot_dir"
+[ "$BOOT_DIR" ] && [ "${BOOT_DIR##*/}" ] && BOOT_DIR="${BOOT_DIR}/"
+[ "$BOOT_DIR" ] && [ "${BOOT_DIR:0:1}" == "/" ] && BOOT_DIR="${BOOT_DIR:1:99}"
+
 SALT="aprilandvincent" #for folder encryption.
 
 loadfont < /lib/consolefonts/zap-ext-vga16.psfu #20230522
@@ -416,6 +424,21 @@ WKG_DRV="${WKG_DRV%[0-9]}"
 [ "${WKG_DRV:0:3}" == "nvm" ] && Pw=1
 [ $Pw -eq 1 ] && WKG_DRV="${WKG_DRV%p}"
 
+WKG_FS="$(echo "$BLKIDS" | grep "^/dev/${WKG_DEV}:" | grep -o 'TYPE="[a-z0-9]*"' | cut -f 2 -d '"')"
+
+#20240413
+if [ -n "$BOOT_LABEL" -o -n "$BOOT_UUID" ];then
+ BOOT_DEV="$(echo "$BLKIDS" | grep -E "\"${BOOT_UUID}\"|\"${BOOT_LABEL}\"" | cut -f 1 -d ':' | cut -f 3 -d '/')"
+fi
+if [ -n "$BOOT_DEV" ];then
+ BOOT_FS="$(echo "$BLKIDS" | grep "/dev/${BOOT_DEV}:" | tr ' ' '\n' | grep '^TYPE=' | cut -f 2 -d '"')"
+else
+ #boot params not provided. assume same as wkg-partition...
+ BOOT_DEV="$WKG_DEV"
+ BOOT_FS="$WKG_FS"
+ BOOT_DIR="$WKG_DIR"
+fi
+
 #20240324 read optional qfix= kernel boot parameter
 BROKENVID=0
 LOCKDOWN=0 #only allow setting via menu.
@@ -433,7 +456,6 @@ FREEK=`grep '^MemFree:' /proc/meminfo | tr -s ' ' | cut -f 2 -d ' '` #free RAM
 
 ###temporary mount working partition###
 mkdir /tempmnt
-WKG_FS="$(echo "$BLKIDS" | grep "^/dev/${WKG_DEV}:" | grep -o 'TYPE="[a-z0-9]*"' | cut -f 2 -d '"')"
 [ "$WKG_FS" != "btrfs" ] && err_exit "Partition /dev/${WKG_DEV} is required to have a btrfs filesystem"
 export WKG_FS
 
@@ -820,6 +842,9 @@ WKG_FS='${WKG_FS}'
 WKG_DIR='${WKG_DIR}'
 WKG_SUBDIR='${PATHDEF}'
 WKG_ROOTFS='${QV}'
+BOOT_DEV='${BOOT_DEV}'
+BOOT_DIR='${BOOT_DIR}'
+BOOT_FS='${BOOT_FS}'
 BOOT_PW_FLG='${PW/*[a-zA-Z0-9]*/X}'" > /mnt/${WKG_DEV}/${QV}/etc/rc.d/PUPSTATE
 
 if [ "$QLANG" ];then
@@ -850,6 +875,10 @@ if [ -e /bin/hwclock ];then
 fi
 #--remove-destination security precaution...
 cp -a -f --remove-destination /bin/capsh /mnt/${WKG_DEV}/${QV}/usr/bin/capsh.static
+#20240413 problems with button labels different versions, copy this for consistency...
+if [ -e /bin/dialog ];then
+ cp -a -f --remove-destination /bin/dialog /mnt/${WKG_DEV}/${QV}/usr/bin/
+fi
 
 echo -n '' > /mnt/${WKG_DEV}/${QV}/data/settings/initrd/hdparm-power-down
 if [ $LOCKDOWN -eq 1 ];then
