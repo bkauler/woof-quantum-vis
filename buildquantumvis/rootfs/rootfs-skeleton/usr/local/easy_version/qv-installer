@@ -8,6 +8,8 @@ IMG="$1"
 if [ -t 0 ];then
  true #we are running this from a terminal, good.
 else
+ M1="$(gettext 'qv-installer must be run from a terminal')"
+ xmessage -bg '#ffc0c0' -fg '#000000' -center "${M1}"
  exit 13
 fi
 
@@ -27,25 +29,29 @@ echo
 
 BAD=0
 if [ "$(whoami)" != "root" ];then
- echo "ERROR you must run this script as the root user."
+ echo "$(gettext 'ERROR you must run this script as the root user.')"
  BAD=1
 fi
-blkid --help 2>&1 | grep -q 'BusyBox'
-if [ $? -eq 0 ];then
- echo "ERROR the full blkid utility is required. The BusyBox blkid is inadequate."
- BAD=1
-fi
+#blkid --help 2>&1 | grep -q 'BusyBox'
+#if [ $? -eq 0 ];then
+# echo "$(gettext 'ERROR the full blkid utility from the util-linux package is required. The BusyBox blkid is inadequate.')"
+# BAD=1
+#fi
 if ! which btrfs >/dev/null; then
- echo "ERROR btrfs-progs package must be installed."
+ echo "$(gettext 'ERROR btrfs-progs package must be installed.')"
+ BAD=1
+fi
+if ! which mkfs.btrfs >/dev/null; then
+ echo "$(gettext 'ERROR mkfs.btrfs utility missing, btrfs-progs package must be installed.')"
  BAD=1
 fi
 if ! which mount-img >/dev/null; then
- echo "ERROR mount-img script must be installed."
+ echo "$(gettext 'ERROR mount-img script must be installed.')"
  BAD=1
 else
  grep -q 'btrfs' /usr/bin/mount-img
  if [ $? -ne 0 ];then
-  echo "ERROR older version of mount-img not suitable."
+  echo "$(gettext 'ERROR older version of mount-img not suitable.')"
   BAD=1
  fi
 fi
@@ -54,7 +60,7 @@ fi
 # BAD=1
 #fi
 if ! which uuidgen >/dev/null; then
- echo "ERROR the uuidgen utility must be installed."
+ echo "$(gettext 'ERROR the uuidgen utility from the util-linux package must be installed.')"
  BAD=1
 fi
 
@@ -66,7 +72,6 @@ if [ ! -f "${IMG}" -o -z "${IMG}" ];then
  echo "# qv-installer qv-240413-amd64.img"
  BAD=1
 fi
-
 
 if [ $BAD -eq 1 ];then
  echo
@@ -144,7 +149,7 @@ echo -e '\033[0;39m' #reset foreground to default
 echo
 
 echo "$(gettext 'Some notes before continuing:')"
-echo "$(gettext 'In some cases it is possible for the boot partition to be the same as the btrfs partition that QV will install into. This will require the files vmlinuz and initrd to be in the btrfs partition. However, many bootloaders do not recognize a btrfs partition. Recent versions of GRUB2 and rEFInd may, but there may be issues.')" | fold -s -w ${COLUMNS}
+echo "$(gettext 'In some cases the boot partition may be the same as the btrfs partition that QV will install into. This will require the files vmlinuz and initrd to be in the btrfs partition; however, many bootloaders do not recognize a btrfs partition. GRUB2: version 2.04 or later is required. rEFInd: maybe. GRUB4DOS, GRUB1 and Limine: no.')" | fold -s -w ${COLUMNS}
 echo "$(gettext 'Remember the option, if have a UEFI PC, of having a separate esp vfat boot partition just for QV. It will simplify bootloader setup, and may be required if insufficient free space in the existing boot partition.')" | fold -s -w ${COLUMNS}
 echo
 echo -n -e "\033[1;31m" #red, bright
@@ -177,13 +182,9 @@ fi
 echo
 echo "$(gettext 'Please enter the boot partition.')"
 echo "$(gettext 'Files vmlinuz and initrd will be installed here.')"
-echo "$(gettext 'Note, you can enter same as above; however, the bootloader must be able to recognize a btrfs partition. Recent GRUB2 and rEFInd can handle this, but there may be issues.')"
+echo "$(gettext 'Note, you can enter same as above; however, the bootloader must be able to recognize a btrfs partition.')"
 echo -n "(ex: sda1): "
 read BOOT_DEV
-
-WKG_FS="$(blkid --match-tag TYPE /dev/${WKG_DEV} | cut -f 2 -d '"')"
-BOOT_FS="$(blkid --match-tag TYPE /dev/${BOOT_DEV} | cut -f 2 -d '"')"
-
 
 grep -q "^/dev/${BOOT_DEV} " /proc/mounts
 if [ $? -eq 0 ];then
@@ -198,23 +199,42 @@ if [ $? -eq 0 ];then
  exit 6
 fi
 
+#this only works with blkid from util-linux pkg...
+#WKG_FS="$(blkid --match-tag TYPE /dev/${WKG_DEV} | cut -f 2 -d '"')"
+#BOOT_FS="$(blkid --match-tag TYPE /dev/${BOOT_DEV} | cut -f 2 -d '"')"
+
+WBLKID="$(blkid /dev/${WKG_DEV} | tr ' ' '\n')"
+WKG_FS="$(echo "$WBLKID" | grep '^TYPE=' | cut -f 2 -d '"')"
+WKG_LABEL="$(echo "$WBLKID" | grep '^LABEL=' | cut -f 2 -d '"')"
+WKG_UUID="$(echo "$WBLKID" | grep '^UUID=' | cut -f 2 -d '"')"
+
+BBLKID="$(blkid /dev/${BOOT_DEV} | tr ' ' '\n')"
+BOOT_FS="$(echo "$BBLKID" | grep '^TYPE=' | cut -f 2 -d '"')"
+BOOT_LABEL="$(echo "$BBLKID" | grep '^LABEL=' | cut -f 2 -d '"')"
+BOOT_UUID="$(echo "$BBLKID" | grep '^UUID=' | cut -f 2 -d '"')"
+
 echo
 if [ "${WKG_FS}" != "btrfs" ];then
  #create btrfs f.s.
  echo "$(gettext 'Will now format this partition as btrfs:') /dev/${WKG_DEV}"
  echo -n "$(gettext 'Press ENTER to continue:') "
  read keepgoing
- UUID2="$(uuidgen -r)" #ex: bf250e04-a570-488c-bc45-b6a1ded8f8a0
- mkfs.btrfs -L QVWKG --uuid ${UUID2} /dev/${WKG_DEV}
+ WKG_UUID="$(uuidgen -r)" #ex: bf250e04-a570-488c-bc45-b6a1ded8f8a0
+ #20240410 -f to force if existing f.s. detected...
+ mkfs.btrfs -f -L QVWKG --uuid ${WKG_UUID} /dev/${WKG_DEV}
  if [ $? -ne 0 ];then
   echo "$(gettext 'ERROR, aborting.')"
   exit 2
  fi
-else
- UUID2="$(blkid --match-tag UUID /dev/${WKG_DEV} | cut -f 2 -d '"')"
+ WKG_FS='btrfs'
+ WKG_LABEL='QVWKG'
+ if [ "$BOOT_DEV" == "$WKG_DEV" ];then
+  BOOT_UUID="$WKG_UUID"
+  BOOT_FS='btrfs'
+  BOOT_LABEL='QVWKG'
+ fi
 fi
 sync
-BOOT_UUID="$(blkid --match-tag UUID /dev/${BOOT_DEV} | cut -f 2 -d '"')"
 
 #mount the drive-img file
 BAD=0
@@ -287,15 +307,21 @@ if [ $? -eq 0 -a "${BOOT_FS}" == "vfat" ];then
  #partition is empty. new partition.
  echo "$(gettext 'also EFI directory, limine.cfg and limine.sys')"
  cp -a ${IMGMNTBOOT}/* /mnt/${BOOT_DEV}/
- PTN1="s%wkg_uuid=.*%wkg_uuid=${UUID2} wkg_dir=qv${DISTRO_VERSION}/%"
+ PTN1="s%wkg_uuid=.*%wkg_uuid=${WKG_UUID} wkg_dir=qv${DISTRO_VERSION}/%"
  sed -i -e "${PTN1}" /mnt/${BOOT_DEV}/limine.cfg
+ PTN2="s%boot_uuid=[^ ]*%boot_uuid=${BOOT_UUID}%"
+ PTN3="s%boot_dir=[^ ]*%boot_dir=${BOOT_DIR}%"
+ sed -i -e "${PTN2}" /mnt/${BOOT_DEV}/limine.cfg
+ sed -i -e "${PTN3}" /mnt/${BOOT_DEV}/limine.cfg
  BOOTFOLDER=''
+ BOOT_DIR=''
 else
  echo "$(gettext 'copied into folder:') qv${DISTRO_VERSION}"
  mkdir -p /mnt/${BOOT_DEV}/qv${DISTRO_VERSION}
  cp -a -f ${IMGMNTBOOT}/vmlinuz /mnt/${BOOT_DEV}/qv${DISTRO_VERSION}/
  cp -a -f ${IMGMNTBOOT}/initrd /mnt/${BOOT_DEV}/qv${DISTRO_VERSION}/
  BOOTFOLDER="/qv${DISTRO_VERSION}"
+ BOOT_DIR="qv${DISTRO_VERSION}/"
 fi
 
 #btrfs-send -receive to wkg-part
@@ -335,9 +361,15 @@ echo -en '\033[1;35m' #1;35 foreground bright magenta
 echo -n "$(gettext 'Bootloader setup')"
 echo -e '\033[0;39m' #reset foreground to default
 
+#if [ -z "$BOOT_DIR" ];then
+# KCMD="boot_uuid=${BOOT_UUID} wkg_uuid=${WKG_UUID} wkg_dir=qv${DISTRO_VERSION}/"
+#else
+ KCMD="boot_uuid=${BOOT_UUID} boot_dir=${BOOT_DIR} wkg_uuid=${WKG_UUID} wkg_dir=qv${DISTRO_VERSION}/"
+#fi
+
 echo
 echo "$(gettext 'If you need to make a bootloader menu entry, pass these parameters on the kernel command line:')"
-echo "wkg_uuid=${UUID2} wkg_dir=qv${DISTRO_VERSION}/"
+echo "wkg_uuid=${WKG_UUID} wkg_dir=qv${DISTRO_VERSION}/"
 if [ ! -z "$BOOTFOLDER" ];then
  echo "$(gettext 'vmlinuz and initrd have been installed into this folder in the boot partition:')"
  echo "${BOOTFOLDER}"
@@ -346,8 +378,8 @@ if [ "$BOOT_FS" != "btrfs" ];then
  echo
  echo "$(gettext 'Here is an example entry for the menu.lst file in GRUB4DOS:')"
  echo "title QV Frugal (qv${DISTRO_VERSION})
-  find --set-root uuid () 3f8f077d-7a7d-4e7a-9cb5-a8b94e1f1c87
-  kernel ${BOOTFOLDER}/vmlinuz rw wkg_uuid=${UUID2} wkg_dir=qv${DISTRO_VERSION}/
+  find --set-root uuid () ${BOOT_UUID}
+  kernel ${BOOTFOLDER}/vmlinuz rw ${KCMD}
   initrd ${BOOTFOLDER}/initrd"
 fi
 echo
@@ -355,8 +387,8 @@ echo "$(gettext 'Here is an example menu entry for /etc/grub.d/40_custom in GRUB
 echo "menuentry \"QV Frugal\" {
 insmod btrfs
 insmod search_fs_uuid
-search --no-floppy --fs-uuid --set=root e3f14616-44v2-tm5p-7761-5024487d8792
-linux ${BOOTFOLDER}/vmlinuz rw wkg_uuid=${UUID2} wkg_dir=qv${DISTRO_VERSION}/ 
+search --no-floppy --fs-uuid --set=root ${BOOT_UUID}
+linux ${BOOTFOLDER}/vmlinuz rw ${KCMD} 
 initrd ${BOOTFOLDER}/initrd
 }"
 if [ "$BOOT_FS" == "vfat" ];then
@@ -366,7 +398,16 @@ if [ "$BOOT_FS" == "vfat" ];then
     PROTOCOL=linux
     KERNEL_PATH=uuid://${BOOT_UUID}${BOOTFOLDER}/vmlinuz
     MODULE_PATH=uuid://${BOOT_UUID}${BOOTFOLDER}/initrd
-    KERNEL_CMDLINE=rw wkg_uuid=${UUID2} wkg_dir=qv${DISTRO_VERSION}/"
+    KERNEL_CMDLINE=rw ${KCMD}"
+ echo
+ echo "$(gettext 'Here is an example entry for the refind.conf file in rEFInd boot-manager:')"
+ echo "menuentry \"QV Frugal (${WKG_DEV})\" {
+ volume ${BOOT_LABEL}
+ loader ${BOOTFOLDER}/vmlinuz
+ initrd ${BOOTFOLDER}/initrd
+ ostype Linux
+ options \"rw ${KCMD}\"
+}"
 fi
 
 ###end###
