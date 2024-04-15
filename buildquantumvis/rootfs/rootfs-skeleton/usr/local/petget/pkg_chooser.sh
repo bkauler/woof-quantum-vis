@@ -48,6 +48,7 @@
 #20230914 void: update pkg db every time run pkgget.
 #20230914 stupid grep: "grep: warning: stray \ before -" use busybox grep. no, grep -P works. no, in case only have busybox grep, it doesn't understand -P
 #20240228 when easyvoid has pkgget frontend for xbps, no need to update pkg db at startup. 20240229 revert.
+#20240414 fix reporting false "ALREADY INSTALLED"
 
 #/usr/local/petget/service_pack.sh & #121125 offer download Service Pack.
 
@@ -153,9 +154,11 @@ fi
 if [ ! -f /tmp/petget/petget_installed_patterns_system ];then
  INSTALLED_PATTERNS_SYS="`cat /root/.packages/layers-installed-packages | cut -f 2 -d '|' | sed -e 's%^%|%' -e 's%$%|%' -e 's%\\-%\\\\-%g'`"
  echo "$INSTALLED_PATTERNS_SYS" > /tmp/petget/petget_installed_patterns_system
- #PKGS_SPECS_TABLE also has system-installed names, some of them are generic combinations of pkgs...
- INSTALLED_PATTERNS_GEN="`echo "$PKGS_SPECS_TABLE" | grep '^yes' | cut -f 2 -d '|' |  sed -e 's%^%|%' -e 's%$%|%' -e 's%\\-%\\\\-%g'`"
- echo "$INSTALLED_PATTERNS_GEN" >> /tmp/petget/petget_installed_patterns_system
+ 
+ #20240414 this is reporting false "ALREADY INSTALLED". ex: "gcc"...
+ ##PKGS_SPECS_TABLE also has system-installed names, some of them are generic combinations of pkgs...
+ #INSTALLED_PATTERNS_GEN="`echo "$PKGS_SPECS_TABLE" | grep '^yes' | cut -f 2 -d '|' |  sed -e 's%^%|%' -e 's%$%|%' -e 's%\\-%\\\\-%g'`"
+ #echo "$INSTALLED_PATTERNS_GEN" >> /tmp/petget/petget_installed_patterns_system
  
  #120822 in precise puppy have a pet 'cups' instead of the ubuntu debs. the latter are various pkgs, including 'libcups2'.
  #we don't want libcups2 showing up as a missing dependency, so have to screen these alternative names out...
