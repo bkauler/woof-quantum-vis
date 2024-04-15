@@ -5,8 +5,8 @@ WKG_DEV="$1" #ex: sdc2
 WKG_DIR="$2" #ex: quantumvis/
 PATHDEF="$3" #ex: quantumvis/1
 
-if [ -f /nls/${QLANG}/manage-snapshots.str ];then
-.  /nls/${QLANG}/manage-snapshots.str
+if [ -f /nls/${QLANG}/choose-snapshot.str ];then
+.  /nls/${QLANG}/choose-snapshot.str
 fi
 
 #snapshot records: /mnt/${WKG_DEV}/${WKG_DIR}snapshot-record
@@ -19,7 +19,7 @@ M2="${S101:-These are the available snapshots.}"
 M3="${S102:-This is the current default:}"
 M4="${S103:-Please choose which one you want to boot into and become the new default:}"
 
-ITEMS="$(sed -e 's%"%%' -e 's%|% "%' -e 's%|% %' -e 's%$%"%' /mnt/${WKG_DEV}/${WKG_DIR}snapshot-record | tr '\n' ' ')"
+ITEMS="$(sed -e 's%"%%g' -e 's%|% "%' -e 's%|% %' -e 's%$%"%' /mnt/${WKG_DEV}/${WKG_DIR}snapshot-record | tr '\n' ' ')"
 
 eval "dialog --title \"${M1}\" --cr-wrap --stderr --menu \"${M2}${CR}${M3} ${SNAPDEF}${CR}${M4}\" 0 0 0 ${ITEMS} 2>/srchoice"
 if [ ! -s /srchoice ];then

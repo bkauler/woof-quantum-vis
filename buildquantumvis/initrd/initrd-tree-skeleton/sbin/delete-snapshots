@@ -1,0 +1,97 @@
+#!/bin/ash
+#choose one or more snapshots to delete
+
+WKG_DEV="$1" #ex: sdc2
+WKG_DIR="$2" #ex: quantumvis/
+PATHDEF="$3" #ex: quantumvis/1
+
+if [ -f /nls/${QLANG}/delete-snapshots.str ];then
+.  /nls/${QLANG}/delete-snapshots.str
+fi
+
+#snapshot records: /mnt/${WKG_DEV}/${WKG_DIR}snapshot-record
+SNAPDEF="$(cat /mnt/${WKG_DEV}/${WKG_DIR}snapshot-default)"
+
+T1="$(btrfs subvolume list -qut /mnt/${WKG_DEV} | grep '@qv' | tr '\t' ' ' | tr -s ' ' | sed -e 's%^ %%' -e "s%${WKG_DIR}%%" -e 's%/@qv$%%' | cut -f 4,5,6 -d ' ')"
+echo "$T1" > /T1
+echo -n '' > /ITEMS
+while IFS=' ' read PARENT CURRENT SNAPSHOT
+do
+ #ex: PARENT=6f738873-b271-9f42-99cc-4ffd803db10b CURRENT=e348e708-2a3b-9643-8a65-88aa75ffda43 SNAPSHOT=4
+ #this truncates the line to column 50 then pads to 53...
+ aREC="$(grep "^${SNAPSHOT}|" /mnt/${WKG_DEV}/${WKG_DIR}snapshot-record | cut -c 1-50 | sed -e 's%"%%g' | xargs -I STR printf "%-53s\n" STR | sed  -e 's%|% "%' -e 's%|% %')"
+ echo -n "${aREC}   " >> /ITEMS
+ CHILDREN="$(grep "^${CURRENT}" /T1 | cut -f 3 -d ' ' | tr '\n' ' ' | sed -e 's% $%%')"
+ echo "${CHILDREN}\"" >> /ITEMS
+done </T1
+
+#remove the default snapshot...
+sed -i "/^${SNAPDEF} /d" /ITEMS
+
+CR='
+'
+M1="${S100:-Delete Snapshots}"
+M2="${S101:-Each entry has this format:}"
+M5="${S102:-snapshot-number creation-date description children}"
+M6="${S105:-WARNING: If a snapshot has children, that is, snapshots taken from this snapshot, especially if there are grandchildren, deletion may take a long time.}"
+M7="${S106:-Use the up/down arrow keys and the spacebar to toggle selection on and off. Choose as many as you want to delete, then press ENTER key to delete them:}"
+M3="${S103:-Delete}"
+M4="${S104:-Cancel}"
+ITEMS="$(sed -e 's%$% off%' /ITEMS | tr '\n' ' ')"
+eval "dialog --no-shadow --ok-label "${M3}" --cancel-label "${M4}" --title \"${M1}\" --cr-wrap --stderr --checklist \"${M2}${CR}${M5}${CR}${M6}${CR}${M7}\" 0 0 0 ${ITEMS} 2>/srchoice" 
+
+if [ ! -s /srchoice ];then
+ echo "${S110:-No snapshots chosen to be deleted}"
+ exit 1
+fi
+
+#sanity check...
+for aS in $(cat /srchoice) #ex: 2 5
+do
+ grep -q "^${aS}|" /mnt/${WKG_DEV}/${WKG_DIR}snapshot-record
+ if [ $? -ne 0 ];then
+  echo "${S111:-ERROR invalid choice. No snapshots will be deleted.}"
+  exit 2
+ fi
+done
+
+M10="${S120:-Please confirm that you want to delete these snapshots:}"
+M11=" $(cat /srchoice)"
+M12="${S121:-Be warned that it might take awhile, especially if the snapshot has children and grandchildren.}"
+M13="${S122:-OK}"
+M14="${S123:-Cancel}"
+M15="${S124:-Confirm deletion}"
+dialog --title "${M15}" --yes-label "${M13}" --no-label "${M14}" --cr-wrap --yesno "${M10}${CR}${M11}${CR}${M12}" 0 0
+
+if [ $? -ne 0 ];then
+ exit 3
+fi
+
+for aS in $(cat /srchoice)
+do
+ [ -z "$aS" ] && continue
+ echo "${S132:-Deleting:} ${aS}"
+ btrfs subvolume delete /mnt/${WKG_DEV}/${WKG_DIR}${aS}/@qv
+ if [ $? -ne 0 ];then
+  echo "${S130:-ERROR failed to delete:} /mnt/${WKG_DEV}/${WKG_DIR}${aS}/@qv"
+  echo "${S131:-This is bad. Avoid using this snapshot until it can be repaired.}"
+  exit 4
+ fi
+ btrfs subvolume sync /mnt/${WKG_DEV}/${WKG_DIR}${aS}/@qv
+ btrfs subvolume delete /mnt/${WKG_DEV}/${WKG_DIR}${aS}/@home
+ if [ $? -ne 0 ];then
+  echo "${S130:-ERROR failed to delete:} /mnt/${WKG_DEV}/${WKG_DIR}${aS}/@home"
+  echo "${S131:-This is bad. Avoid using this snapshot until it can be repaired.}"
+  exit 4
+ fi
+ btrfs subvolume sync /mnt/${WKG_DEV}/${WKG_DIR}${aS}/@home
+ rm -rf /mnt/${WKG_DEV}/${WKG_DIR}${aS}
+ sync
+ echo -n "${aS} " >/sdeleted
+ sed -i "/^${aS}|/d" /mnt/${WKG_DEV}/${WKG_DIR}snapshot-record
+done
+
+M20="${S140:-These snapshots successfully deleted:} $(cat /sdeleted)"
+dialog --ok-label "${M13}" --cr-wrap --msgbox "${M20}" 0 0
+
+###end###

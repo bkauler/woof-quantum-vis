@@ -135,6 +135,8 @@ menu_func() {
  CNTm=$(($CNTm+1))
  echo "SNAPTAKE ${CNTm} ${S407:-Take a snapshot}" >> /menulist
  CNTm=$(($CNTm+1))
+ echo "SNAPDEL ${CNTm} ${S420:-Delete snapshots}" >> /menulist
+ CNTm=$(($CNTm+1))
  echo "SNAPBOOT ${CNTm} ${S408:-Choose snapshot to boot into}" >> /menulist
  CNTm=$(($CNTm+1))
  echo "FSCHECK ${CNTm} ${S025:-Filesystem check of working-partition}" >> /menulist
@@ -207,8 +209,14 @@ menu_func() {
     echo "${SNAPDEF}|${DISTRO_VERSION}|${REASON}" >> /mnt/${WKG_DEV}/${WKG_DIR}snapshot-record
    fi
   ;;
+  SNAPDEL)
+   /sbin/delete-snapshots "${WKG_DEV}" "${WKG_DIR}" "${PATHDEF}"
+   if [ $? -eq 0 ];then
+    sleep 2 #so as to read the error msg.
+   fi
+  ;;
   SNAPBOOT)
-   /sbin/manage-snapshots "${WKG_DEV}" "${WKG_DIR}" "${PATHDEF}"
+   /sbin/choose-snapshot "${WKG_DEV}" "${WKG_DIR}" "${PATHDEF}"
    if [ $? -eq 0 ];then
     PATHDEF="$(cat /NEWPATHDEF)" #ex: quantumvis/2
     SNAPDEF="${PATHDEF##*/}"
