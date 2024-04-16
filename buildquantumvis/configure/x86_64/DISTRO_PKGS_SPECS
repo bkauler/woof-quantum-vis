@@ -26,6 +26,7 @@ no|aalib-devel|aalib-devel|dev,doc>null|compat:current| #20240130
 yes|abseil-cpp-devel|abseil-cpp-devel|dev|compat:current| #20240118
 yes|acl|acl|exe,doc>null|compat:current|
 yes|acl-devel|acl-devel|dev,doc>null|compat:current| #20240130
+yes|acpid|acpid|exe|compat:current| #20240416
 yes|adbfs|adbfs|exe,dev,doc>null|compat:kirkstone|
 yes|adwaita-icon-theme|adwaita-icon-theme|exe,doc>null|compat:current|
 yes|align|align|exe|pet:noarch| #perl script.
