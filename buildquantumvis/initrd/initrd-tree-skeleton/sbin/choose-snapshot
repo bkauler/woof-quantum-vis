@@ -14,7 +14,7 @@ SNAPDEF="$(cat /mnt/${WKG_DEV}/${WKG_DIR}snapshot-default)"
 
 CR='
 '
-M1="${S100:-Manage Snapshots}"
+M1="${S100:-Choose Snapshot}"
 M2="${S101:-These are the available snapshots.}"
 M3="${S102:-This is the current default:}"
 M4="${S103:-Please choose which one you want to boot into and become the new default:}"
