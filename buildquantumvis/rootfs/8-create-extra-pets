@@ -1,0 +1,115 @@
+#!/bin/bash
+
+export LANG=C
+RP="$(realpath ${0})"
+L1="${RP/buildquantumvis*/buildquantumvis}"
+mkdir -p /tmp/woofQV
+. /var/local/woofQV/VARS #has E1
+. ${E1}/rootfs/etc/DISTRO_SPECS
+
+cd ${E1}
+
+#create a devx pet...
+echo "Creating devx-${DISTRO_VERSION}.pet package..."
+
+if [ -d sandbox/devx-${DISTRO_VERSION} ];then
+ rm -rf sandbox/devx-${DISTRO_VERSION}
+fi
+if [ -f export/devx-${DISTRO_VERSION}.pet ];then
+ rm -f export/devx-${DISTRO_VERSION}.pet
+fi
+
+mkdir sandbox/devx-${DISTRO_VERSION}
+mkdir -p sandbox/devx-${DISTRO_VERSION}/usr/share/doc
+echo "devx-${DISTRO_VERSION}.pet is a meta-package that has installed all Void
+packages required for a complete compiling and development environment.
+In PKGget, you can uninstall devx-${DISTRO_VERSION}.pet and it will also
+uninstall all of the Void packages that had been installed.
+" > sandbox/devx-${DISTRO_VERSION}/usr/share/doc/devx.txt
+
+cat >> sandbox/devx-${DISTRO_VERSION}/pinstall.sh <<'_EOF1'
+#!/bin/ash
+#this is a meta-package to install all required packages for a complete
+#compiling development environment.
+pidof -o ${$} pinstall.sh >/dev/null
+if [ $? -ne 0 ];then
+ urxvt -geometry 100x35 -e ${0}
+ exit
+fi
+xARCH="$(arch)"
+export XBPS_ARCH="$xARCH"
+popup "placement=top-middle background=#ffc080|<big>Installing all packages for a complete development environment</big>"
+#devx-only-installed-packages has all the pkgs that we want in the devx
+#filter-out the kirkstone pkgs that may be in this list...
+PKGLIST="$(grep -F '|void|' /root/.packages/devx-only-installed-packages | cut -f 2 -d '|' | tr '\n' ' ')"
+for aPKG in ${PKGLIST}
+do
+ /usr/bin/xbps-install --yes --ignore-file-conflicts ${aPKG}
+ if [ $? -ne 0 ];then
+  echo -n "Install error. Press ENTER to keep going, any other key to abort: "
+  read keepgoing
+  if [ -n "$keepgoing" ];then
+   break
+  fi
+  continue
+ fi
+ grep "|${aPKG}|" /root/.packages/devx-only-installed-packages >> /root/.packages/user-installed-packages
+done
+killall popup
+echo "INSTALL FINISHED. PRESS ENTER KEY TO CLOSE TERMINAL"
+read keepgoing
+_EOF1
+
+chmod 755 sandbox/devx-${DISTRO_VERSION}/pinstall.sh
+
+cat >> sandbox/devx-${DISTRO_VERSION}/puninstall.sh <<'_EOF1'
+#!/bin/ash
+#un-install all required packages for a complete
+#compiling development environment.
+EXE="${0##*/}" #ex: devx-240417.remove, formerly puninstall.sh
+pidof -o ${$} ${EXE} >/dev/null
+if [ $? -ne 0 ];then
+ urxvt -geometry 100x35 -e ${0}
+ exit
+fi
+xARCH="$(arch)"
+export XBPS_ARCH="$xARCH"
+popup "placement=top-middle background=#ffc080|<big>Installing all packages for a complete development environment</big>"
+for aPKG in ${PKGLIST}
+do
+ INST="$(/usr/bin/xbps-query --show ${aPKG} --property state)"
+ if [ "${INST}" == "installed" ];then
+  PKGVER="$(/usr/bin/xbps-query --show ${aPKG} --property pkgver)"
+  #removed:  --recursive
+  /usr/bin/xbps-remove --force --clean-cache --yes ${PKGVER}
+  if [ $? -ne 0 ];then
+   echo -n "Un-install error. Press ENTER to keep going, any other key to abort: "
+   read keepgoing
+   if [ -n "$keepgoing" ];then
+    break
+   fi
+   continue
+  fi
+  sed -i "/|${aPKG}|/d" /root/.packages/user-installed-packages
+ fi
+done
+killall popup
+echo "INSTALL FINISHED. PRESS ENTER KEY TO CLOSE TERMINAL"
+read keepgoing
+_EOF1
+
+chmod 755 sandbox/devx-${DISTRO_VERSION}/puninstall.sh
+
+echo "devx-${DISTRO_VERSION}|devx|${DISTRO_VERSION}||Utility;development|32K||devx-${DISTRO_VERSION}.pet||meta-package for complete compile environment||||" > sandbox/devx-${DISTRO_VERSION}/pet.specs
+
+cd sandbox
+dir2tgz devx-${DISTRO_VERSION}
+tgz2pet devx-${DISTRO_VERSION}.tar.gz
+cd ..
+mv -f sandbox/devx-${DISTRO_VERSION}.pet export/devx-${DISTRO_VERSION}.pet
+sync
+
+#now manually add this pet to the pet-void repo.
+echo "Created ${E1}/export/devx-${DISTRO_VERSION}.pet"
+echo "Have to manually add this to the pet-void repo"
+###end###
