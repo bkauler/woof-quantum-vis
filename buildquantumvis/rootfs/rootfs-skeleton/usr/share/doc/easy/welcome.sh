@@ -15,7 +15,7 @@
 #20221111 improve explanation boot and working drives.
 #20230214 desktop image translated text overlay by svg.
 #20230530 no longer have separate sfs icon on desktop. pkg icon has 4 package managers.
-#20240322 quantumvis. 20240411 fixes.
+#20240322 quantumvis. 20240411 fixes. 20240417 remove update.
 
 export TEXTDOMAIN=easyhelp
 export OUTPUT_CHARSET=UTF-8
@@ -41,7 +41,7 @@ fi
 export LANGUAGE="$xNEWLANG"
 
 ###20230214###
-S01="$(gettext '4 package')"
+S01="$(gettext '3 package')"
 S02="$(gettext 'managers')"
 S03="$(gettext 'or right-click on desktop')"
 S04="$(gettext 'Containerized')"
@@ -54,6 +54,8 @@ S10="$(gettext 'Share files &amp; printers')"
 S11="$(gettext 'Connect to the Internet')"
 S12="$(gettext 'Menu: bottom-left of screen,')"
 S13="$(gettext 'apps')"
+S20="$(gettext 'Simplified app')"
+S21="$(gettext 'selection')"
 OVERLAYSVG="/usr/share/doc/easy/images/overlay.svg"
 if [ -f $OVERLAYSVG ];then
  rm -f $OVERLAYSVG
@@ -75,73 +77,73 @@ cat >> ${OVERLAYSVG} <<_EOF1
      x="55.018375"
      y="19.375782"
      id="text6"><tspan
-       x="55.018375"
-       y="19.375782"
-       id="tspan4">3 package</tspan></text><text
+       x="46.771618"
+       y="31.85545"
+       id="tspan4">${S01}</tspan></text><text
      class="mainfont"
      x="54.59116"
      y="25.497089"
      id="text10"><tspan
-       x="54.59116"
-       y="25.497089"
-       id="tspan8">managers</tspan></text><text
+       x="46.344402"
+       y="37.976757"
+       id="tspan8">${S02}</tspan></text><text
      class="mainfont"
      x="20.686241"
      y="106.62888"
      id="text14"><tspan
        x="20.686241"
        y="106.62888"
-       id="tspan12">or right-click on desktop</tspan></text><text
+       id="tspan12">${S03}</tspan></text><text
      class="mainfont"
      x="34.905773"
      y="58.326523"
      id="text30"><tspan
        x="34.905773"
        y="58.326523"
-       id="tspan28">latest version</tspan></text><text
+       id="tspan28">${S21}</tspan></text><text
      class="mainfont"
      x="34.52084"
      y="51.277962"
      id="text34"><tspan
        x="34.52084"
        y="51.277962"
-       id="tspan32">Update QV to</tspan></text><text
+       id="tspan32">${S20}</tspan></text><text
      class="mainfont"
      x="25.150906"
      y="76.819824"
      id="text38"><tspan
        x="25.150906"
        y="76.819824"
-       id="tspan36">over the network</tspan></text><text
+       id="tspan36">${S09}</tspan></text><text
      class="mainfont"
      x="19.260212"
      y="69.074661"
      id="text42"><tspan
        x="19.260212"
        y="69.074661"
-       id="tspan40">Share files &amp; printers</tspan></text><text
+       id="tspan40">${S10}</tspan></text><text
      class="mainfont"
      x="9.4059362"
      y="88.152443"
      id="text46"><tspan
        x="9.4059362"
        y="88.152443"
-       id="tspan44">Connect to the Internet</tspan></text><text
+       id="tspan44">${S11}</tspan></text><text
      class="mainfont"
      x="1.9313998"
      y="99.25724"
      id="text50"><tspan
        x="1.9313998"
        y="99.25724"
-       id="tspan48">Menu: bottom-left of screen,</tspan></text><path
+       id="tspan48">${S12}</tspan></text><path
      class="mainline"
      d="m 15.113493,28.042394 7.496394,34.626201"
      id="path56" /><path
      class="mainline"
-     d="M 42.208066,13.135145 53.75887,20.168034"
+     d="m 40.72365,14.619561 6.107946,11.486136"
      id="path62" /><path
      class="mainline"
-     d="M 25.856377,27.524055 38.050676,44.727933"
+     d="M 28.000533,15.483795 38.050676,44.727933"
      id="path64" /><path
      class="mainline"
      d="M 5.395398,28.692405 12.451394,81.20975"
@@ -159,7 +161,7 @@ rsvg-convert ${OVERLAYSVG} -o /usr/share/doc/easy/images/overlay.png
 pngoverlay.sh /usr/share/doc/easy/images/desktop0.png /usr/share/doc/easy/images/overlay.png /usr/share/doc/easy/images/desktop1.png
 
 ###########################################
-BLOB0="$(gettext 'Easy Operating System')"
+BLOB0="$(gettext 'QV Operating System')"
 BLOB1="$(gettext 'Containerized<br>apps')"
 BLOB2="$(gettext 'Install<br>mega-apps')"
 BLOB3="$(gettext 'Share files & printers<br>over the network')"
@@ -191,14 +193,14 @@ MSGw6b="$(gettext 'Folder where you keep all your own files, such as photos, dow
 MSGw6c="$(gettext 'For anything. AppImages and Flatpaks install here. Build area for woofQV.')"
 MSGw6d="$(gettext 'Each app may run as its own user; home folders are in here. Optionally encrypted.')"
 MSGw7="$(gettext 'The quick answer to whereabouts of "/", is that it is folder "@qv". At bootup the initrd performs a "switch root" operation, which transforms @qv to be the root of the filesystem.')"
-MSGw7b="$(gettext 'Elaborating a little bit more: /mnt/sbd2/quantumvis/@files is "bind mounted" inside the root filesystem, at /files, and /mnt/sdb2/quantumvis/1/@home is bind-mounted at /home')"
+MSGw7b="$(gettext 'Elaborating a little bit more: /mnt/sdb2/quantumvis/@files is "bind mounted" inside the root filesystem, at /files, and /mnt/sdb2/quantumvis/1/@home is bind-mounted at /home')"
 
 MSGi1="$(gettext 'How to install Easy')"
 MSGi2="$(gettext 'There is absolutely no problem with running Easy indefinitely from a USB Flash stick, however, you are likely to reach that point where you would like to install Easy on the internal hard drive of your PC.')"
 MSGi3="$(gettext 'No problem! In the "Setup" menu, there is "Easy Installer". Run that, and you will be guided through installing Easy to a hard drive.')"
 MSGi4="$(gettext 'There is also an online web page that will clarify the details:')"
 MSGx1="$(gettext 'More help')"
-MSGx2="$(gettext 'Easy has more local help documents like this one. There are also more online help documents. Also a forum. Take your pick:')"
+MSGx2="$(gettext 'QV has more local help documents like this one. There are also more online help documents. Also a forum. Take your pick:')"
 MSGx3a="$(gettext 'Local help:')"
 MSGx3b="$(gettext 'Online blog:')"
 MSGx3c="$(gettext 'Online forum:')"

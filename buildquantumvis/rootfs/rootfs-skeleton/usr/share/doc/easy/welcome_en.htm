@@ -7,7 +7,7 @@
  <!-- BK makes table width scale to fit device screen width... -->
  <!-- <meta name="viewport" content="width=device-width"> -->
  <meta name="viewport" content="width=655px">
- <title>Easy Operating System</title>
+ <title>QV Operating System</title>
  <style>
  .t {
 	 position:absolute;
@@ -23,20 +23,17 @@
 </head>
 <body>
  <table cellspacing="2" cellpadding="2" border="0" width="655" align="center">
-  <tbody>
    <tr>
     <td valign="top">
      <table cellspacing="2" cellpadding="2" border="0" width="100%">
-      <tbody>
        <tr>
-        <td valign="top"><img src="../logo96.png" alt="easy logo" width="96" height="96"><br>
+        <td valign="top"><img src="../logo96.png" alt="easy logo" width="96" height="96">
         </td>
         <td valign="top">&nbsp;&nbsp; <br>
          <b><font size="+3">Welcome,</font></b><br>
          <font size="+3">you are using QV for the first time!</font>
         </td>
        </tr>
-      </tbody>
      </table>
      <br>
      QV is a "new paradigm" for an Operating System, a blend of the best ideas from EasyOS, Puppy Linux and Quirky Linux, and a fundamental rethink of security, maintainability and ease-of-use. <br>
@@ -57,40 +54,34 @@
 
      <br>
      <table cellspacing="2" cellpadding="2" border="0" width="100%">
-      <tbody>
        <tr>
         <td valign="top">Or, you may have a desktop with less icons, even all icons in the tray:
         </td>
         <td valign="top"><img src="images/icon-free-desk.jpg" alt="applets" width="560" height="315">
         </td>
        </tr>
-      </tbody>
      </table>
 
      <br>
      Explore the tray applets:
      <table cellspacing="2" cellpadding="2" border="0" width="100%">
-      <tbody>
        <tr>
         <td valign="top">Mouse-over each one, left-click and right-click on them to discover more.
         </td>
         <td valign="top"><img src="images/tray-applets.png" alt="applets" width="314" height="32">
         </td>
        </tr>
-      </tbody>
      </table>
      <br>
      <table cellspacing="2" cellpadding="2" border="0" width="100%">
-      <tbody>
        <tr>
         <td valign="top">
          Discover the drive partitions: <br>
          Click to mount, click "close-box" to unmount.
         </td>
-        <td valign="top"><img src="images/drive-icons.png" alt="drive-icons" width="259" height="76"><br>
+        <td valign="top"><img src="images/drive-icons.png" alt="drive-icons" width="259" height="76">
         </td>
        </tr>
-      </tbody>
      </table>
      <br>
      In these example pictures, QV is installed on a USB Flash drive, that identifies itself as sdb. There are two partitions, sdb1 is the <i>boot</i> partition, and sdb2 is the <i>working</i> partition. Note the orange rectangle -- this means sdb2 is mounted and cannot be unmounted. <br>
@@ -103,31 +94,34 @@
      <br>
      After bootup, if you open the file manager, and look at "/", the top-level of the directories, this is what you see: looks as you would expect, yes?<br>
      <table cellspacing="2" cellpadding="2" border="0" width="100%">
-      <tbody>
        <tr>
         <td valign="top"><img src="images/top-of-rootfs.png" alt="top-of-layers" width="608" height="314"><br>
         </td>
        </tr>
-      </tbody>
      </table>
      <br>
      However, if you look in sdb2, the working-partition, this is what you see:<br>
-     <table cellspacing="2" cellpadding="2" border="0" width="100%">
-      <tbody>
+     <table cellspacing="2" cellpadding="0" border="0" width="100%">
        <tr>
         <td valign="top">
-         <img src="images/working-partition-top.png" alt="working-partition-top"><br>
+         <img src="images/working-partition-top.png" alt="working-partition-top">
         </td>
-        <td valign="top"><img src="images/working-partition-down.png" alt="working-partition"><br>
+        <td valign="top"><img src="images/working-partition-down.png" alt="working-partition">
         </td>
        </tr>
-      </tbody>
      </table>
+     <table cellspacing="2" cellpadding="0" border="0">
+       <tr>
+        <td valign="top">
+         <img src="images/working-partition-down2.png" alt="working-partition-down2">
+        </td>
+       </tr>
+     </table>
+     <br>
      What are those folders for, and whereabouts is "/"?
      <br><br>
      Some hints as to what those folders do: <br>
      <table cellspacing="2" cellpadding="2" border="0" width="100%">
-      <tbody>
        <tr>
         <td valign="top"><b>data</b>
         </td>
@@ -146,20 +140,17 @@
         <td valign="top">Each app may run as its own user; home folders are in here. Optionally encrypted.
         </td>
        </tr>
-      </tbody>
      </table>
+     <br><br>
+     The quick answer to whereabouts of "/", is that it is folder "@qv". At bootup the initrd performs a "switch root" operation, which transforms @qv to be the root of the filesystem.<br>
      <br>
-     The quick answer to whereabouts of that "/", is that it is in a btrfs subvolume inside the working-partition. Which might be a meaningless explanation! In which case, read this online web page:<br>
-     <br>
-     <font size="+1"><a href="https://bkhome.org/news/202403/quirky-has-returned.html">Brief introduction to Quirky Linux</a>
-     </font><br>
+     Elaborating a little bit more: /mnt/sbd2/quantumvis/@files is "bind mounted" inside the root filesystem, at /files, and /mnt/sdb2/quantumvis/1/@home is bind-mounted at /home<br>
      <br>
      <br>
      <h2>More help</h2>
-     Easy has more local help documents like this one. There are also more online help documents. Also a forum. Take your pick: <br>
+     QV has more local help documents like this one. There are also more online help documents. Also a forum. Take your pick: <br>
      <br>
      <table cellspacing="2" cellpadding="2" border="0">
-      <tbody>
        <tr>
         <td valign="top"><b>Local help:</b>
         </td>
@@ -176,14 +167,12 @@
         </td>
         <td valign="top"><font size="+1"><a href="https://forum.puppylinux.com/viewforum.php?f=63">https://forum.puppylinux.com/</a></font></td>
        </tr>
-      </tbody>
      </table>
      <br>
      Regards,<br>
      Barry Kauler<br>
     </td>
    </tr>
-  </tbody>
  </table>
  <br>
 </body>
