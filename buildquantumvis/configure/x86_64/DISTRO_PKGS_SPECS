@@ -348,7 +348,7 @@ yes|gmp|gmp|exe,doc>null|compat:current|
 yes|gmp-devel|gmp-devel|dev,doc>null|compat:current| #20240130
 yes|gnet|gnet|exe,dev,doc>null|compat:kirkstone|
 yes|gnome-bluetooth|gnome-bluetooth3|exe,dev,doc>null|compat:kirkstone| #gnome-bluetooth needs gtk4, gnome-bluetooth3 needs gtk+3
-yes|gnome-common|gnome-common|dev,doc>null|compat:kirkstone|
+no|gnome-common|gnome-common|dev,doc>null|compat:kirkstone| #20240417 removed
 yes|gnome-desktop|gnome-desktop|exe,doc>null|compat:current| #20240112
 yes|gnome-desktop-devel|gnome-desktop-devel|dev|compat:current| #20240130
 yes|gnome-doc-utils-stub|gnome-doc-utils-stub|exe,dev,doc>null|compat:kirkstone|
@@ -427,7 +427,7 @@ yes|harfbuzz|harfbuzz,libharfbuzz|exe,doc>null|compat:current|
 yes|harfbuzz-devel|harfbuzz-devel|dev|compat:current| #20240130
 yes|helpsurfer|helpsurfer|exe,dev>null,doc>null|compat:kirkstone|
 yes|hexchat|hexchat|exe|compat:current| #20240326
-yes|hiawatha|hiawatha|exe,dev>null,doc>null|compat:kirkstone|
+no|hiawatha|hiawatha|exe|compat:current| #20240418
 yes|hicolor-icon-theme|hicolor-icon-theme|exe,dev>null,doc>null|compat:current|
 yes|hostname|hostname|exe,dev,doc,nls|compat:kirkstone| #20240201
 yes|hotplug2stdout|hotplug2stdout|exe,dev>null,doc>null|compat:kirkstone|
@@ -1071,7 +1071,7 @@ yes|mesa-nouveau-dri|mesa-nouveau-dri|exe|compat:current| #20240406
 yes|libglvnd|libglvnd|exe|compat:current| #20240406
 yes|glew|glew|exe|compat:current| #20240406
 yes|glu|glu|exe|compat:current| #20240406
-yes|lm_sensors|lm_sensors|exe|compat:current| #20240406
+no|lm_sensors|lm_sensors|exe|compat:current| #20240406 20240418 no.
 yes|glxinfo|glxinfo|exe|compat:current| #20240406
 yes|libglvnd-devel|libglvnd-devel|dev|compat:current| #20240130
 yes|glew-devel|glew-devel|dev|compat:current| #20240130
@@ -1123,7 +1123,7 @@ yes|network_tray|network-tray|exe,dev>null,doc>null|compat:kirkstone|
 yes|newt|newt|exe,doc>null|compat:current| #20230915 dep of NetworkManager
 yes|newt-devel|newt-devel|dev|compat:current| #20240130
 yes|nghttp2|nghttp2,nghttp2-devel|exe,doc>null|compat:current|
-yes|nim|nim|dev,doc>null|compat:kirkstone|
+yes|nim|nim|dev|compat:current| #20240417
 yes|notecase|notecase|exe,dev,doc>null|compat:kirkstone|
 yes|notification-daemon|notification-daemon|exe,doc>null|compat:current|
 yes|npth|npth|exe,doc>null|compat:current|
