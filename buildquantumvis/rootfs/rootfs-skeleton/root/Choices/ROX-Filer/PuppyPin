@@ -8,7 +8,6 @@
   <icon x="288" y="32" label="setup">/usr/bin/easysetup</icon>
   <icon x="352" y="32" label="edit">/usr/local/bin/defaulttexteditor</icon>
   <icon x="416" y="32" label="term">/usr/local/bin/defaultterminal</icon>
-  <icon x="160" y="128" label="update">/usr/bin/easy-update</icon>
   <icon x="1120" y="32" label="trash">/usr/local/apps/Trash</icon>
   <icon x="1184" y="32" label="zip">/usr/local/apps/PupZip</icon>
   <icon x="1248" y="32" label="lock">/usr/local/apps/Xlock</icon>
