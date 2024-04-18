@@ -1,5 +1,4 @@
 #!/bin/bash
-#20240318
 
 export LANG=C
 RP="$(realpath ${0})"
@@ -49,9 +48,9 @@ busybox umount btrfs-mount
 rm -f btrfs-file
 
 echo "$(gettext 'Creating skeleton drive image file')"
-P1M=15
+P1M=23 #20240417 bump from 15
 T1=$((1+${P1M}+${P2M}+1)) #total size of file.
-SKEL="qv-skeleton-15-${P2M}-${T1}mb.img"
+SKEL="qv-skeleton-${P1M}-${P2M}-${T1}mb.img"
 
 if [ ! -f ${SKEL}.gz ];then
  ${L1}/support/create-skel-drv-img ${P1M} ${P2M}
@@ -126,6 +125,7 @@ fi
 
 BOOTDIR=''
 
+#20240418 now require BOOT_* kernel params...
 echo "Installing Limine to first partition"
 BRANDINGFIELD="${DISTRO_NAME_NORMAL} Limine Boot Manager"
 COMMENTFIELD="${DISTRO_NAME_NORMAL} ${DISTRO_COMPAT_VERSION^} bootup" #ex: Kirkstone
@@ -145,7 +145,7 @@ INTERFACE_RESOLUTION=800x600
     PROTOCOL=linux
     KERNEL_PATH=boot://1/vmlinuz
     MODULE_PATH=boot://1/initrd
-    KERNEL_CMDLINE=rw wkg_uuid=${UUID2} wkg_dir=quantumvis/
+    KERNEL_CMDLINE=rw boot_uuid=${UUID1} boot_dir=/ wkg_uuid=${UUID2} wkg_dir=quantumvis/
 
 :  ${OPTIONSFIELD}
 ::${FBVFIELD}
@@ -154,7 +154,7 @@ INTERFACE_RESOLUTION=800x600
     PROTOCOL=linux
     KERNEL_PATH=boot://1/vmlinuz
     MODULE_PATH=boot://1/initrd
-    KERNEL_CMDLINE=rw qfix=vid nomodeset wkg_uuid=${UUID2} wkg_dir=quantumvis/
+    KERNEL_CMDLINE=rw qfix=vid nomodeset boot_uuid=${UUID1} boot_dir=/ wkg_uuid=${UUID2} wkg_dir=quantumvis/
 " > img_mntpt/limine.cfg
 
 mkdir -p img_mntpt/EFI/BOOT
