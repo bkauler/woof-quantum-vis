@@ -89,6 +89,10 @@ if [ -f ${DIR}/pinstall.sh ];then
 #exit 0' >> ${DIR}/INSTALL
 # chmod 755 ${DIR}/INSTALL
  cat ${DIR}/pinstall.sh >> ${E1}/sandbox/pinstall.sh
+ if [ "${RUNNINGINWOOF}" == "no" ];then #20240418
+  #petget calls installpkg.sh calls here, needs this...
+  cp -a -f ${DIR}/pinstall.sh /
+ fi
  rm -f ${DIR}/pinstall.sh
 fi
 
