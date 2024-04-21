@@ -50,16 +50,13 @@
 #130305 rerwin: ensure tmp directory has all permissions after package expansion.
 #130314 install arch linux pkgs. run arch linux pkg post-install script.
 #131220 modify for Quirky6. install pkg to temp location first, so can save any overwritten files. see also removepreview.sh
-#131222 only create *DEPOSED.sfs if something in it. add "please wait" msg, add exit_func(). do not allow duplicate installs.
 #131229 remove ${DIRECTSAVEPATH} after installation.
 #131229 detect if not enough room in /tmp.
-#140103 mavrothal: reported DEPOSED naming problem. name should be /audit/${DB_pkgname}DEPOSED.sfs. see removepreview.sh.
 #140103 seems ok to expand large .pet in a f2fs partition (when not enough room in /tmp).
 #140104 fix for copying symlink to dir, etc.
 #140109 alias rm=/usr/local/petget/rm.sh for pinstall.sh script. rm.sh is a new script.
 #140125 handle ARCHDIR.
 #140204 no longer exporting LD_LIBRARY_PATH in /etc/profile, so must update /etc/ld.so.conf and /etc/ld.so.cache
-#140206 move *DEPOSED.sfs's into /audit/deposed. see also /usr/local/petget/removepreview.sh, rm.sh
 #140208 check enough space to install pkg.
 #140214 improve updating of /etc/ld.so.conf. see also removepreview.sh
 #140215 saving all installed packages in /audit/packages. for complete system rebuilding. see also delayedrun, take-reference-snapshot, removepreview.sh.
@@ -520,21 +517,6 @@ if [ -n "$DIRECTSAVEPATH" ];then #-n means not-empty string.
   fi
  fi
 
- #131220...  20240418 remove.
- ##have installed to temp $DIRECTSAVEPATH, now determine what is going to be overwritten...
- ##save overwritten files (so can restore if pkg uninstalled)...
- #mkdir -p /audit/deposed/${DLPKG_NAME}DEPOSED #140103 140206
- #find ${DIRECTSAVEPATH}/ -mindepth 1 | sed -e "s%${DIRECTSAVEPATH}%%" |
- #while read AFILESPEC
- #do
- # if [ -f "$AFILESPEC" ];then
- #  ADIR="$(dirname "$AFILESPEC")"
- #  mkdir -p /audit/deposed/${DLPKG_NAME}DEPOSED/"${ADIR}" #140103 140206
- #  cp -a -f "$AFILESPEC" /audit/deposed/${DLPKG_NAME}DEPOSED/"${ADIR}"/ #140103 140206
- #  echo -n '1' > /tmp/petget/FLAGFND
- # fi
- #done
- 
  if [ $Iflg -eq 0 ];then #20240229
   #now write temp-location to final destination... 180625
   cp -a -f --remove-destination ${DIRECTSAVEPATH}/* /  2> /tmp/petget/install-cp-errlog
@@ -617,11 +599,12 @@ if [ -f /pinstall.sh ];then #pet pkgs.
  #chmod +x /pinstall.sh
  cd /
  [ $DISPLAY ] && pupkill $YAFPID1 #131222
- #140109...
- echo 'alias rm=/usr/local/petget/rm.sh' > /xpinstall.sh
- cat /pinstall.sh >> /xpinstall.sh
- LANG=$LANG_USER sh /xpinstall.sh
- rm -f /xpinstall.sh
+ #140109... 20240418
+ #echo 'alias rm=/usr/local/petget/rm.sh' > /xpinstall.sh
+ #cat /pinstall.sh >> /xpinstall.sh
+ #LANG=$LANG_USER sh /xpinstall.sh
+ LANG=$LANG_USER sh /pinstall.sh
+ #rm -f /xpinstall.sh
  rm -f /pinstall.sh
 fi
 if [ -f /install/doinst.sh ];then #slackware pkgs.
@@ -663,12 +646,6 @@ cd / #180625
 
 #140109 moved down...  20240418 remove
 sync
-#if [ -s /tmp/petget/FLAGFND ];then #140109 may also get set in rm.sh, etc.
-# [ -f /audit/deposed/${DLPKG_NAME}DEPOSED.sfs ] && rm -f /audit/deposed/${DLPKG_NAME}DEPOSED.sfs #precaution, should not happen, as not allowing duplicate installs of same pkg. 140103 140206
-# mksquashfs /audit/deposed/${DLPKG_NAME}DEPOSED /audit/deposed/${DLPKG_NAME}DEPOSED.sfs #140103 140206
-#fi
-#sync
-#[ -d /audit/deposed/${DLPKG_NAME}DEPOSED ] && rm -rf /audit/deposed/${DLPKG_NAME}DEPOSED #140103 140206
 
 #v424 .pet pkgs may have a post-uninstall script...
 if [ -f /puninstall.sh ];then
