@@ -89,7 +89,7 @@ if [ -f ${DIR}/pinstall.sh ];then
 #exit 0' >> ${DIR}/INSTALL
 # chmod 755 ${DIR}/INSTALL
  cat ${DIR}/pinstall.sh >> ${E1}/sandbox/pinstall.sh
- if [ "${RUNNINGINWOOF}" == "no" ];then #20240418
+ if [ "${RUNNINGWOOF}" == "no" ];then #20240418
   #petget calls installpkg.sh calls here, needs this...
   cp -a -f ${DIR}/pinstall.sh /
  fi
@@ -128,9 +128,9 @@ VER="$(cut -f 3 -d '|' ${DBentry} | sed -e 's%[^0-9.]%%g')_1"
 #may have to fix for usr-merge...
 #currently in 'sandbox', expanded pet is folder ${F1}
 #process, install to a temp dir sandbox/temp1
-/usr/local/woofV/pkg-fix/usrmerge-fix ${F1} temp1
+${L1}/pkg-fix/usrmerge-fix ${F1} temp1
 #rearranging folders to usrmerge may have broken symlinks...
-/usr/local/woofV/pkg-fix/symlinks-fix temp1
+${L1}/pkg-fix/symlinks-fix temp1
 DIR2=${E1}/sandbox/temp1
 cd ${E1}/converted-pkgs
 xbps-create -n "${PSTgeneric}-${VER}" -s "$DESC" -A ${xARCH} -D "$DEP" "$DIR2"
