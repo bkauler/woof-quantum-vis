@@ -19,6 +19,7 @@ if [ "${RP/*buildquantumvis*/yes}" == "yes" ];then
 . ${L1}/configure/${xARCH}/PKGS_MANAGEMENT
 . ${L1}/configure/${xARCH}/DISTRO_PET_REPOS
 . ${L1}/configure/${xARCH}/build-choices
+ cd ${L1} #20240421
 else
  #running in quirky
  L1='/usr/local/petget'
@@ -34,8 +35,8 @@ else
 . /root/.packages/build-choices
  RUNNINGPUP='yes'
  DPSFILE="/root/.packages/DISTRO_PKGS_SPECS" #170325
+ cd /root/.packages #20240421
 fi
-cd ${L1}
 
 mkdir -p /tmp/woofQV #cvt.sh writes pkgs-homepages to here.
 echo -n '' > /tmp/woofQV/pkgs-homepages #cvt.sh called from void0setup
