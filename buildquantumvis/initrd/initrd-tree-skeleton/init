@@ -475,6 +475,8 @@ SNAPDEF="$(cat /tempmnt/${WKG_DIR}snapshot-default)" #ex: 1
 PATHDEF="${WKG_DIR}${SNAPDEF}"
 QV="${WKG_DIR}${SNAPDEF}/@qv"
 #...path to rootfs might be /mnt/sdc2/quantumvis/1/@qv where WKG_DIR='quantumvis/' SNAPDEF='1'
+SNAPDESC="$(grep "^${SNAPDEF}|" /tempmnt/${WKG_DIR}snapshot-record | cut -f 3 -d '|' | tr -d "'")" #french/italian may have apostrophe
+SNAPDATE="$(grep "^${SNAPDEF}|" /tempmnt/${WKG_DIR}snapshot-record | cut -f 2 -d '|')"
 
 #choose language 2-letter code...
 if [ -z "$QLANG" ];then #set if kernel param.
@@ -493,6 +495,15 @@ if [ -e /nls/${QLANG}/init.str -a "$QLANG" != "en" ];then
 . /nls/${QLANG}/init.str
 fi
 export QLANG
+
+#20240420 snapshot 1 has description in english "Original Snapshot"
+if [ "$QLANG" != "en" ];then
+ SNAP1DESC="${S430:-Original Snapshot}"
+ grep -q '|Original Snapshot$' /tempmnt/${WKG_DIR}snapshot-record
+ if [ $? -eq 0 ];then
+  sed -i -e "s%Original Snapshot$%${SNAP1DESC}%" /tempmnt/${WKG_DIR}snapshot-record
+ fi
+fi
 
 #dropout in initrd...
 if [ -s /tempmnt/${QV}/.debug.flg ];then
@@ -850,6 +861,9 @@ WKG_FS='${WKG_FS}'
 WKG_DIR='${WKG_DIR}'
 WKG_SUBDIR='${PATHDEF}'
 WKG_ROOTFS='${QV}'
+SNAPSHOT_NUM='${SNAPDEF}'
+SNAPSHOT_DATE='${SNAPDATE}'
+SNAPSHOT_DESC='${SNAPDESC}'
 BOOT_DEV='${BOOT_DEV}'
 BOOT_DIR='${BOOT_DIR}'
 BOOT_FS='${BOOT_FS}'
