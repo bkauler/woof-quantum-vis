@@ -370,6 +370,7 @@ yes|gpptp-noarch|gpptp-noarch|exe|pet:noarch| #created by jafadmin.
 yes|gptfdisk|gptfdisk|exe,dev,doc>null|compat:kirkstone|
 yes|graphene|graphene|exe,doc>null|compat:current| #20240112 libreoffice
 yes|graphene-devel|graphene-devel|dev|compat:current| #20240118
+yes|GraphicsMagick|GraphicsMagick|exe|compat:current| #20240420
 yes|graphite|graphite|exe,doc>null|compat:current|
 yes|graphite-devel|graphite-devel|dev|compat:current| #20240130
 yes|grep|grep|exe,dev,doc>null|compat:kirkstone| #20230915 v3.7 this version is ok.
@@ -471,6 +472,7 @@ yes|inih-devel|inih-devel|dev|compat:current| #20240130
 yes|inkscape|inkscape|exe,doc>null|compat:current| #20240115d inkscape
 yes|inotify-tools|inotify-tools,libinotify-tools|exe,doc>null|compat:current|
 yes|inotify-tools-devel|inotify-tools-devel|dev|compat:current| #20240130
+yes|installwatch|installwatch|exe|compat:kirkstone| #20240420
 yes|intltool|intltool|dev,doc>null|compat:current|
 yes|iotop|iotop|exe|compat:current| #20240325 this is the python version.
 yes|iproute2|iproute2|exe,doc>null|compat:current| #20230915 dep of NetworkManager
