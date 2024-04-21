@@ -186,7 +186,7 @@ mkdir -p img_mntpt2/quantumvis/1
 btrfs subvolume create img_mntpt2/quantumvis/1/@qv
 btrfs property set img_mntpt2/quantumvis/1/@qv compression zstd
 echo -n '1' > img_mntpt2/quantumvis/snapshot-default
-echo "1|${DISTRO_VERSION}|This is the original subvolume" > img_mntpt2/quantumvis/snapshot-record
+echo "1|${DISTRO_VERSION}|Original Snapshot" > img_mntpt2/quantumvis/snapshot-record
 sync
 sleep 2
 busybox umount img_mntpt2

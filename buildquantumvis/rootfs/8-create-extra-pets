@@ -31,7 +31,8 @@ cat >> sandbox/devx-${DISTRO_VERSION}/pinstall.sh <<'_EOF1'
 #!/bin/ash
 #this is a meta-package to install all required packages for a complete
 #compiling development environment.
-pidof -o ${$} pinstall.sh >/dev/null
+EXE="${0##*/}"
+pidof -o ${$} ${EXE} >/dev/null
 if [ $? -ne 0 ];then
  urxvt -geometry 100x35 -e ${0}
  exit

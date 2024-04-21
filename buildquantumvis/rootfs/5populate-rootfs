@@ -277,6 +277,12 @@ do
    #version needs to be simplified to keep xbps happy...
    Newver="$(sed -e 's%[^0-9.]%%g' <<<${WIPversion})"
    
+   #20240418 hack
+   #oe gutenprint pkg has version "git"
+   if [ -z "${Newver}" ];then
+    Newver='2024'
+   fi
+   
    #check if already installed...
    INST="$(chroot ${E1}/rootfs /usr/bin/xbps-query --show ${Newnameonly} --property state)"
    if [ "$INST" == "installed" ];then
