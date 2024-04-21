@@ -5,12 +5,14 @@
 #140101 new app, Qwallpaper, calls set_bg.
 #20220208 set flag if rox is managing desktop icons. 20220210 read /etc/uimanager
 #20220215 MODE=Stretch needs to be "image" for jwm. remove ROXDESKflg.
+#20240420 text onto wallpaper.
 
 [ ! $1 ] && exit 1
 mkdir -p /root/.config/wallpaper
 
 #20220208  20220215
 . /etc/uimanager #has UI_DESK_MANAGER='jwm' #or rox
+. /etc/rc.d/PUPSTATE #20240420
 
 [ ! -s /root/.config/wallpaper/backgroundmode ] && echo -n 'Stretched' > /root/.config/wallpaper/backgroundmode
 MODE="`cat /root/.config/wallpaper/backgroundmode`"
@@ -32,6 +34,34 @@ if [ "$MODE" = "Stretch" ];then
  if [ $RETVAL -eq 10 -o $RETVAL -eq 11 ];then
   NEWIMAGE="`cat /tmp/qwallpaper_reshaped`"
  fi
+fi
+
+#20240420 see also /root/.xinitrc
+WIMG="${NEWIMAGE}" #ex: /usr/share/backgrounds/177/default.jpg
+WORIG="${WIMG%.*}-ORIG.${WIMG##*.}"
+if [ ! -e "${WORIG}" ];then
+ cp -a ${WIMG} ${WORIG}
+fi
+WSNAP="${WIMG%.*}-${SNAPSHOT_NUM}.${WIMG##*.}" #ex: /usr/share/backgrounds/177/default-1.jpg
+if [ ! -e "${WSNAP}" ];then
+ IMGHORIZ=$(cat /tmp/qwallpaper_img_newhoriz)
+ ROOTHORIZ=$(cat /tmp/qwallpaper_root_horiz)
+ Xtext=$((480*${IMGHORIZ}/${ROOTHORIZ}))
+ IMGVERT=$(cat /tmp/qwallpaper_img_newvert)
+ ROOTVERT=$(cat /tmp/qwallpaper_root_vert)
+ Ytext=$((44*${IMGVERT}/${ROOTVERT}))
+ if [ $ROOTHORIZ -gt $IMGHORIZ ];then
+  Stext=$((32*${IMGHORIZ}/${ROOTHORIZ}))
+ else
+  Stext=$((32*${ROOTHORIZ}/${IMGHORIZ}))
+ fi
+ if [ $ROOTVERT -gt $IMGVERT ];then
+  Stext=$((32*${IMGVERT}/${ROOTVERT}))
+ else
+  Stext=$((32*${ROOTVERT}/${IMGVERT}))
+ fi
+ gm convert -font /usr/share/fonts/TTF/DejaVuSans.ttf -fill black -stroke black -pointsize ${Stext} -draw "text ${Xtext},${Ytext} '${SNAPSHOT_NUM}: ${SNAPSHOT_DATE}: ${SNAPSHOT_DESC}'" ${WORIG} ${WSNAP}
+ cp -a -f ${WSNAP} ${WIMG}
 fi
 
 if [ "$UI_DESK_MANAGER" == "jwm" ];then #20220208 20220215

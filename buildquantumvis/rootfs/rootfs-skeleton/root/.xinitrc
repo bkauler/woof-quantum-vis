@@ -24,6 +24,7 @@
 #20230720 default.jpg/.png mismatch.
 #20240407 qv no containers.
 #20240409 fix test sane PuppyPin
+#20240420 write text onto wallpaper.
 
 . /etc/rc.d/PUPSTATE #20220526 has EOS_SUPPORT_CONTAINERS
 
@@ -123,6 +124,39 @@ fi
 #  sed -i -e "$iPTN" /root/Choices/ROX-Filer/PuppyPin
 # fi
 #fi
+
+#20240420 place text on wallpaper. code also in set_bg
+#PUPSTATE now has SNAPSHOT_NUM and SNAPSHOT_DESC
+if [ -n "${NEWIMAGE}" ];then
+ if [ -f "${NEWIMAGE}" ];then
+  WIMG="${NEWIMAGE}" #ex: /usr/share/backgrounds/177/default.jpg
+  WORIG="${WIMG%.*}-ORIG.${WIMG##*.}"
+  if [ ! -e "${WORIG}" ];then
+   cp -a ${WIMG} ${WORIG}
+  fi
+  WSNAP="${WIMG%.*}-${SNAPSHOT_NUM}.${WIMG##*.}" #ex: /usr/share/backgrounds/177/default-1.jpg
+  if [ ! -e "${WSNAP}" ];then
+   IMGHORIZ=$(cat /tmp/qwallpaper_img_newhoriz) #these files created in background_reshape
+   ROOTHORIZ=$(cat /tmp/qwallpaper_root_horiz)
+   Xtext=$((480*${IMGHORIZ}/${ROOTHORIZ}))
+   IMGVERT=$(cat /tmp/qwallpaper_img_newvert)
+   ROOTVERT=$(cat /tmp/qwallpaper_root_vert)
+   Ytext=$((44*${IMGVERT}/${ROOTVERT}))
+   if [ $ROOTHORIZ -gt $IMGHORIZ ];then
+    Stext=$((32*${IMGHORIZ}/${ROOTHORIZ}))
+   else
+    Stext=$((32*${ROOTHORIZ}/${IMGHORIZ}))
+   fi
+   if [ $ROOTVERT -gt $IMGVERT ];then
+    Stext=$((32*${IMGVERT}/${ROOTVERT}))
+   else
+    Stext=$((32*${ROOTVERT}/${IMGVERT}))
+   fi
+   gm convert -font /usr/share/fonts/TTF/DejaVuSans.ttf -fill black -stroke black -pointsize ${Stext} -draw "text ${Xtext},${Ytext} '${SNAPSHOT_NUM}: ${SNAPSHOT_DATE}: ${SNAPSHOT_DESC}'" ${WORIG} ${WSNAP}
+   cp -a -f ${WSNAP} ${WIMG}
+  fi
+ fi
+fi
 
 userresources=$HOME/.Xresources
 usermodmap=$HOME/.Xmodmap
