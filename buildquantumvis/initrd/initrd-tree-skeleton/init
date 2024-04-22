@@ -901,6 +901,10 @@ cp -a -f --remove-destination /bin/capsh /mnt/${WKG_DEV}/${QV}/usr/bin/capsh.sta
 if [ -e /bin/dialog ];then
  cp -a -f --remove-destination /bin/dialog /mnt/${WKG_DEV}/${QV}/usr/bin/
 fi
+#20240422 overwite sudo at every bootup, in case sudo .xbps pkg got updated...
+if [ -e /sbin/sudo ];then
+ cp -a -f --remove-destination /sbin/sudo /mnt/${WKG_DEV}/${QV}/usr/bin/
+fi
 
 echo -n '' > /mnt/${WKG_DEV}/${QV}/data/settings/initrd/hdparm-power-down
 if [ $LOCKDOWN -eq 1 ];then
