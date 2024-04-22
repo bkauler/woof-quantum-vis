@@ -7,9 +7,9 @@ daemon:x:1:
 dialout:x:103:root,spot,fido,zeus
 dip:x:30:
 disk:x:100:root,spot,fido,zeus
-filesgrp:x:122:root,spot,zeus,rover
+filesgrp:x:122:root,spot,zeus
 floppy:x:106:root,spot,fido,zeus
-fscryptgrp:x:118:root,spot,zeus,rover
+fscryptgrp:x:118:root,spot,zeus
 ftp:x:1000:
 guest:x:501:
 haldaemon:x:119:
@@ -26,7 +26,7 @@ ppp:x:200:
 pulse-access:x:117:pulse,root,spot,zeus
 pulse:x:116:pulse,root,spot,zeus
 root:x:0:zeus
-rtkit:x:997:root,spot,zeus,rover
+rtkit:x:997:root,spot,zeus
 scanner:x:70:root,spot,fido,zeus
 shutdown:x:114:root,spot,fido,zeus
 spot:x:502:spot
