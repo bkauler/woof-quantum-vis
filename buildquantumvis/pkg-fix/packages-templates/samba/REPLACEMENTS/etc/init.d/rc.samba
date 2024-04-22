@@ -15,6 +15,7 @@ samba_start() {
   # the failure is because /run is a symlink. need non-symlink samba folder:
   mkdir -p /run/samba
   #20240210 ref: https://forum.puppylinux.com/viewtopic.php?p=111461#p111461
+  # qv: /var/log/samba/log/smbd: "mkdir failed on directory /run/lock/samba"
   mkdir -p /run/lock 
   if [ -x /usr/sbin/smbd -a -x /usr/sbin/nmbd -a -r /etc/samba/smb.conf ]; then
     echo "Starting Samba:  /usr/sbin/smbd -D"
