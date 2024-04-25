@@ -1,8 +1,4 @@
-
-#20201024 oe dunfell
-if [ -e usr/bin/bluetooth-sendto ];then
- mkdir -p usr/share/applications
- echo '[Desktop Entry]
+[Desktop Entry]
 Name[af]=BluetoothStuur om lêers via Bluetooth te stuur
 Name[am]=ብሉቱዝ ፋይሎችን በብሉቱዝ ለመላክ
 Name[ar]=ﺙﻮﺗﻮﻠﺒﻟﺍ ﺮﺒﻋ ﺕﺎﻔﻠﻤﻟﺍ ﻝﺎﺳﺭﻹ﻿ ﻞﺳﺭﺃ
@@ -257,5 +253,4 @@ Terminal=false
 Type=Application
 Categories=X-Network-transfer
 StartupNotify=true
-NoDisplay=false' > usr/share/applications/bluetooth-sendto.desktop
-fi
+NoDisplay=false
