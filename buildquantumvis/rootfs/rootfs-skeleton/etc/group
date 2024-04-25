@@ -44,4 +44,8 @@ sgx:x:124:
 tss:x:996:
 dnsmasq:x:995:
 polkitd:x:994:
+_bluez_alsa:x:992:
+_pipewire:x:991:
+_uuidd:x:990:
+_dhcpcd:x:989:
 dbus:x:22:
