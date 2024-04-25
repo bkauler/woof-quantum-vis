@@ -631,13 +631,21 @@ NEW_KB_HW_PROFILE="$(ls -1 -d /sys/class/input/*/*::capslock 2>/dev/null | cut -
 ALLOW_ASK_PW=''; PW=''
 #20240403 @data no longer exists...
 if [ ! -d /mnt/${WKG_DEV}/${WKG_DIR}@files ];then
+ #first bootup.
  ##@data will be unencrypted subvolume...
  #btrfs subvolume create /mnt/${WKG_DEV}/${PATHDEF}/@data
  #@home and @files will be encrypted subvolumes...
  btrfs subvolume create /mnt/${WKG_DEV}/${PATHDEF}/@home
  #@files is at a higher level, is bind-mounted into whatever is the default snapshot...
  btrfs subvolume create /mnt/${WKG_DEV}/${WKG_DIR}@files
-
+ 
+ #20240425 want to create a 2nd pristine snapshot...
+ mkdir -p /mnt/${WKG_DEV}/${WKG_DIR}2
+ btrfs subvolume snapshot /mnt/${WKG_DEV}/${PATHDEF}/@qv /mnt/${WKG_DEV}/${WKG_DIR}2/@qv
+ btrfs subvolume create /mnt/${WKG_DEV}/${WKG_DIR}2/@home
+ REASON2="${S431:-Snapshot of pristine first bootup}"
+ echo "2|${SNAPDATE}|${REASON2}" >> /mnt/${WKG_DEV}/${WKG_DIR}snapshot-record
+ 
  while [ 1 ];do
   ask_kb #sets $KEYMAP
   if [ $? -eq 0 ];then
@@ -672,6 +680,9 @@ if [ ! -d /mnt/${WKG_DEV}/${WKG_DIR}@files ];then
  cp -a /mnt/${WKG_DEV}/${QV}/home/* /mnt/${WKG_DEV}/${PATHDEF}/@home/
  rm -rf /mnt/${WKG_DEV}/${QV}/home
  mkdir /mnt/${WKG_DEV}/${QV}/home
+ cp -a /mnt/${WKG_DEV}/${WKG_DIR}2/@qv/home/* /mnt/${WKG_DEV}/${WKG_DIR}2/@home/ #20240425
+ rm -rf /mnt/${WKG_DEV}/${WKG_DIR}2/@qv/home #20240425
+ mkdir /mnt/${WKG_DEV}/${WKG_DIR}2/@qv/home #20240425
  ##note: /skeleton/data must not exist, see above test.
  #mkdir /mnt/${WKG_DEV}/${PATHDEF}/@data/appimage
  #mkdir /mnt/${WKG_DEV}/${PATHDEF}/@data/flatpak
