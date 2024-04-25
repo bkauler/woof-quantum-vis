@@ -1,5 +1,6 @@
 #!/bin/ash
 #called from 5populate-rootfs
+#also in running QV from /usr/local/petget/installpkg.sh and support/pet2xbps
 #$1 expanded pkg folder, $2 temp usrmerge-fixed folder.
 #need to be in same path as $1 and $2
 
@@ -12,7 +13,17 @@ if [ ! -d "$F1" -o ! -d "$F2" ];then
 fi
 
 RP="$(realpath ${0})"
-L1="${RP/buildquantumvis*/buildquantumvis}"
+if [ "${RP/*buildquantumvis*/yes}" == "yes" ];then
+ #running in woofQV
+ L1="${RP/buildquantumvis*/buildquantumvis}"
+ RUNNINGWOOF=yes
+else
+ #running in QV
+ L1='/usr/local/petget'
+ #...note, woofQV has copied pkg-fix and support folders into /usr/local/petget
+ RUNNINGWOOF=no
+fi
+
 xARCH="$(arch)"
 mkdir -p /tmp/woofQV
 . /var/local/woofQV/VARS #has E1
