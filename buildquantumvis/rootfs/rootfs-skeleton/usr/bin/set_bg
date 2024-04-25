@@ -36,7 +36,7 @@ if [ "$MODE" = "Stretch" ];then
  fi
 fi
 
-#20240420 see also /root/.xinitrc
+#20240420 see also /root/.xinitrc  20240424 fix.
 WIMG="${NEWIMAGE}" #ex: /usr/share/backgrounds/177/default.jpg
 WORIG="${WIMG%.*}-ORIG.${WIMG##*.}"
 if [ ! -e "${WORIG}" ];then
@@ -44,11 +44,17 @@ if [ ! -e "${WORIG}" ];then
 fi
 WSNAP="${WIMG%.*}-${SNAPSHOT_NUM}.${WIMG##*.}" #ex: /usr/share/backgrounds/177/default-1.jpg
 if [ ! -e "${WSNAP}" ];then
- IMGHORIZ=$(cat /tmp/qwallpaper_img_newhoriz)
- ROOTHORIZ=$(cat /tmp/qwallpaper_root_horiz)
+ read ROOTDIMS ROOTHORIZ ROOTVERT << EOF
+`xwininfo -root | grep ' \-geometry ' | cut -f 1 -d '+' | tr 'x' ' '`
+EOF
+ case "${WIMG##*.}" in
+  png|PNG) IMAGEPNM='pngtopnm' ;;
+  jpg|JPG|jpeg|JPEG) IMAGEPNM='jpegtopnm' ;;
+ esac
+ read IMGHORIZ IMGDIMS IMGVERT IMGDIMS << EOF
+`$IMAGEPNM ${WIMG} 2>/dev/null | pamfile 2>&1 | grep 'stdin:' | cut -f 2 -d ','`
+EOF
  Xtext=$((480*${IMGHORIZ}/${ROOTHORIZ}))
- IMGVERT=$(cat /tmp/qwallpaper_img_newvert)
- ROOTVERT=$(cat /tmp/qwallpaper_root_vert)
  Ytext=$((44*${IMGVERT}/${ROOTVERT}))
  if [ $ROOTHORIZ -gt $IMGHORIZ ];then
   Stext=$((32*${IMGHORIZ}/${ROOTHORIZ}))

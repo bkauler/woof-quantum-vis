@@ -24,7 +24,7 @@
 #20230720 default.jpg/.png mismatch.
 #20240407 qv no containers.
 #20240409 fix test sane PuppyPin
-#20240420 write text onto wallpaper.
+#20240420 write text onto wallpaper. 20240424 fix.
 
 . /etc/rc.d/PUPSTATE #20220526 has EOS_SUPPORT_CONTAINERS
 
@@ -125,37 +125,40 @@ fi
 # fi
 #fi
 
-#20240420 place text on wallpaper. code also in set_bg
-#PUPSTATE now has SNAPSHOT_NUM and SNAPSHOT_DESC
-if [ -n "${NEWIMAGE}" ];then
- if [ -f "${NEWIMAGE}" ];then
-  WIMG="${NEWIMAGE}" #ex: /usr/share/backgrounds/177/default.jpg
-  WORIG="${WIMG%.*}-ORIG.${WIMG##*.}"
-  if [ ! -e "${WORIG}" ];then
-   cp -a ${WIMG} ${WORIG}
-  fi
-  WSNAP="${WIMG%.*}-${SNAPSHOT_NUM}.${WIMG##*.}" #ex: /usr/share/backgrounds/177/default-1.jpg
-  if [ ! -e "${WSNAP}" ];then
-   IMGHORIZ=$(cat /tmp/qwallpaper_img_newhoriz) #these files created in background_reshape
-   ROOTHORIZ=$(cat /tmp/qwallpaper_root_horiz)
-   Xtext=$((480*${IMGHORIZ}/${ROOTHORIZ}))
-   IMGVERT=$(cat /tmp/qwallpaper_img_newvert)
-   ROOTVERT=$(cat /tmp/qwallpaper_root_vert)
-   Ytext=$((44*${IMGVERT}/${ROOTVERT}))
-   if [ $ROOTHORIZ -gt $IMGHORIZ ];then
-    Stext=$((32*${IMGHORIZ}/${ROOTHORIZ}))
-   else
-    Stext=$((32*${ROOTHORIZ}/${IMGHORIZ}))
-   fi
-   if [ $ROOTVERT -gt $IMGVERT ];then
-    Stext=$((32*${IMGVERT}/${ROOTVERT}))
-   else
-    Stext=$((32*${ROOTVERT}/${IMGVERT}))
-   fi
-   gm convert -font /usr/share/fonts/TTF/DejaVuSans.ttf -fill black -stroke black -pointsize ${Stext} -draw "text ${Xtext},${Ytext} '${SNAPSHOT_NUM}: ${SNAPSHOT_DATE}: ${SNAPSHOT_DESC}'" ${WORIG} ${WSNAP}
-   cp -a -f ${WSNAP} ${WIMG}
-  fi
+#20240420 place text on wallpaper. code also in set_bg  20240424 fix.
+#PUPSTATE now has SNAPSHOT_NUM, SNAPSHOT_DATE and SNAPSHOT_DESC
+WIMG="$(grep -o "/usr/share/backgrounds/[^<]*" /root/Choices/ROX-Filer/PuppyPin)"
+#...ex: /usr/share/backgrounds/177/default.jpg
+WORIG="${WIMG%.*}-ORIG.${WIMG##*.}"
+if [ ! -e "${WORIG}" ];then
+ cp -a ${WIMG} ${WORIG}
+fi
+WSNAP="${WIMG%.*}-${SNAPSHOT_NUM}.${WIMG##*.}" #ex: /usr/share/backgrounds/177/default-1.jpg
+if [ ! -e "${WSNAP}" ];then
+ read ROOTDIMS ROOTHORIZ ROOTVERT << EOF
+`xwininfo -root | grep ' \-geometry ' | cut -f 1 -d '+' | tr 'x' ' '`
+EOF
+ case "${WIMG##*.}" in
+  png|PNG) IMAGEPNM='pngtopnm' ;;
+  jpg|JPG|jpeg|JPEG) IMAGEPNM='jpegtopnm' ;;
+ esac
+ read IMGHORIZ IMGDIMS IMGVERT IMGDIMS << EOF
+`$IMAGEPNM ${WIMG} 2>/dev/null | pamfile 2>&1 | grep 'stdin:' | cut -f 2 -d ','`
+EOF
+ Xtext=$((480*${IMGHORIZ}/${ROOTHORIZ}))
+ Ytext=$((44*${IMGVERT}/${ROOTVERT}))
+ if [ $ROOTHORIZ -gt $IMGHORIZ ];then
+  Stext=$((32*${IMGHORIZ}/${ROOTHORIZ}))
+ else
+  Stext=$((32*${ROOTHORIZ}/${IMGHORIZ}))
  fi
+ if [ $ROOTVERT -gt $IMGVERT ];then
+  Stext=$((32*${IMGVERT}/${ROOTVERT}))
+ else
+  Stext=$((32*${ROOTVERT}/${IMGVERT}))
+ fi
+ gm convert -font /usr/share/fonts/TTF/DejaVuSans.ttf -fill black -stroke black -pointsize ${Stext} -draw "text ${Xtext},${Ytext} '${SNAPSHOT_NUM}: ${SNAPSHOT_DATE}: ${SNAPSHOT_DESC}'" ${WORIG} ${WSNAP}
+ cp -a -f ${WSNAP} ${WIMG}
 fi
 
 userresources=$HOME/.Xresources
