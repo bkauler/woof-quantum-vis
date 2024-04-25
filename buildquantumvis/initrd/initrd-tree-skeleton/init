@@ -664,6 +664,7 @@ if [ ! -d /mnt/${WKG_DEV}/${WKG_DIR}@files ];then
    ALLOW_ASK_PW='yes'
    FSKEYID="$(cat /FSKEYID)"
    fscryptctl set_policy ${FSKEYID} /mnt/${WKG_DEV}/${PATHDEF}/@home
+   fscryptctl set_policy ${FSKEYID} /mnt/${WKG_DEV}/${WKG_DIR}2/@home #20240425
    fscryptctl set_policy ${FSKEYID} /mnt/${WKG_DEV}/${WKG_DIR}@files
   else
    echo -en "\\033[1;31m" #red foreground.
@@ -696,9 +697,18 @@ if [ ! -d /mnt/${WKG_DEV}/${WKG_DIR}@files ];then
  echo "ALLOW_ASK_PW='${ALLOW_ASK_PW}'" >> /mnt/${WKG_DEV}/${QV}/data/settings/initrd/CONFIG
  echo "KB_HW_PROFILE='${NEW_KB_HW_PROFILE}'" >> /mnt/${WKG_DEV}/${QV}/data/settings/initrd/CONFIG
  echo -n "${KEYMAP}" > /mnt/${WKG_DEV}/${QV}/data/settings/initrd/keymap.${NEW_KB_HW_PROFILE}
-
+ 
  #make sure this has 700 perms...
  chmod 700 /mnt/${WKG_DEV}/${QV}/root
+ 
+ #20240425 #2 snapshot...
+ mkdir -p /mnt/${WKG_DEV}/${WKG_DIR}2/@qv/data/settings/initrd
+ echo "KEYMAP='${KEYMAP}'" > /mnt/${WKG_DEV}/${WKG_DIR}2/@qv/data/settings/initrd/CONFIG
+ echo "ALLOW_ASK_PW='${ALLOW_ASK_PW}'" >> /mnt/${WKG_DEV}/${WKG_DIR}2/@qv/data/settings/initrd/CONFIG
+ echo "KB_HW_PROFILE='${NEW_KB_HW_PROFILE}'" >> /mnt/${WKG_DEV}/${WKG_DIR}2/@qv/data/settings/initrd/CONFIG
+ echo -n "${KEYMAP}" > /mnt/${WKG_DEV}/${WKG_DIR}2/@qv/data/settings/initrd/keymap.${NEW_KB_HW_PROFILE}
+ #make sure this has 700 perms...
+ chmod 700 /mnt/${WKG_DEV}/${WKG_DIR}2/@qv/root
 else
  #subsequent bootups.
  fscryptctl get_policy /mnt/${WKG_DEV}/${WKG_DIR}@files >/dev/null 2>&1
