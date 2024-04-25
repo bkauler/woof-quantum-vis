@@ -207,6 +207,8 @@ menu_func() {
     REASON="$(cat /tsreason | head -n 1 | cut -c 1-80)"
     [ -z "$REASON" ] && REASON="no explanation provided"
     echo "${SNAPDEF}|${DISTRO_VERSION}|${REASON}" >> /mnt/${WKG_DEV}/${WKG_DIR}snapshot-record
+    SNAPDESC="${REASON}"
+    SNAPDATE="${DISTRO_VERSION}"
    fi
   ;;
   SNAPDEL)
@@ -223,6 +225,8 @@ menu_func() {
     QV="${PATHDEF}/@qv"
     #. /mnt/${WKG_DEV}/${QV}/etc/DISTRO_SPECS
     echo -n "${SNAPDEF}" > /mnt/${WKG_DEV}/${WKG_DIR}snapshot-default
+    SNAPDESC="$(grep "^${SNAPDEF}|" /mnt/${WKG_DEV}/${WKG_DIR}snapshot-record | cut -f 3 -d '|' | tr -d "'")" #french/italian may have apostrophe
+    SNAPDATE="$(grep "^${SNAPDEF}|" /mnt/${WKG_DEV}/${WKG_DIR}snapshot-record | cut -f 2 -d '|')"
    fi
   ;;
   NOX)
@@ -462,6 +466,7 @@ fi
 
 FREEK=`grep '^MemFree:' /proc/meminfo | tr -s ' ' | cut -f 2 -d ' '` #free RAM
 
+#######################################
 ###temporary mount working partition###
 mkdir /tempmnt
 [ "$WKG_FS" != "btrfs" ] && err_exit "Partition /dev/${WKG_DEV} is required to have a btrfs filesystem"
@@ -516,9 +521,51 @@ if [ -s /tempmnt/${QV}/.debug.flg ];then
  fi
 fi
 
+###set date and time###
+#see TZ set early in script.
+#20240320 settimeofday() error, see: https://bkhome.org/news/202402/hwclock-fail-in-easyvoid-603.html
+# getting this error in initrd. now have static hwclock with old musl
+# ...it does not accept -l requires --localtime
+CLKflg=1
+if [ -e /sys/class/rtc/rtc0 ];then
+ #20240424 get timezone...
+ if [ -e /tempmnt/${QV}/etc/localtime ];then
+  NEWTZ="$(readlink /tempmnt/${QV}/etc/localtime)" #ex: /usr/share/zoneinfo/Etc/GMT-8
+  mkdir -p ${NEWTZ%/*}
+  cp -a ${NEWTZ} ${NEWTZ%/*}/
+  cp -a /tempmnt/${QV}/etc/localtime /etc/
+  unset TZ #otherwise it will override /etc/localtime
+  export TZ
+ fi
+ if [ -s /tempmnt/${QV}/etc/clock ];then
+. /tempmnt/${QV}/etc/clock #has HWCLOCKTIME=localtime or utc
+  case "$HWCLOCKTIME" in
+   localtime) hwclock -s --localtime -f /dev/rtc0; CLKflg=$? ;;
+   utc)       hwclock -s -u -f /dev/rtc0; CLKflg=$? ;;
+  esac
+ else #first bootup, assume hw clock is localtime...
+  hwclock -s -l -f /dev/rtc0
+ fi
+fi
+if [ $CLKflg -ne 0 ];then
+ if [ -s /tempmnt/${QV}/var/local/shutdown_date_saved ];then
+  date -s "$(cat /tempmnt/${QV}/var/local/shutdown_date_saved)" > /dev/null
+ fi
+fi
+#rpi does not have a hardware clock, set it to something sane at 1st bootup...
+YEAR=$(date +%Y) #ex: 1970
+if [ $YEAR -lt 2020 ];then
+ #set date same as init file...
+ fDATE="$(stat -c %y /init | cut -f 1,2 -d ':')"
+ DATE="$(date -s "$fDATE")"
+else
+ DATE="$(date)"
+fi
+export DATE #ex: Tue Mar  3 07:09:34 +08 2020
+
 sync
 umount /tempmnt
-######
+##########################################
 
 echo -e "\n  ${S114:-Working-partition:} ${WKG_DEV}"
 
@@ -705,39 +752,6 @@ if [ "$KEYMAP" ];then
  fi
 fi
 
-###set date and time###
-#see TZ set early in script.
-#20240320 settimeofday() error, see: https://bkhome.org/news/202402/hwclock-fail-in-easyvoid-603.html
-# getting this error in initrd. now have static hwclock with old musl
-# ...it does not accept -l requires --localtime
-CLKflg=1
-if [ -e /sys/class/rtc/rtc0 ];then
- if [ -s /mnt/${WKG_DEV}/${QV}/etc/clock ];then
-. /mnt/${WKG_DEV}/${QV}/etc/clock #has HWCLOCKTIME=localtime or utc
-  case "$HWCLOCKTIME" in
-   localtime) hwclock -s --localtime -f /dev/rtc0; CLKflg=$? ;;
-   utc)       hwclock -s -u -f /dev/rtc0; CLKflg=$? ;;
-  esac
- else #first bootup, assume hw clock is localtime...
-  hwclock -s -l -f /dev/rtc0
- fi
-fi
-if [ $CLKflg -ne 0 ];then
- if [ -s /mnt/${WKG_DEV}/${QV}/var/local/shutdown_date_saved ];then
-  date -s "$(cat /mnt/${WKG_DEV}/${QV}/var/local/shutdown_date_saved)" > /dev/null
- fi
-fi
-#rpi does not have a hardware clock, set it to something sane at 1st bootup...
-YEAR=$(date +%Y) #ex: 1970
-if [ $YEAR -lt 2020 ];then
- #set date same as init file...
- fDATE="$(stat -c %y /init | cut -f 1,2 -d ':')"
- DATE="$(date -s "$fDATE")"
-else
- DATE="$(date)"
-fi
-export DATE #ex: Tue Mar  3 07:09:34 +08 2020
-
 ###trim###
 if [ "$TRIMflg" ];then
  [ ! -f /mnt/${WKG_DEV}/${PATHDEF}/.easyos-bootcnt ] && echo -n '0' > /mnt/${WKG_DEV}/${PATHDEF}/.os-bootcnt
@@ -905,6 +919,8 @@ fi
 if [ -e /sbin/sudo ];then
  cp -a -f --remove-destination /sbin/sudo /mnt/${WKG_DEV}/${QV}/usr/bin/
 fi
+#20240423 attempt disable pam, this will zeroize these files...
+for aF in /mnt/${WKG_DEV}/${QV}/etc/pam.d/*; do >$aF; done
 
 echo -n '' > /mnt/${WKG_DEV}/${QV}/data/settings/initrd/hdparm-power-down
 if [ $LOCKDOWN -eq 1 ];then
