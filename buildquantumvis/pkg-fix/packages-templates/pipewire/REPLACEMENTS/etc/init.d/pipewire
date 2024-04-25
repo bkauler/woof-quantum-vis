@@ -1,0 +1,13 @@
+#!/bin/sh
+#20240424
+
+case "$1" in
+
+ start)
+  start-stop-daemon --background --exec=/usr/bin/pipewire --start
+  
+  start-stop-daemon --background --exec=/usr/bin/pipewire-media-session --start
+  
+  start-stop-daemon --background --exec=/usr/bin/pipewire-pulse --start
+ ;;
+esac

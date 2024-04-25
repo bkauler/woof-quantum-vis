@@ -1,0 +1,2 @@
+mkdir -p /run/pipewire
+export PIPEWIRE_RUNTIME_DIR=/run/pipewire
