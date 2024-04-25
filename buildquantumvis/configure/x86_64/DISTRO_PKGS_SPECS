@@ -84,7 +84,10 @@ yes|binutils-devel|binutils-devel|dev,doc>null|compat:current| #20240218
 yes|bison|bison|dev,doc>null|compat:current|
 yes|bitmap|bitmap|exe,doc>null|compat:current| #20240129
 yes|bluepup_tray|bluepup-tray|exe,doc>null|compat:kirkstone|
-yes|bluez|bluez5|exe,dev,doc>null|compat:kirkstone|  #has bluetoothctl internationalized.
+no|bluez|bluez5|exe,dev,doc>null|compat:kirkstone|  #has bluetoothctl internationalized.
+yes|bluez|bluez|exe|compat:current| #20240423
+yes|bluez-alsa|bluez-alsa|exe|compat:current| #20240423
+yes|bluez-cups|bluez-cups|exe|compat:current| #20240423
 yes|bluez-tools|bluez-tools|exe,dev,doc>null|compat:kirkstone|
 yes|bones|bones|exe|pet:noarch
 yes|boost|boost|dev,doc>null|compat:current| #20240215
@@ -347,7 +350,9 @@ yes|gmeasures|gmeasures|exe,dev>null,doc>null|compat:kirkstone|
 yes|gmp|gmp|exe,doc>null|compat:current|
 yes|gmp-devel|gmp-devel|dev,doc>null|compat:current| #20240130
 yes|gnet|gnet|exe,dev,doc>null|compat:kirkstone|
-yes|gnome-bluetooth|gnome-bluetooth3|exe,dev,doc>null|compat:kirkstone| #gnome-bluetooth needs gtk4, gnome-bluetooth3 needs gtk+3
+no|gnome-bluetooth|gnome-bluetooth3|exe,dev,doc>null|compat:kirkstone| #gnome-bluetooth needs gtk4, gnome-bluetooth3 needs gtk+3
+yes|gnome-bluetooth1|gnome-bluetooth1|exe|compat:current| #20240423 gtk3
+yes|gnome-bluetooth1-devel|gnome-bluetooth1-devel|exe|compat:current| #20240423
 no|gnome-common|gnome-common|dev,doc>null|compat:kirkstone| #20240417 removed
 yes|gnome-desktop|gnome-desktop|exe,doc>null|compat:current| #20240112
 yes|gnome-desktop-devel|gnome-desktop-devel|dev|compat:current| #20240130
@@ -565,6 +570,8 @@ yes|libboost_system|libboost_system|exe,doc>null|compat:current| #20240112 libre
 yes|libboost_thread|libboost_thread|exe,doc>null|compat:current|
 yes|libbs2b|libbs2b|exe,doc>null|compat:current| #20240112 libreoffice
 yes|libbs2b-devel|libbs2b-devel|dev|compat:current| #20240118
+yes|libcamera|libcamera|exe|compat:current| #20240425
+yes|libcamera-devel|libcamera-devel|dev|compat:current| #20240425
 yes|libcanberra|libcanberra,libcanberra-gtk3|exe,doc>null|compat:current|
 yes|libcanberra-devel|libcanberra-devel|dev|compat:current| #20240130
 yes|libcap|libcap|exe|compat:current| #20240220
@@ -884,6 +891,11 @@ yes|libsoup|libsoup,libpsl|exe,doc>null|compat:current|
 yes|libsoup-devel|libsoup-devel|dev|compat:current| #20240130
 yes|libsoxr|libsoxr|exe,doc>null|compat:current|
 yes|libsoxr-devel|libsoxr-devel|dev|compat:current| #20240130
+yes|libspa-alsa|libspa-alsa|exe|compat:current| #20240425
+yes|libspa-audioconvert|libspa-audioconvert|exe|compat:current| #20240425
+yes|libspa-audiomixer|libspa-audiomixer|exe|compat:current| #20240425
+yes|libspa-control|libspa-control|exe|compat:current| #20240425
+yes|libspa-v4l2|libspa-v4l2|exe|compat:current| #20240425
 yes|libspnav|libspnav|exe,doc>null|compat:current| #20240115b solvespace
 yes|libspnav-devel|libspnav-devel|dev|compat:current| #20240130
 yes|libsrt|libsrt|exe,doc>null|compat:current| #20230917
@@ -1141,6 +1153,8 @@ yes|ofono-devel|ofono-devel|dev|compat:current| #20240130
 yes|openblas|openblas|exe,doc>null|compat:current|
 yes|openblas-devel|openblas-devel|dev|compat:current| #20240130
 yes|openjpeg|openjpeg,libopenjpeg,libopenjpeg2|exe,doc>null|compat:current|
+yes|openobex|openobex|exe|compat:current| #20240423
+yes|openobex-devel|openobex-devel|dev|compat:current| #20240423
 yes|libopenjpeg-devel|libopenjpeg-devel|dev|compat:current| #20240130
 yes|libopenjpeg2-devel|libopenjpeg2-devel|dev|compat:current| #20240130
 yes|openssh|openssh|exe,doc>null|compat:current| #20240121 20240222
@@ -1197,6 +1211,8 @@ yes|phash|phash|exe|pet:noarch
 yes|picpuz|picpuz|exe,doc>null|pet:void|
 yes|picscale|picscale|exe,dev>null,doc>null|compat:kirkstone|
 yes|pinentry|pinentry,pinentry-gtk|exe,doc>null|compat:current| #note there is no pinentry-devel
+yes|pipewire|pipewire|exe|compat:current| #20240425
+yes|pipewire-devel|pipewire-devel|dev|compat:current| #20240425
 yes|pixman|pixman|exe,doc>null|compat:current|
 yes|pixman-devel|pixman-devel|dev|compat:current| #20240130
 yes|pkgconfig|pkgconf|dev|compat:current| #dep libpkgconf
@@ -1415,6 +1431,8 @@ yes|webrtc-audio-processing|webrtc-audio-processing|exe,doc>null|compat:current|
 yes|webrtc-audio-processing-devel|webrtc-audio-processing-devel|dev|compat:current| #20240118
 yes|wget|wget|exe,dev>null,doc>null|compat:kirkstone|
 yes|wireless-regdb|wireless-regdb|exe|pet:noarch|
+yes|wireplumber|wireplumber|exe|compat:current| #20240425
+yes|wireplumber-devel|wireplumber-devel|dev|compat:current| #20240425
 yes|wpa_supplicant|wpa-supplicant|exe,dev,doc>null|compat:kirkstone| #20230917
 yes|x11perf|x11perf|exe,doc>null|compat:current| #20240129
 yes|x264|x264|exe,dev|compat:current|
