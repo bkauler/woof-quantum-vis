@@ -96,6 +96,21 @@ DB_FILE=Packages-`cat /tmp/petget/current-repo-triad` #ex: Packages-slackware-12
 tPATTERN='^'"$TREE1"'|'
 #xtPATTERN='|'"$TREE1"'|'
 
+#20240425 did search for "cursor_themes" all repos
+#...current-repo-triad: void-current
+#...filterpkgs.results.post: cursor_themes-1-1|mini-Desktop|[pet-noarch-official] themes for mouse cursor|pet-noarch-official|
+#bring this code up:
+#120504 if findnames.sh searched multiple repos, /tmp/petget/current-repo-triad (set in pkg_chooser.sh) might be wrong...
+[ -f /tmp/petget/current-repo-triad.previous ] && rm -f /tmp/petget/current-repo-triad.previous
+if [ -f /tmp/petget/filterpkgs.results.post ];then
+ ALTSEARCHREPO="$(grep "$tPATTERN" /tmp/petget/filterpkgs.results.post | grep '|\[' | cut -f 2 -d '[' | cut -f 1 -d ']')"
+ #hmmm, other scripts, ex dependencies.sh, will need to have this correct...
+ if [ -n "$ALTSEARCHREPO" ];then
+  DB_FILE="Packages-${ALTSEARCHREPO}"
+  mv -f /tmp/petget/current-repo-triad /tmp/petget/current-repo-triad.previous #need to restore old one before exit this script.
+  echo -n "$ALTSEARCHREPO" > /tmp/petget/current-repo-triad
+ fi
+fi
 
 if [ $EVflg -eq 1 ];then #20240227
  grep -q -F 'Packages-void-current' <<<${DB_FILE}
@@ -384,27 +399,6 @@ EXAMDEPSFLAG='yes'
 ttPTN='^'"$TREE1"'|.*ALREADY INSTALLED'
 if [ "`grep "$ttPTN" /tmp/petget/filterpkgs.results.post`" != "" ];then #created by postfilterpkgs.sh
  EXAMDEPSFLAG='no'
-
-fi
-
-#120504 if findnames.sh searched multiple repos, /tmp/petget/current-repo-triad (set in pkg_chooser.sh) might be wrong...
-[ -f /tmp/petget/current-repo-triad.previous ] && rm -f /tmp/petget/current-repo-triad.previous
-if [ -f /tmp/petget/filterpkgs.results.post ];then
- #file ex line: abiword-1.2.3|[puppy-4-official] Abiword word processor|puppy-4-official|
- #120811 removed...
- #120604 fix for prepended icons field...
- #FLG_APPICONS="`cat /var/local/petget/flg_appicons`" #see configure.sh
- #if [ "$FLG_APPICONS" = "true" ];then
- # ALTSEARCHREPO="$(grep "$xtPATTERN" /tmp/petget/filterpkgs.results.post | grep '|\[' | cut -f 2 -d '[' | cut -f 1 -d ']')"
- #else
-  ALTSEARCHREPO="$(grep "$tPATTERN" /tmp/petget/filterpkgs.results.post | grep '|\[' | cut -f 2 -d '[' | cut -f 1 -d ']')"
- #fi
- [ "$ALTSEARCHREPO" ] && DB_FILE="Packages-${ALTSEARCHREPO}"
- #hmmm, other scripts, ex dependencies.sh, will need to have this correct...
- if [ "$ALTSEARCHREPO" ];then
-  mv -f /tmp/petget/current-repo-triad /tmp/petget/current-repo-triad.previous #need to restore old one before exit this script.
-  echo -n "$ALTSEARCHREPO" > /tmp/petget/current-repo-triad
- fi
 fi
 
 rm -f /tmp/petget_missing_dbentries-* 2>/dev/null
