@@ -170,3 +170,4 @@ S409='(Voit poistaa 15 sekunnin aikakatkaisun käytöstä painamalla VÄLINÄPP�
 S410='Poista komentotulkkiin initrd:ssä (vain kehittäjät)'
 S420='Poista tilannekuvat'
 S430='Alkuperäinen tilannekuva'
+S431='Kuvaus alkuperäisestä ensimmäisestä käynnistyksestä'

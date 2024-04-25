@@ -170,3 +170,4 @@ S409='(Appuyez sur la BARRE D´ESPACE pour désactiver le délai d´attente de 1
 S410='Abandon du shell dans initrd (développeurs uniquement)'
 S420='Supprimer les instantanés'
 S430='Instantané original'
+S431='Instantané du premier démarrage impeccable'

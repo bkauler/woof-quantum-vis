@@ -170,3 +170,4 @@ S409='(Pritisnite RAZMAKNICU da onemogućite vremensko ograničenje od 15 sekund
 S410='Dropout to shell in initrd (samo za programere)'
 S420='Izbriši snimke'
 S430='Izvorna snimka'
+S431='Snimka netaknutog prvog podizanja sustava'

@@ -170,3 +170,4 @@ S409='(Apăsați BARA DE SPAȚIU pentru a dezactiva timpul de expirare de 15 sec
 S410='Renunțarea la shell în initrd (numai pentru dezvoltatori)'
 S420='Ștergeți instantaneele'
 S430='Instantaneu original'
+S431='Instantaneu al primei porniri impecabile'
