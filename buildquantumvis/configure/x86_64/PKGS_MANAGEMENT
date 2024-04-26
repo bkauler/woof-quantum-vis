@@ -15,7 +15,8 @@ PKG_NAME_IGNORE="fbset petget rgb sysfiles sysklogd getcurpos mktemp xdg-utils"
 #also ignore gsfonts, which is a dep of gimp and inkscape ...
 #20240120 libEGL is dep for some pkgs, but there is no such pkg...
 #20240129 add: pam shadow sudo  20240220 removed: dbus-x11 dbus-libs dbus-devel
-PKG_NAME_IGNORE="pam shadow sudo libEGL gsfonts ${PKG_NAME_IGNORE}"
+#20240425 try rem: pam shadow
+PKG_NAME_IGNORE="sudo libEGL gsfonts ${PKG_NAME_IGNORE}"
 #20240215 add: binutils-doc capstone font-misc-misc gsfonts hwids kemoticons poppler-data python
 # python is version 2
 PKG_NAME_IGNORE="binutils-doc capstone font-misc-misc gsfonts hwids kemoticons poppler-data python ${PKG_NAME_IGNORE}"

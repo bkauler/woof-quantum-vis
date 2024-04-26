@@ -1344,7 +1344,8 @@ yes|setcolortemperature|setcolortemperature|exe,dev,doc>null|compat:kirkstone|
 yes|setvol|setvol|exe,dev,doc>null|compat:kirkstone|
 yes|setxkbmap|setxkbmap|exe,doc>null|compat:current| #20240129
 yes|shaderc|shaderc|exe,doc>null|compat:current| #20240114 mpv and celluloid
-yes|shadow|shadow|exe,dev,doc>null|compat:kirkstone| #20240129 void pkg requires pam, use from kirkstone which requires opkg-utils
+no|shadow|shadow|exe,dev,doc>null|compat:kirkstone| #20240129 void pkg requires pam, use from kirkstone which requires opkg-utils
+yes|shadow|shadow|exe|compat:current| #20240425 think have crippled pam.
 yes|shared-mime-info|shared-mime-info|exe,dev,doc>null|compat:kirkstone|
 yes|simple-mtpfs|simple-mtpfs|exe|pet:void| #new. used by pupmtp builtin to woof.
 yes|simple_xcursor_creator|simple_xcursor_creator|exe|pet:noarch|
