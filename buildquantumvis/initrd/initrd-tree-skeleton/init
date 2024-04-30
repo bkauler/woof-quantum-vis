@@ -544,7 +544,7 @@ if [ -e /sys/class/rtc/rtc0 ];then
    utc)       hwclock -s -u -f /dev/rtc0; CLKflg=$? ;;
   esac
  else #first bootup, assume hw clock is localtime...
-  hwclock -s -l -f /dev/rtc0
+  hwclock -s --localtime -f /dev/rtc0
  fi
 fi
 if [ $CLKflg -ne 0 ];then
