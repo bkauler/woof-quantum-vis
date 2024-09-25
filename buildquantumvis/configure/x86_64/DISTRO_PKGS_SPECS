@@ -1397,6 +1397,7 @@ yes|texinfo|texinfo|dev,doc>null|compat:current|
 yes|tiff|tiff|exe,doc>null|compat:current|
 yes|tiff-devel|tiff-devel|dev|compat:current| #20240130
 yes|translate-shell|translate-shell|exe|pet:noarch| #note gxlat has an older version of trans
+yes|tree|tree|exe,dev,doc,nls|compat:kirkstone| #20240528
 yes|trousers|trousers|exe,doc>null|compat:current|
 yes|trousers-devel|trousers-devel|dev|compat:current| #20240130
 yes|tzdata|tzdata|exe|compat:current| #20240218
