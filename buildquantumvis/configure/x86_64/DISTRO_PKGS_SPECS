@@ -254,6 +254,8 @@ yes|firefox-i18n-sv|firefox-i18n-sv-SE|exe|compat:current| #20240218
 yes|firefox-i18n-tr|firefox-i18n-tr|exe|compat:current| #20240218
 yes|firefox-i18n-uk|firefox-i18n-uk|exe|compat:current| #20240218
 yes|firefox-i18n-uz|firefox-i18n-uz|exe|compat:current| #20240218
+yes|firefox-i18n-zh-CN|firefox-i18n-zh-CN|exe|compat:current| #20240925
+yes|firefox-i18n-zh-TW|firefox-i18n-zh-TW|exe|compat:current| #20240925
 yes|firmware_asus_e200ha|firmware_asus_e200ha|exe|pet:noarch| #needed for my asus e200ha notebook.
 yes|firmware_linux_acer_aspire1|firmware_linux_acer_aspire1|exe|pet:noarch| #for my acer aspire1 laptop. note has regulatory.db useful all wifi.
 yes|firmware_linux_all_k5p15p85|firmware_linux_all_k5p15p85|exe|pet:noarch|
