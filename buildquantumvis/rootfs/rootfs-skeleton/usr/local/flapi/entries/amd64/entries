@@ -29,7 +29,7 @@ ENTRIESgames="
 <item icon-name=\"frogatto\">Frogatto|${FLGfrogatto}|$(gettext '2D adventure game')</item>
 <item icon-name=\"leocad\">LeoCAD|${FLGleocad}|$(gettext '3D build with Lego bricks')</item>
 <item icon-name=\"ppsspp\">PPSSPP|${FLGppsspp}|$(gettext 'PlayStation PSP emulator')</item>
-<item icon-name=\"spacecadetpinball\">SpaceCadetPinball|FLGspacecadetpinball|$(gettext '3D pinball game')</item>
+<item icon-name=\"spacecadetpinball\">SpaceCadetPinball|${FLGspacecadetpinball}|$(gettext '3D pinball game')</item>
 "
 echo "$ENTRIESgames" > /tmp/flatpak/ENTRIESgames
 
@@ -48,8 +48,11 @@ ENTRIESgraphics="
 "
 echo "$ENTRIESgraphics" > /tmp/flatpak/ENTRIESgraphics
 
+#20240622 rem as have in menu:
+# <item icon-name=\"chromium\">UnGoogled|${FLGungoogled}|$(gettext 'Un-Googled Chromium web browser')</item>
+# <item icon-name=\"chrome\">Chrome|${FLGchrome}|$(gettext 'Web browser by Google')</item>
 ENTRIESnetwork="
-<item icon-name=\"chrome\">Chrome|${FLGchrome}|$(gettext 'Web browser by Google')</item>
+<item icon-name=\"brave\">Brave|${FLGbrave}|$(gettext 'Secure web browser')</item>
 <item icon-name=\"discord\">Discord|${FLGdiscord}|$(gettext 'Message and video sharing')</item>
 <item icon-name=\"fragments\">Fragments|${FLGfragments}|$(gettext 'A BitTorrent client')</item>
 <item icon-name=\"jitsimeet\">JitsiMeet|${FLGjitsimeet}|$(gettext 'Video conferencing')</item>
@@ -58,7 +61,6 @@ ENTRIESnetwork="
 <item icon-name=\"teams\">Teams|${FLGteams}|$(gettext 'Microsoft Teams client')</item>
 <item icon-name=\"telegram\">Telegram|${FLGtelegram}|$(gettext 'Secure message and video sharing')</item>
 <item icon-name=\"tor\">Teams|${FLGtor}|$(gettext 'Secure web browser')</item>
-<item icon-name=\"chromium\">UnGoogled|${FLGungoogled}|$(gettext 'Un-Googled Chromium web browser')</item>
 <item icon-name=\"whatsapp\">WhatsApp|${FLGwhatsapp}|$(gettext 'Messaging and calls')</item>
 <item icon-name=\"zoom\">Zoom|${FLGzoom}|$(gettext 'Video conferencing')</item>
 "
@@ -90,6 +92,7 @@ echo "$ENTRIESproductivity" > /tmp/flatpak/ENTRIESproductivity
 
 ENTRIESsystem="
 <item icon-name=\"dosbox\">DOSBox|${FLGdosbox}|$(gettext 'DOS emulator')</item>
+<item icon-name=\"ktorrent\">KTorrent|${FLGktorrent}|$(gettext 'KDE BitTorrent client')</item>
 "
 echo "$ENTRIESsystem" > /tmp/flatpak/ENTRIESsystem
 
@@ -107,13 +110,14 @@ echo "$ENTRIESvideo" > /tmp/flatpak/ENTRIESvideo
 ENTRIESother="
 <item icon-name=\"bottles\">Bottles|${FLGbottles}|$(gettext 'Run Windows apps')</item>
 <item icon-name=\"gramps\">Gramps|${FLGgramps}|$(gettext 'Genealogy program')</item>
+<item icon-name=\"maps\">Maps|${FLGmaps}|$(gettext 'OpenStreetMaps map of the world')</item>
 <item icon-name=\"organicmaps\">OrganicMaps|${FLGorganicmaps}|$(gettext 'Offline maps for travellers, hikers and cyclists')</item>
 <item icon-name=\"qgis\">QGIS|${FLGqgis}|$(gettext 'Open source Geographic Information System')</item>
 "
 echo "$ENTRIESother" > /tmp/flatpak/ENTRIESother
 
 #20230510 custom...
-for aCUST in $(find /usr/local/flatpak/custom -mindepth 1 -maxdepth 1 -type f | tr '\n' ' ')
+for aCUST in $(find /usr/local/flapi/custom -mindepth 1 -maxdepth 1 -type f | tr '\n' ' ')
 do
  aNAME="${aCUST##*/}" #ex: goldendict
  [ "$aNAME" == "template" ] && continue
