@@ -10,3 +10,7 @@ cd usr/bin
 rm *
 cd ../../
 unset GLOBIGNORE
+
+#20240623
+#no longer have losetup-FULL but in case an old script wants it:
+ln -s losetup usr/bin/losetup-FULL

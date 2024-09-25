@@ -6,7 +6,7 @@ fi
 
 mkdir -p usr/bin
 #keep only these (requires bash)...
-GLOBIGNORE='last'
+GLOBIGNORE='last:lastb'
 cd usr/bin
 rm *
 cd ../../
