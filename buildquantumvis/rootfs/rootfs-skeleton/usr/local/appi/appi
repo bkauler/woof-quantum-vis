@@ -9,7 +9,9 @@
 #20230617 note: set-client now has already created /files/apps/<appname>
 #20231213 firefox: fix start 2nd instance. ref: https://discourse.mozilla.org/t/how-does-firefox-discover-a-running-instance-to-connect-to/109957
 #20240120 fix start and stop client dbus-daemon
-#20240329 fix for QV.
+#20240706 increaseping wait.
+#20240903 path now /usr/local/appi
+#20240905 translate menu top category. aware of jwm-mode.
 
 if [ "$(whoami)" != "root" ];then
  if [ -x /usr/bin/sudo-sh ];then
@@ -23,11 +25,12 @@ export TEXTDOMAIN=appimages
 export TEXTDOMAINDIR=/usr/share/locale
 export OUTPUT_CHARSET=UTF-8
 
+. /etc/uimanager #20240905 has UI_DESK_MANAGER=rox or jwm
 . /etc/DISTRO_SPECS
 CR='
 '
 mkdir -p /tmp/appimage
-mkdir -p /data/appimage
+mkdir -p /mnt/wkg/appimage
 
 H_appimg="$(gettext 'AppImages are applications that contain all dependencies built-in, so they will run on almost any Linux distribution, without having to install any other packages.')
 $(gettext 'Consequently, they are large, typically 50MB to 900MB, so you do need reasonably fast Internet and adequate data allowance with your telco.')
@@ -63,7 +66,7 @@ export DLG_HELP_APPIMG="<window resizable=\"false\" title=\"$(gettext 'Help: App
 
 
 #find out what already installed...
-for aAI in $(find /data/appimage -mindepth 1 -maxdepth 1 -type d)
+for aAI in $(find /mnt/wkg/appimage -mindepth 1 -maxdepth 1 -type d)
 do
  [ "$aAI" == "" ] && continue
  AIfile="$(find ${aAI} -mindepth 1 -maxdepth 1 -type f -name '*.AppImage' | tail -n 1)"
@@ -82,7 +85,7 @@ do
 done
 
 ARCH='amd64'
-/usr/local/appimage/entries/${ARCH}/entries #this evaluates each entry.
+/usr/local/appi/entries/${ARCH}/entries #this evaluates each entry.
 ENTRIESaudio="$(cat /tmp/appimage/ENTRIESaudio)"
 ENTRIESdeveloper="$(cat /tmp/appimage/ENTRIESdeveloper)"
 ENTRIESgames="$(cat /tmp/appimage/ENTRIESgames)"
@@ -184,7 +187,7 @@ export APPIMG_DLG1="<window title=\"$(gettext 'AppImage Installer')\">
       <button space-expand=\"false\" space-fill=\"false\"><label>$(gettext 'Exit')</label><action>exit:QUIT</action></button>
       <text space-expand=\"true\" space-fill=\"true\"><label>\"  \"</label></text>
       <button><label>$(gettext 'Install/Update/Delete')</label><action>exit:BUTinstall</action></button>
-      <button><label>$(gettext 'Online Information')</label><action>/usr/local/appimage/online-info \"\$TREEaudio\" \"\$TREEdeveloper\" \"\$TREEgames\" \"\$TREEgraphics\" \"\$TREEnetwork\" \"\$TREEoffice\" \"\$TREEproductivity\" \"\$TREEsystem\" \"\$TREEvideo\" \"\$TREEother\" </action></button>
+      <button><label>$(gettext 'Online Information')</label><action>/usr/local/appi/online-info \"\$TREEaudio\" \"\$TREEdeveloper\" \"\$TREEgames\" \"\$TREEgraphics\" \"\$TREEnetwork\" \"\$TREEoffice\" \"\$TREEproductivity\" \"\$TREEsystem\" \"\$TREEvideo\" \"\$TREEother\" </action></button>
     </hbox>
   </vbox>
 </window>
@@ -291,20 +294,38 @@ case "${aAPP}" in
  ;;
 esac
 
+#20240905 translate menu top category...
+MENUtop0="$MENUtop"
+case "${MENUtop}" in
+ Desktop)    MENUtop="$(gettext 'Desktop')" ;;
+ System)     MENUtop="$(gettext 'System')" ;;
+ Setup)      MENUtop="$(gettext 'Setup')" ;;
+ Filesystem) MENUtop="$(gettext 'Filesystem')" ;;
+ Graphic)    MENUtop="$(gettext 'Graphic')" ;;
+ Document)   MENUtop="$(gettext 'Document')" ;;
+ Business)   MENUtop="$(gettext 'Business')" ;;
+ Personal)   MENUtop="$(gettext 'Personal')" ;;
+ Network)    MENUtop="$(gettext 'Network')" ;;
+ Internet)   MENUtop="$(gettext 'Internet')" ;;
+ Multimedia) MENUtop="$(gettext 'Multimedia')" ;;
+ Fun)        MENUtop="$(gettext 'Fun')" ;;
+ *)          MENUtop="$(gettext 'Utility')" ;;
+esac
+
 #test if already installed...
 UPDATEflg='no'
-if [ -d /data/appimage/${aAPP,,} ];then
- rmdir /data/appimage/${aAPP,,} 2>/dev/null #this will fail if any files.
+if [ -d /mnt/wkg/appimage/${aAPP,,} ];then
+ rmdir /mnt/wkg/appimage/${aAPP,,} 2>/dev/null #this will fail if any files.
  if [ $? -ne 0 ];then
   if [ -f /usr/bin/${aAPP,,} ];then
    #already installed.
    SPEC_APPI_ver=''
-   if [ -s /data/appimage/${aAPP,,}/${aAPP,,}.specs ];then
-    . /data/appimage/${aAPP,,}/${aAPP,,}.specs #has SPEC_APPI_ver
+   if [ -s /mnt/wkg/appimage/${aAPP,,}/${aAPP,,}.specs ];then
+    . /mnt/wkg/appimage/${aAPP,,}/${aAPP,,}.specs #has SPEC_APPI_ver
    fi
    #handle the old name, as in easy 5.1.1 and 5.2...
-   if [ -s /data/appimage/${aAPP,,}/${aAPP,,}.spec ];then
-    . /data/appimage/${aAPP,,}/${aAPP,,}.specs #has SPEC_AI_ver
+   if [ -s /mnt/wkg/appimage/${aAPP,,}/${aAPP,,}.spec ];then
+    . /mnt/wkg/appimage/${aAPP,,}/${aAPP,,}.specs #has SPEC_AI_ver
     SPEC_APPI_ver="$SPEC_AI_ver"
    fi
    if [ "$DIRECTDL" != "" -o "$SPEC_APPI_ver" == "" ];then
@@ -347,7 +368,7 @@ if [ -d /data/appimage/${aAPP,,} ];then
    
    case "$EXIT" in
     delete)
-     rm -rf /data/appimage/${aAPP,,}
+     rm -rf /mnt/wkg/appimage/${aAPP,,}
      rm -rf /home/${aAPP,,}
      rm -f /usr/share/applications/${aAPP,,}.desktop
      rm -f /usr/bin/${aAPP,,}
@@ -409,8 +430,8 @@ if [ "$EXIT" != "OK" ];then
  exit 0
 fi
 
-#need internet connection... 20230517 fix
-ping -4 -c 1 -w 5 google.com > /dev/null 2>&1
+#need internet connection... 20230517 fix 20240706 bump wait 5 to 8
+ping -4 -c 1 -w 8 google.com > /dev/null 2>&1
 if [ $? -ne 0 ];then
  M5="$(gettext 'An Internet connection is required to download an AppImage.')"
  popup "terminate=ok background=#ff8080 level=top process=wait|<big>${M5}</big>"
@@ -442,8 +463,8 @@ if [ "$CHOOSEDL" != "" ];then
  echo -n "$APPver" > /tmp/appimage/APPver
  echo -n '' > /tmp/appimage/URLtag
  echo -n "$CHOOSEDL" > /tmp/appimage/URLdl
- mkdir -p /data/appimage/${aAPP,,}
- cd /data/appimage/${aAPP,,}
+ mkdir -p /mnt/wkg/appimage/${aAPP,,}
+ cd /mnt/wkg/appimage/${aAPP,,}
  APPnew="${aAPP,,}-${APPver}.AppImage" #this is what renamed to after d/l.
  if [ ! -f "$APPname" ];then #20230317 support manual download.
   if [ ! -f "$APPnew" ];then
@@ -461,7 +482,7 @@ if [ "$CHOOSEDL" != "" ];then
  fi
 else
  #this is an update.
- /usr/local/appimage/github-find-latest-ver-api ${MEMBER} ${PROJECT} ${APPIMG}
+ /usr/local/appi/github-find-latest-ver-api ${MEMBER} ${PROJECT} ${APPIMG}
  #...creates /tmp/appimage/URLtag, APPver, APPname
  if [ $? -ne 0 ];then
   exec appi
@@ -501,8 +522,8 @@ $(gettext 'If the latest version is later than the current version, and you want
    UPDATEflg='yesyes'
   fi
   #this is what we have to download: ${URLtag}/${APPname}
-  mkdir -p /data/appimage/${aAPP,,}
-  cd /data/appimage/${aAPP,,}
+  mkdir -p /mnt/wkg/appimage/${aAPP,,}
+  cd /mnt/wkg/appimage/${aAPP,,}
   echo -n "${URLtag}/${APPname}" > /tmp/appimage/URLdl #for debugging.
   URLdl="$(echo -n "$URLtag" | sed -e 's%/tag/%/download/%')"
   APPnew="${aAPP,,}-${APPver}.AppImage" #this is what renamed to after d/l.
@@ -546,7 +567,7 @@ if [ "$OFFSET" == "" ];then
 fi
 
 #open up appimage, need to find out a few things...
-mkdir -p /data/appimage/${aAPP,,}/mntpt
+mkdir -p /mnt/wkg/appimage/${aAPP,,}/mntpt
 busybox mount -o loop,offset=${OFFSET} ${APPname} mntpt
 if [ $? -ne 0 ];then
  M4="$(gettext 'The downloaded AppImage seems to be corrupted. Aborting.')"
@@ -568,9 +589,9 @@ rmdir mntpt
 if [ "$UPDATEflg" == "yesyes" ];then
  #just redirect symlink to the new appimage...
  cp -a -f /usr/bin/${aAPP,,}.bin /usr/bin/${aAPP,,}.binOLD
- cp -a -f /data/appimage/${aAPP,,}/${aAPP,,}.specs /data/appimage/${aAPP,,}/${aAPP,,}.specsOLD
+ cp -a -f /mnt/wkg/appimage/${aAPP,,}/${aAPP,,}.specs /mnt/wkg/appimage/${aAPP,,}/${aAPP,,}.specsOLD
  #20230415 script instead of symlink...
- #ln -snf /data/appimage/${aAPP,,}/${APPname} /usr/bin/${aAPP,,}.bin
+ #ln -snf /mnt/wkg/appimage/${aAPP,,}/${APPname} /usr/bin/${aAPP,,}.bin
  #20231213 prevent 2nd instance dbus-daemon... 20240120 fix...
  echo "#!/bin/sh
 APPlow=\"${aAPP,,}\"
@@ -586,7 +607,7 @@ else
   export DBUS_SESSION_BUS_ADDRESS DBUS_SESSION_BUS_PID
  fi
 fi
-/data/appimage/${aAPP,,}/${APPname}
+/mnt/wkg/appimage/${aAPP,,}/${APPname}
 pidof -o \${$} \${APPlow}.bin >/dev/null
 if [ \$? -ne 0 ];then
  kill \$DBUS_SESSION_BUS_PID
@@ -597,7 +618,7 @@ fi
 else
  #this symlink is correct, later setup-client will rename to .bin ...
  #20230415 script instead of symlink...
- #ln -snf /data/appimage/${aAPP,,}/${APPname} /usr/bin/${aAPP,,}
+ #ln -snf /mnt/wkg/appimage/${aAPP,,}/${APPname} /usr/bin/${aAPP,,}
  #20231213 prevent 2nd instance dbus-daemon...
  echo "#!/bin/sh
 APPlow=\"${aAPP,,}\"
@@ -613,7 +634,7 @@ else
   export DBUS_SESSION_BUS_ADDRESS DBUS_SESSION_BUS_PID
  fi
 fi
-/data/appimage/${aAPP,,}/${APPname}
+/mnt/wkg/appimage/${aAPP,,}/${APPname}
 if [ \$DBUSflg -ne 0 ];then
  kill \$DBUS_SESSION_BUS_PID
  rm -f \${HOME}/.DBUS-DAEMON-VARS 2>/dev/null
@@ -643,23 +664,42 @@ Exec=${aAPP,,}" > /usr/share/applications/${aAPP,,}.desktop
   cat /tmp/appimage/mimetype >> /usr/share/applications/${aAPP,,}.desktop
  fi
 
- if [ -d /usr/local/appimage/skeletons/${aAPP,,}/usr ];then
-  cp -a -f /usr/local/appimage/skeletons/${aAPP,,}/usr/* /usr/
+ if [ -d /usr/local/appi/skeletons/${aAPP,,}/usr ];then
+  cp -a -f /usr/local/appi/skeletons/${aAPP,,}/usr/* /usr/
  fi
 
  #create /usr/bin/${aAPP,,} script to run as user ${aAPP,,} ...
  setup-client "${aAPP,,}=true"
 
- if [ -d /usr/local/appimage/skeletons/${aAPP,,}/home/${aAPP,,} ];then
-  chown -R ${aAPP,,}:${aAPP,,} /usr/local/appimage/skeletons/${aAPP,,}/home/${aAPP,,}
-  cp -a -f /usr/local/appimage/skeletons/${aAPP,,}/home/${aAPP,,}/* /home/${aAPP,,}/ 2>/dev/null
-  cp -a -f /usr/local/appimage/skeletons/${aAPP,,}/home/${aAPP,,}/.[a-zA-Z0-9]* /home/${aAPP,,}/ 2>/dev/null
+ if [ -d /usr/local/appi/skeletons/${aAPP,,}/home/${aAPP,,} ];then
+  chown -R ${aAPP,,}:${aAPP,,} /usr/local/appi/skeletons/${aAPP,,}/home/${aAPP,,}
+  cp -a -f /usr/local/appi/skeletons/${aAPP,,}/home/${aAPP,,}/* /home/${aAPP,,}/ 2>/dev/null
+  cp -a -f /usr/local/appi/skeletons/${aAPP,,}/home/${aAPP,,}/.[a-zA-Z0-9]* /home/${aAPP,,}/ 2>/dev/null
  fi
-
+ 
+ #20240905 create icon in jwm tray (if icon-free-desktop mode)...
+ #note: similar code in /usr/local/orange/orange.install and /usr/local/flapi/flapi
+ EN="${aAPP,,}"; RN="${aAPP}"
+ if [ -f /root/.jwm/tray-icons ];then
+  grep -q -F "exec:${EN}<" /root/.jwm/tray-icons
+  if [ $? -ne 0 ];then
+   echo "<TrayButton popup=\"${RN}\" icon=\"${EN}.png\">exec:${EN}</TrayButton>" >> /root/.jwm/tray-icons
+   if [ "${UI_DESK_MANAGER}" == "jwm" ];then
+    #insert file between two patterns in /root/.jwmrc-tray...
+    sed -i -e '/STARTICONS/,/ENDICONS/{/STARTICONS/!{/ENDICONS/!d}}' -e '/STARTICONS/r /root/.jwm/tray-icons' /root/.jwmrc-tray
+   fi
+  fi
+ fi
+ 
  #update jwm menu...
  fixmenus
- jwm -reload
-
+ if [ "${UI_DESK_MANAGER}" == "jwm" ];then #20240905
+  #and tray...
+  jwm -restart
+ else
+  jwm -reload
+ fi
+ 
  #update the right-click menu...
  build-rox-sendto /usr/share/applications/${aAPP,,}.desktop
 
@@ -672,20 +712,20 @@ Exec=${aAPP,,}" > /usr/share/applications/${aAPP,,}.desktop
 fi
 
 #.specs file...
-rm -f /data/appimage/${aAPP,,}/${aAPP,,}.spec 2>/dev/null #easy 5.1.1 and 5.2
-echo -n 'SPEC_APPI_dl=' > /data/appimage/${aAPP,,}/${aAPP,,}.specs
-cat /tmp/appimage/URLdl >> /data/appimage/${aAPP,,}/${aAPP,,}.specs
+rm -f /mnt/wkg/appimage/${aAPP,,}/${aAPP,,}.spec 2>/dev/null #easy 5.1.1 and 5.2
+echo -n 'SPEC_APPI_dl=' > /mnt/wkg/appimage/${aAPP,,}/${aAPP,,}.specs
+cat /tmp/appimage/URLdl >> /mnt/wkg/appimage/${aAPP,,}/${aAPP,,}.specs
 # ex: https://github.com/webcamoid/webcamoid/releases/tag/9.0.0/webcamoid-portable-linux-9.0.0-x86_64.AppImage
-echo '' >> /data/appimage/${aAPP,,}/${aAPP,,}.specs
-echo -n 'SPEC_APPI_tag=' >> /data/appimage/${aAPP,,}/${aAPP,,}.specs
-cat /tmp/appimage/URLtag >> /data/appimage/${aAPP,,}/${aAPP,,}.specs
+echo '' >> /mnt/wkg/appimage/${aAPP,,}/${aAPP,,}.specs
+echo -n 'SPEC_APPI_tag=' >> /mnt/wkg/appimage/${aAPP,,}/${aAPP,,}.specs
+cat /tmp/appimage/URLtag >> /mnt/wkg/appimage/${aAPP,,}/${aAPP,,}.specs
 # ex: https://github.com/webcamoid/webcamoid/releases/tag/9.0.0
-echo '' >> /data/appimage/${aAPP,,}/${aAPP,,}.specs
-echo -n 'SPEC_APPI_name=' >> /data/appimage/${aAPP,,}/${aAPP,,}.specs
-echo "$APPname" >> /data/appimage/${aAPP,,}/${aAPP,,}.specs #ex: webcamoid-9.0.0.AppImage
-echo -n 'SPEC_APPI_ver=' >> /data/appimage/${aAPP,,}/${aAPP,,}.specs
-cat /tmp/appimage/APPver >> /data/appimage/${aAPP,,}/${aAPP,,}.specs # ex: 9.0.0
-echo '' >> /data/appimage/${aAPP,,}/${aAPP,,}.specs
+echo '' >> /mnt/wkg/appimage/${aAPP,,}/${aAPP,,}.specs
+echo -n 'SPEC_APPI_name=' >> /mnt/wkg/appimage/${aAPP,,}/${aAPP,,}.specs
+echo "$APPname" >> /mnt/wkg/appimage/${aAPP,,}/${aAPP,,}.specs #ex: webcamoid-9.0.0.AppImage
+echo -n 'SPEC_APPI_ver=' >> /mnt/wkg/appimage/${aAPP,,}/${aAPP,,}.specs
+cat /tmp/appimage/APPver >> /mnt/wkg/appimage/${aAPP,,}/${aAPP,,}.specs # ex: 9.0.0
+echo '' >> /mnt/wkg/appimage/${aAPP,,}/${aAPP,,}.specs
 
 if [ "$UPDATEflg" == "yesyes" ];then
 export APPIMG_DLG11="<window title=\"$(gettext 'AppImage Installer: success')\">
@@ -694,7 +734,7 @@ export APPIMG_DLG11="<window title=\"$(gettext 'AppImage Installer: success')\">
   <b>${APPname}</b>
 
 $(gettext 'It was downloaded here:')
-  /data/appimage/${aAPP,,}
+  /mnt/wkg/appimage/${aAPP,,}
 $(gettext 'This script points to the new AppImage file:')  
   /usr/bin/${aAPP,,}.bin
 $(gettext 'This script points to the previous AppImage file:')
@@ -719,7 +759,7 @@ export APPIMG_DLG2="<window title=\"$(gettext 'AppImage Installer: success')\">
     <text><label>\"$(gettext 'Success, this AppImage has been installed:')
   ${APPname}
 $(gettext 'It was downloaded here:')
-  /data/appimage/${aAPP,,}
+  /mnt/wkg/appimage/${aAPP,,}
 $(gettext 'This script has been created to run it:')
   /usr/bin/${aAPP,,}
 $(gettext 'And a menu entry has been created in this category:')
@@ -743,6 +783,24 @@ $(gettext 'Click the OK button for some final useful information...')\"</label><
 "
 gtkdialog --center --program=APPIMG_DLG2
 
+#20240905
+if [ "${UI_DESK_MANAGER}" == "jwm" ];then
+ I3="   <text use-markup=\"true\"><label>\"<b>$(gettext 'Tray icon')</b>\"</label></text>
+   <text use-markup=\"true\"><label>\"$(gettext 'An entry has been created in the menu; however, for your convenience an icon has also been created in the tray.')\"</label></text>"
+else
+ I3="      <text use-markup=\"true\"><label>\"<b>$(gettext 'Desktop icon')</b>\"</label></text>
+      <text use-markup=\"true\"><label>\"$(gettext 'An entry has been created in the menu; however, you can also create a desktop icon.')
+$(gettext 'All that you need to do is drag the icon from ROX-Filer, onto the desktop, that is it.')
+$(gettext 'You can do it any time in the future, and also can delete the desktop icon by right-click and choose Remove.')\"</label></text>
+      <hbox>
+       <text><label>$(gettext 'Click for ROX-Filer window:')</label></text>
+       <button>
+        <label>ROX-Filer</label>
+        <action>rox -d /home/${aAPP,,} & </action>
+       </button>
+      </hbox>"
+fi
+
 export APPIMG_DLG3="<window title=\"$(gettext 'AppImage Installer: notes')\">
   <vbox>
     <frame>
@@ -753,23 +811,13 @@ $(gettext 'However, you may prefer to run some apps as the root user, a file-man
        <text><label>$(gettext 'Click for more information:')</label></text>
        <button>
          <label>root</label>
-         <action>/usr/local/appimage/notes-security & </action>
+         <action>/usr/local/appi/notes-security & </action>
        </button>
       </hbox>
     </frame>
     
     <frame>
-      <text use-markup=\"true\"><label>\"<b>$(gettext 'Desktop icon')</b>\"</label></text>
-      <text use-markup=\"true\"><label>\"$(gettext 'An entry has been created in the menu; however, you can also create a desktop icon.')
-$(gettext 'All that you need to do is drag the icon from ROX-Filer, onto the desktop, that is it.')
-$(gettext 'You can do it any time in the future, and also can delete the desktop icon by right-click and choose Remove.')\"</label></text>
-      <hbox>
-       <text><label>$(gettext 'Click for ROX-Filer window:')</label></text>
-       <button>
-        <label>ROX-Filer</label>
-        <action>rox -d /home/${aAPP,,} & </action>
-       </button>
-      </hbox>
+     ${I3}
     </frame>
     
     <hbox>
