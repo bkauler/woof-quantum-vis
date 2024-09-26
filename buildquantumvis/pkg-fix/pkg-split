@@ -1,6 +1,6 @@
 #!/bin/bash
 #called from 5populate-rootfs
-#this is for kirkstone pkgs, split into exe, dev, doc
+#this is for scarthgap pkgs, split into exe, dev, doc
 #$1 is split-rules, $2 is folder of expanded pkg.
 #current path is same as $2 folder (normally ${E1}/sandbox)
 

@@ -20,7 +20,7 @@ chown root:lp etc/cups
 
 #20240325 gutenprint void pkg is configured incorrectly, cups-genppd.5.3 doesn't
 # work. void devs have avoided by precreating all the ppd's about 80MB gzipped!
-# so, i am using gutenprint pkg from oe kirkstone.
+# so, i am using gutenprint pkg from oe scarthgap.
 
 #20240325 cups-genppd.5.3 generates the ppd's here, need to create folder...
 mkdir -p usr/share/cups/model/gutenprint/5.3

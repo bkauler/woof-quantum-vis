@@ -1,8 +1,9 @@
 #!/bin/bash
 #call this from 6post-process-rootfs, via chroot into rootfs
 #fix all usr/share/applications/*.desktop to suit easyos menu hierarchy.
-#20240229 called from /usr/local/petget/installpreview.sh, one .desktop passed in.
+#called from /usr/local/petget/installpreview.sh, one .desktop passed in.
 
+. /etc/DISTRO_SPECS #has FOREIGN_BINARY_COMPAT, FOREIGN_COMPAT_VERSION
 cd /usr/share/applications
 
 if [ ! -z "${1}" ];then #20240229
@@ -23,7 +24,7 @@ do
  if [ "$CAT0" ];then
   sed -i -e "s%^Categories=.*%Categories=X-${CAT0}%" ${aD}
  else
-  CAT1="$(grep -h -i "|${NAME}|" /root/.packages/Packages-void-current /root/.packages/Packages-void-current-nonfree /root/.packages/Packages-oe-kirkstone-official | head -n 1 | cut -f 5 -d '|' | tr ';' '-')"
+  CAT1="$(grep -h -i "|${NAME}|" /root/.packages/Packages-void-current /root/.packages/Packages-void-current-nonfree /root/.packages/Packages-${FOREIGN_BINARY_COMPAT}-${FOREIGN_COMPAT_VERSION}-official | head -n 1 | cut -f 5 -d '|' | tr ';' '-')"
   if [ "$CAT1" ];then
    sed -i -e "s%^Categories=.*%Categories=X-${CAT1}%" ${aD}
   fi

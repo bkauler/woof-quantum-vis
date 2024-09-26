@@ -10,4 +10,5 @@ if [ "$REALLIB" ];then
  ln -snf ${BASELIB} ${PATHLIB}/libvpx.so.3
  ln -snf ${BASELIB} ${PATHLIB}/libvpx.so.4
  ln -snf ${BASELIB} ${PATHLIB}/libvpx.so.7 #kirkstone
+ ln -snf ${BASELIB} ${PATHLIB}/libvpx.so.9 #scarthgap
 fi

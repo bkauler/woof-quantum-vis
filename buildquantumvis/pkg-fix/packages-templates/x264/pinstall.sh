@@ -10,4 +10,5 @@ if [ "$FNDLIB" ];then
  ln -snf $BASELIB usr/lib/libx264.so.94
  ln -snf $BASELIB usr/lib/libx264.so.98
  ln -snf $BASELIB usr/lib/libx264.so.163 #kirkstone
+ ln -snf $BASELIB usr/lib/libx264.so.164 #scarthgap
 fi
