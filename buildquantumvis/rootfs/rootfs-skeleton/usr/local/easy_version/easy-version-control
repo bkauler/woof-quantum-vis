@@ -45,6 +45,7 @@
 #20230104 /.rollback.flg moved to /mnt/wkg/.rollback.flg
 #20230123 removed SESSIONSFSflag. it is an old idea from 2017, not used.
 #20231110 Caramel: fix depth limit problem.
+#20240926 remove $EOS_SUPPORT_CONTAINERS" != "0" code.
 
 if [ "$(whoami)" != "root" ];then
  if [ -x /usr/bin/sudo-sh ];then
@@ -288,25 +289,7 @@ $(gettext 'Each container has its own read-write layer, and this may be erased, 
 $(gettext 'Location of containers:') /mnt/${WKG_DEV}/${WKG_DIR}containers"
 export DLG_HELP5="<window resizable=\"false\" title=\"$(gettext 'Help: Containers')\" icon-name=\"gtk-index\" window_position=\"1\"><vbox><text use-markup=\"true\"><label>\"${M_help5}\"</label><variable>DLG_HELP5</variable></text><hbox><button><label>${M_close}</label><action type=\"closewindow\">DLG_HELP5</action></button></hbox></vbox></window>"
 
-if [ "$EOS_SUPPORT_CONTAINERS" == "0" ];then #20220527
- CONTAINERSxml=""
-else
-CONTAINERSxml="  <frame $(gettext 'Containers')>
-    <text><label>$(gettext 'Take a snapshot or erase the working session, or rollback to an earlier snapshot, in a container')</label></text>
-    <hbox>
-      <comboboxtext><variable>EC_NAME</variable>${DEF_CON}<input>ls -1 /mnt/${WKG_DEV}/${WKG_DIR}containers</input><action>refresh:EC_SNAP</action></comboboxtext>
-      <button><label>$(gettext 'Erase')</label><action type=\"exit\">ec_erase</action></button>
-      <button><label>$(gettext 'Snapshot')</label><action type=\"exit\">ec_snapshot</action></button>
-      <text><label>\"  \"</label></text>
-      <comboboxtext><variable>EC_SNAP</variable><input>/tmp/easy_version_control/ec-ver-snaps \${EC_NAME} </input></comboboxtext>
-      <button><label>$(gettext 'Rollback')</label><action type=\"exit\">ec_rollback</action></button>
-      <button tooltip-text=\"$(gettext 'Snapshot comments')\"><input file>/usr/local/lib/X11/mini-icons/mini-Document.xpm</input><action>defaulttextviewer /mnt/${WKG_DEV}/${WKG_DIR}containers/\${EC_NAME}/snapshot-comments & </action></button>
-      <text><label>\"  \"</label></text>
-      <button><input file>/usr/local/lib/X11/mini-icons/mini-question.xpm</input><action type=\"launch\">DLG_HELP5</action></button>
-    </hbox>
-  </frame>
-"
-fi
+CONTAINERSxml="" #20240926
 
 #20201217 increase max allowed depth from 7 to 9...
 export EVC_DIALOG="<window title=\"$(gettext 'Easy Version Control')\" icon-name=\"gtk-about\" window_position=\"1\">
@@ -351,8 +334,6 @@ export EVC_DIALOG="<window title=\"$(gettext 'Easy Version Control')\" icon-name
      <button><input file>/usr/local/lib/X11/mini-icons/mini-question.xpm</input><action type=\"launch\">DLG_HELP3</action></button>
    </hbox>
   </frame>
-  
-  ${CONTAINERSxml}
   
   <hbox>
    <hbox><button cancel></button></hbox>
