@@ -39,6 +39,7 @@
 #20240307 if an app has been installed to run non-root, delete the .bin and .bin0
 #20240310 uninstall fixes.
 #20240419 qv changes.
+#20240906 jwm-mode aware.
 
 export TEXTDOMAIN=petget___removepreview.sh
 export OUTPUT_CHARSET=UTF-8
@@ -46,6 +47,7 @@ export OUTPUT_CHARSET=UTF-8
 . /etc/rc.d/PUPSTATE  #111228 this has PUPMODE and SAVE_LAYER.
 . /etc/DISTRO_SPECS #has DISTRO_BINARY_COMPAT, DISTRO_COMPAT_VERSION
 . /root/.packages/DISTRO_PKGS_SPECS
+. /etc/uimanager #20240906 has UI_DESK_MANAGER=jwm or rox
 
 case "$DISTRO_TARGETARCH" in #20240228
  amd64) xARCH='x86_64' ;;
@@ -242,14 +244,7 @@ if [ -f /root/.packages/${DB_pkgname}.files ];then
  if [ "`grep '\.desktop$' /root/.packages/${DB_pkgname}.files`" != "" ];then
   #Reconstruct configuration files for JWM, Fvwm95, IceWM...
   /usr/sbin/fixmenus
-  if [ "`pidof jwm`" != "" ];then #120101
-   JWMVER=`jwm -v|head -n1|cut -d ' ' -f2|cut -d - -f2`
-   if vercmp $JWMVER lt 574;then #120116 547 to 574.
-    jwm -restart #screen will flicker.
-   else
-    jwm -reload
-   fi
-  fi
+  jwm -reload
  fi
 fi
 
@@ -326,6 +321,78 @@ if [ $? -eq 0 ];then
    rm -f /usr/share/applications/${EXEC}.desktop 2>/dev/null
   fi
  done
+fi
+
+#20240307 if an app has been installed to run non-root, delete the .bin and .bin0...
+# (see also /usr/bin/xbps-remove.sh)
+Jflg=0 #20240906
+grep -q -F 'usr/share/applications' /root/.packages/${DB_pkgname}.files
+if [ $? -eq 0 ];then
+ for aDT in $(grep '/usr/share/applications/' /root/.packages/${DB_pkgname}.files)
+ do
+  [ -z "$aDT" ] && continue
+  [ -d "$aDT" ] && continue #20240906
+  EXEC="$(grep '^Exec=' ${aDT} | cut -f 2 -d '=' | cut -f 1 -d ' ')"
+  if [ -n "$EXEC" ];then
+   [ -f /usr/bin/${EXEC} ] && rm -f /usr/bin/${EXEC}
+   [ -f /usr/bin/${EXEC}.bin ] && rm -f /usr/bin/${EXEC}.bin
+   [ -f /usr/bin/${EXEC}.bin0 ] && rm -f /usr/bin/${EXEC}.bin0
+   sed -i "\%^${EXEC}=%d" /root/.clients-status
+   #20240310 hide home folder...
+   if [ -d /home/${EXEC} ];then
+    if [ -d /home/.${EXEC} ];then #precaution
+     rm -rf /home/.${EXEC}
+    fi
+    mv -f /home/${EXEC} /home/.${EXEC}
+   fi
+   #20240310 remove a desktop icon if running non-root...
+   grep -q -F "/home/${EXEC}/${EXEC}" /root/Choices/ROX-Filer/PuppyPin
+   if [ $? -eq 0 ];then
+    echo "<?xml version=\"1.0\"?>
+<env:Envelope xmlns:env=\"http://www.w3.org/2001/12/soap-envelope\">
+ <env:Body xmlns=\"http://rox.sourceforge.net/SOAP/ROX-Filer\">
+  <PinboardRemove>
+   <Path>/home/${EXEC}/${EXEC}</Path>
+  </PinboardRemove>
+ </env:Body>
+</env:Envelope>" | rox -R
+   fi
+   #20240310 remove a desktop icon if running as root...
+   grep -q "/usr/bin/${EXEC}" /root/Choices/ROX-Filer/PuppyPin
+   if [ $? -eq 0 ];then
+    echo "<?xml version=\"1.0\"?>
+<env:Envelope xmlns:env=\"http://www.w3.org/2001/12/soap-envelope\">
+ <env:Body xmlns=\"http://rox.sourceforge.net/SOAP/ROX-Filer\">
+  <PinboardRemove>
+   <Path>/usr/bin/${EXEC}</Path>
+  </PinboardRemove>
+ </env:Body>
+</env:Envelope>" | rox -R
+   fi
+   #20240310 packages-templates may have renamed .desktop file when install...
+   rm -f /usr/share/applications/${EXEC}.desktop 2>/dev/null
+  
+   #20240906 jwm-mode
+   if [ -f /root/.jwm/tray-icons ];then
+    grep -q -F "exec:${EXEC}<" /root/.jwm/tray-icons
+    if [ $? -eq 0 ];then
+     sed -i "\%exec:${EXEC}%d" /root/.jwm/tray-icons
+     #...these are the pending icons, remove also actual icon from tray...
+     if [ "${UI_DESK_MANAGER}" == "jwm" ];then
+      grep -q -F "exec:${EXEC}<" /root/.jwmrc-tray
+      if [ $? -eq 0 ];then
+       sed -i "\%exec:${EXEC}%d" /root/.jwmrc-tray
+       Jflg=1
+      fi
+     fi
+    fi
+   fi
+   
+  fi
+ done
+fi
+if [ $Jflg -eq 1 ];then #20240906
+ jwm -restart
 fi
 
 #remove records of pkg...
