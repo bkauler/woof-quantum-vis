@@ -9,10 +9,10 @@
 #150302 added sr* (serbia).
 #160914 if target arch == host arch, speed 1st time bootup.
 #20220715 hardware profile to detect running on different computer, PC_HARDWARE_PROFILE
-#20220715 hardware-profile /etc/clock, see also /usr/sbin/quicksetup, /usr/sbin/delayedrun
+#20220715 hardware-profile /etc/clock, see also /usr/sbin/quicksetup, /usr/sbin/delayedrun, /usr/bin/set_hwclock_type
 #20220912 PC_HARDWARE_PROFILE not set, try hack.
 #20230622 new tr console keyboard layout.
-#20240319 also update KEYMAP in /data/settings/initrd/CONFIG; read in initrd.
+#20240319 also update KEYMAP in /data/settings/initrd/CONFIG; read in initrd. 20231126 fix.
 
 . /etc/rc.d/PUPSTATE
 . /etc/DISTRO_SPECS #has DISTRO_XORG_AUTO

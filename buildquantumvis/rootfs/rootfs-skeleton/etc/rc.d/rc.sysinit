@@ -1,6 +1,7 @@
 #!/bin/ash
 #(c) copyright Barry Kauler 2024. license GPL v3 (/usr/share/doc/legal)
 #20240320 rewrite for quantumvis.
+#20240922 fix mount /dev/pts
 
 #we have a problem, top-level /.config and /.local getting created, try this fix:
 export HOME='/root'
@@ -96,7 +97,7 @@ ln -s /proc/mounts /etc/mtab
 
 if [ $PREMNTD -eq 0 ];then #190811
  mkdir -p /dev/pts #120503 if kernel mounts a f.s. on /dev, removes my skeleton /dev
- busybox mount /dev/pts
+ busybox mount -t devpts devpts /dev/pts #20240922 fix.
  STATUS=$((STATUS+$?))
  mkdir /sys 2>/dev/null
  busybox mount -t sysfs none /sys
