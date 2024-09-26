@@ -1547,6 +1547,7 @@ yes|xvidcore|xvidcore|exe,doc>null|compat:current| #20230917
 yes|xvidcore-devel|xvidcore-devel|dev|compat:current| #20240130
 yes|xvidtune|xvidtune|exe,doc>null|compat:current| #20240129
 yes|xvinfo|xvinfo|exe,doc>null|compat:current| #20240129
+yes|xvkbd|xvkbd|exe,dev,doc,nls|compat:kirkstone| #20240926
 yes|xwd|xwd|exe,doc>null|compat:current|
 yes|xwininfo|xwininfo|exe,doc>null|compat:current| #20240129
 yes|xxHash|xxHash|exe,doc>null|compat:current|
