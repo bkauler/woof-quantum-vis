@@ -13,7 +13,6 @@ DISTRO_FILE_PREFIX='void'
 #The version of the distro whose binary packages were used to build this distro:
 DISTRO_COMPAT_VERSION='current'
 #the kernel pet package used: Kernel 'linux-quirky' now compiled in OE, do not specify here if use that:
-#DISTRO_KERNEL_PET='linux_kernel-5.15.120-20230710-kirkstone64.pet'
 #DISTRO_KERNEL_PET='linux_kernel-6.8.1-20240323-btrfs-nofscrypt-k64.pet'
 #DISTRO_KERNEL_PET='linux_kernel-6.8.1-20240325-nofscrypt-capsysmount-k64.pet'
 #DISTRO_KERNEL_PET='linux_kernel-6.6.47-20240825-scarthgap64.pet'
@@ -29,4 +28,4 @@ DISTRO_XORG_AUTO='yes'
 DISTRO_xARCHDIR=''
 #pkgget will also be able to install from a foreign repo if these are set...
 FOREIGN_BINARY_COMPAT='oe'
-FOREIGN_COMPAT_VERSION='kirkstone'
+FOREIGN_COMPAT_VERSION='scarthgap'
