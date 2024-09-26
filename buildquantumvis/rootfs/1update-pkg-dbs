@@ -1,5 +1,4 @@
 #!/bin/bash
-#20240315
 
 export LANG=C
 
@@ -12,12 +11,12 @@ mkdir -p /tmp/woofQV
 
 . /var/local/woofQV/VARS #has E1
 
-. ${L1}/configure/${xARCH}/DISTRO_SPECS
+. ${L1}/configure/${xARCH}/DISTRO_SPECS #has FOREIGN_COMPAT_VERSION, FOREIGN_BINARY_COMPAT
 . ${L1}/configure/${xARCH}/DISTRO_PKGS_SPECS #has PKGS_SPECS_TABLE
 . ${L1}/configure/${xARCH}/DISTRO_COMPAT_REPOS
 . ${L1}/configure/${xARCH}/DISTRO_PET_REPOS
 . ${L1}/configure/${xARCH}/PKGS_MANAGEMENT
-. ${L1}/configure/${xARCH}/DISTRO_COMPAT_REPOS-oe-kirkstone
+. ${L1}/configure/${xARCH}/DISTRO_COMPAT_REPOS-${FOREIGN_BINARY_COMPAT}-${FOREIGN_COMPAT_VERSION} #-oe-scarthgap
 
 FIND_CAT="/usr/local/petget/find_cat"
 
@@ -48,8 +47,8 @@ do
  echo " ...success"
 done
 
-#and for kirkstone db...
-for PKGLISTSPEC in ${OE_PKG_DOCS_DISTRO_COMPAT}  #see file DISTRO_COMPAT_REPOS-oe-kirkstone
+#and for scarthgap db...
+for PKGLISTSPEC in ${OE_PKG_DOCS_DISTRO_COMPAT}  #see file DISTRO_COMPAT_REPOS-oe-scarthgap
 do
  PKGLISTFILE="$(cut -f 3 -d '|' <<<${PKGLISTSPEC})"
  PKGLISTURI="$(cut -f 2 -d '|' <<<${PKGLISTSPEC})"

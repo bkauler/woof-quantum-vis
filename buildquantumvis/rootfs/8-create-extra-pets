@@ -41,7 +41,7 @@ xARCH="$(arch)"
 export XBPS_ARCH="$xARCH"
 popup "placement=top-middle background=#ffc080|<big>Installing all packages for a complete development environment</big>"
 #devx-only-installed-packages has all the pkgs that we want in the devx
-#filter-out the kirkstone pkgs that may be in this list...
+#filter-out the scarthgap pkgs that may be in this list...
 PKGLIST="$(grep -F '|void|' /root/.packages/devx-only-installed-packages | cut -f 2 -d '|' | tr '\n' ' ')"
 for aPKG in ${PKGLIST}
 do

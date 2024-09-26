@@ -305,7 +305,7 @@ echo "$(gettext 'Copying vmlinuz and initrd into:') /mnt/${BOOT_DEV}"
 find /mnt/${BOOT_DEV} -mindepth 0 -maxdepth 0 -type d -empty | grep -q .
 if [ $? -eq 0 -a "${BOOT_FS}" == "vfat" ];then
  #partition is empty. new partition.
- echo "$(gettext 'also EFI directory, limine.cfg and limine.sys')"
+ echo "$(gettext 'also EFI directory, limine.cfg and limine-bios.sys')"
  cp -a ${IMGMNTBOOT}/* /mnt/${BOOT_DEV}/
  PTN1="s%wkg_uuid=.*%wkg_uuid=${WKG_UUID} wkg_dir=qv${DISTRO_VERSION}/%"
  sed -i -e "${PTN1}" /mnt/${BOOT_DEV}/limine.cfg

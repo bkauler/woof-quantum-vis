@@ -1,6 +1,5 @@
 #!/bin/bash
 #(c) Copyright 2009-2024 Barry Kauler. License GPLv3
-#20240318
 
 LANGORG="$(locale | grep '^LANG=' | cut -d '=' -f 2)"
 export LANG=C #faster.
@@ -11,7 +10,7 @@ if [ "${RP/*buildquantumvis*/yes}" == "yes" ];then
  #running in woofQV
  L1="${RP/buildquantumvis*/buildquantumvis}"
  RUNNINGWOOF=yes
-. ${L1}/configure/${xARCH}/DISTRO_SPECS
+. ${L1}/configure/${xARCH}/DISTRO_SPECS #has FOREIGN_COMPAT_VERSION, FOREIGN_BINARY_COMPAT
  SPEC_DS="${L1}/configure/${xARCH}/DISTRO_SPECS"
 . ${L1}/configure/${xARCH}/DISTRO_COMPAT_REPOS
 . ${L1}/configure/${xARCH}/DISTRO_PKGS_SPECS
@@ -819,22 +818,11 @@ FAILCHK="no"
 FIELDS2345="`echo "$PKGS_SPECS_TABLE" | grep '^yes' | cut -f 2,3,4,5 -d '|' | cut -f 1 -d ' ' | grep -v '|pet:' | tr '\n' ' '`"
 for AFIELD2345 in $FIELDS2345
 do
- #151103 pickup if have specified a t2 binary pkg, to be used in a non-t2 build...
  xPKGNAMES="$PKGNAMES"
- if [ "$DISTRO_BINARY_COMPAT" != "t2" ];then
-  REPOSPEC2="$(echo -n "$AFIELD2345" | cut -f 4 -d '|' | cut -f 2 -d ':')" #compat:april, extract 'april'.
-  if [ "$REPOSPEC2" == "april" ];then
-   xPKGNAMES="$(cat Packages-t2-april-official | cut -f 1,2,3 -d '|')"
-  fi
- fi
  if [ "$DISTRO_BINARY_COMPAT" != "oe" ];then #20220120
   REPOSPEC2="$(echo -n "$AFIELD2345" | cut -f 4 -d '|' | cut -f 2 -d ':')" #compat:dunfell, extract 'dunfell'.
-  if [ "$REPOSPEC2" == "dunfell" ];then
-   xPKGNAMES="$(cat Packages-oe-dunfell-official | cut -f 1,2,3 -d '|')"
-  fi
-  if [ "$REPOSPEC2" == "kirkstone" ];then #20230309
-   xPKGNAMES="$(cat Packages-oe-kirkstone-official | cut -f 1,2,3 -d '|')"
-  fi
+  #ex: -oe-scarthgap-official ...
+  xPKGNAMES="$(cat Packages-${FOREIGN_BINARY_COMPAT}-${FOREIGN_COMPAT_VERSION}-official | cut -f 1,2,3 -d '|')"
  fi
  ASSIGNFIELD="`echo -n "$AFIELD2345" | cut -f 3 -d '|'`" #120804 ex: exe>dev,dev,doc,nls
  AFIELD235="`echo -n "$AFIELD2345" | cut -f 1,2,4 -d '|'`" #120804

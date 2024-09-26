@@ -1,6 +1,5 @@
 #!/bin/bash
 #create a rootfs that has just enough to chroot into, with xbps pkg management.
-#20240318
 
 export LANG=C
 RP="$(realpath ${0})"
@@ -187,7 +186,7 @@ rm -f rootfs/ping.err
 #ref: https://man.voidlinux.org/xbps-install.1
 #SSL_NO_VERIFY_PEER=1 ./chroot-rootfs rootfs xbps-install -Suy xbps-triggers base-files xbps
 #getting some "can't create ... system group (missing groupadd)" try add 'shadow' pkg...
-#20240129 'shadow' requires 'pam', which causes trouble... i will later install 'shadow' from kirkstone
+#20240129 'shadow' requires 'pam', which causes trouble... i will later install 'shadow' from scarthgap
 #SSL_NO_VERIFY_PEER=1 ./chroot-rootfs rootfs xbps-install -Suy xbps-triggers shadow xbps
 SSL_NO_VERIFY_PEER=1 chroot rootfs /usr/bin/xbps-install -Suy xbps-triggers xbps
 if [ ! -s rootfs/var/db/xbps/https___repo-fi_voidlinux_org_current/${xARCH}-repodata ];then

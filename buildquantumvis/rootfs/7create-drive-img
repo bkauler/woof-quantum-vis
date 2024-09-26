@@ -133,6 +133,16 @@ OPTIONSFIELD="Options..."
 FBVFIELD="Fix broken video"
 FBVCOMMENTFIELD="Run Xorg Video Wizard to fix broken video"
 
+#20240926 remove, as done via menu in initrd...
+#:  ${OPTIONSFIELD}
+#::${FBVFIELD}
+#    COMMENT=${FBVCOMMENTFIELD}
+#    RESOLUTION=800x600
+#    PROTOCOL=linux
+#    KERNEL_PATH=boot://1/vmlinuz
+#    MODULE_PATH=boot://1/initrd
+#    KERNEL_CMDLINE=rw qfix=vid nomodeset boot_uuid=${UUID1} boot_dir=/ wkg_uuid=${UUID2} wkg_dir=quantumvis/
+
 echo "VERBOSE=no
 TIMEOUT=0
 DEFAULT_ENTRY=1
@@ -146,21 +156,13 @@ INTERFACE_RESOLUTION=800x600
     KERNEL_PATH=boot://1/vmlinuz
     MODULE_PATH=boot://1/initrd
     KERNEL_CMDLINE=rw boot_uuid=${UUID1} boot_dir=/ wkg_uuid=${UUID2} wkg_dir=quantumvis/
-
-:  ${OPTIONSFIELD}
-::${FBVFIELD}
-    COMMENT=${FBVCOMMENTFIELD}
-    RESOLUTION=800x600
-    PROTOCOL=linux
-    KERNEL_PATH=boot://1/vmlinuz
-    MODULE_PATH=boot://1/initrd
-    KERNEL_CMDLINE=rw qfix=vid nomodeset boot_uuid=${UUID1} boot_dir=/ wkg_uuid=${UUID2} wkg_dir=quantumvis/
 " > img_mntpt/limine.cfg
 
 mkdir -p img_mntpt/EFI/BOOT
 cp -a -f ../rootfs/usr/share/limine/BOOTX64.EFI img_mntpt/EFI/BOOT/
 cp -a -f ../rootfs/usr/share/limine/BOOTIA32.EFI img_mntpt/EFI/BOOT/
-cp -a -f ../rootfs/usr/share/limine/limine.sys img_mntpt/
+#20240926 limine.sys now limine-bios.sys
+cp -a -f ../rootfs/usr/share/limine/limine-bios.sys img_mntpt/
 sync
 sleep 0.5
 echo "copying vmlinuz into img file..."
@@ -171,7 +173,7 @@ cp -f ./initrd img_mntpt/
 sync
 sleep 2
 
-fsync img_mntpt/limine.sys
+fsync img_mntpt/limine-bios.sys
 fsync img_mntpt/vmlinuz
 fsync img_mntpt/initrd
 busybox umount img_mntpt
@@ -208,8 +210,9 @@ sync
 LOOP3="$(losetup -f)"
 losetup ${LOOP3} ${SKELETON_NAME}.img
 sleep 0.5
-echo "EXECUTING: rootfs/usr/bin/limine-deploy ${LOOP3} --force-mbr"
-../rootfs/usr/bin/limine-deploy ${LOOP3} --force-mbr
+#20240926 limine-deploy replaced...
+echo "EXECUTING: rootfs/usr/bin/limine bios-install ${LOOP3} --force-mbr"
+../rootfs/usr/bin/limine bios-install ${LOOP3} --force-mbr
 sleep 0.1
 sync
 losetup -d ${LOOP3}

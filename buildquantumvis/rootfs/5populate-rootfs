@@ -9,7 +9,7 @@ mkdir -p /tmp/woofQV
 . /var/local/woofQV/VARS #has E1
 
 . /etc/rc.d/PUPSTATE
-. ${L1}/configure/${xARCH}/DISTRO_SPECS
+. ${L1}/configure/${xARCH}/DISTRO_SPECS #has FOREIGN_BINARY_COMPAT, FOREIGN_COMPAT_VERSION
 . ${L1}/configure/${xARCH}/DISTRO_PKGS_SPECS #has PKGS_SPECS_TABLE
 . ${L1}/configure/${xARCH}/DISTRO_COMPAT_REPOS
 . ${L1}/configure/${xARCH}/DISTRO_PET_REPOS
@@ -67,7 +67,7 @@ do
  #PST="$(grep "|${WIPnameonly}|${WIPversion}|${WIPrevision}" ${E1}/woof-installed-packages-PST | cut -f 13- -d '|')"
  #ex: yes|acl|acl|exe,doc>null|compat:current|
  #ex: yes|915resolution|915resolution|exe,doc>null|pet:void|
- #ex: yes|android-tools|android-tools|exe,dev,doc>null|compat:kirkstone|
+ #ex: yes|android-tools|android-tools|exe,dev,doc>null|compat:scarthgap|
  if [ ! -z "$PST" ];then
   PSTgeneric="$(cut -f 2 -d '|' <<<${PST})"
   PSTpkgs="$(cut -f 3 -d '|' <<<${PST})"
@@ -265,7 +265,7 @@ do
    fi
   ;;
   
-  oe:kirkstone)
+  oe:kirkstone|oe:scarthgap)
    #lookup support/name-oe2void find if name change required
    #note, have left out file 'maybe'... note, basic-regex, + and | are literal characters...
    F1="$(grep -m 1 -h -G "^${WIPnameonly}|" ${L1}/support/name-oe2void/exact ${L1}/support/name-oe2void/case ${L1}/support/name-oe2void/hyphen ${L1}/support/name-oe2void/number)"
@@ -287,7 +287,7 @@ do
    INST="$(chroot ${E1}/rootfs /usr/bin/xbps-query --show ${Newnameonly} --property state)"
    if [ "$INST" == "installed" ];then
     #this means xbps has already installed from the void repo. not what we want.
-    #need to replace it with this one from kirkstone...
+    #need to replace it with this one from scarthgap...
     chroot ${E1}/rootfs /usr/bin/xbps-remove -f -O -y ${Newnameonly}
    fi
 
@@ -307,7 +307,7 @@ do
     #is it already downloaded?...
     if [ ! -f ${E1}/dl-txz/${WIPpkg} ];then
      cd ${E1}/dl-txz
-     download_file https://distro.ibiblio.org/easyos/${DISTRO_TARGETARCH}/packages/compat/oe/kirkstone/${WIPpkg}
+     download_file https://distro.ibiblio.org/easyos/${DISTRO_TARGETARCH}/packages/compat/${FOREIGN_BINARY_COMPAT}/${FOREIGN_COMPAT_VERSION}/${WIPpkg} #oe/scarthgap
      if [ $? -ne 0 ];then
       echo "ERROR failed to download: ${WIPpkg}"
       echo "From: ${URL}"
@@ -327,7 +327,7 @@ do
     cd ..
     
     #after expanding, if /usr/sbin exists but not hyperlink, fix it.
-    #note, kirkstone pkgs are usr-merge, but not /usr/sbin
+    #note, scarthgap pkgs are usr-merge, but not /usr/sbin
     if [ -d ${Pdir}/usr/sbin ];then
      if [ ! -h ${Pdir}/usr/sbin ];then
       mkdir -p ${Pdir}/usr/bin
@@ -394,7 +394,7 @@ do
     Pxbps="${Pxbps##*/}"
     
     #log orig db vs new xbps pkg name...
-    echo "CONV_PKG_REPO='${PSTrepo}'" > ${E1}/converted-pkgs/${PSTgeneric} #ex: compat:kirkstone
+    echo "CONV_PKG_REPO='${PSTrepo}'" > ${E1}/converted-pkgs/${PSTgeneric} #ex: compat:scarthgap
     echo "CONV_PKG_DB='${aL}'" >> ${E1}/converted-pkgs/${PSTgeneric}
     echo "CONV_XBPS_PKGFULL='${Pxbps}'" >> ${E1}/converted-pkgs/${PSTgeneric} #ex: acl-2.3.1_1.x86_64.xbps
     echo "CONV_XBPS_PKGVER='${Newnameonly}-${Newver}_${WIPrevision/r/}'" >> ${E1}/converted-pkgs/${PSTgeneric}
@@ -410,7 +410,7 @@ do
    #install it...
    chroot ${E1}/rootfs /usr/bin/xbps-install --yes --ignore-file-conflicts --repository=/repo ${Newnameonly}-${Newver}_${WIPrevision/r/}
    sync
-   #the kirkstone pkg is likely to be an older version than in the void repo, so prevent update...
+   #the scarthgap pkg is likely to be an older version than in the void repo, so prevent update...
    chroot ${E1}/rootfs /usr/bin/xbps-pkgdb -m hold ${Newnameonly}-${Newver}_${WIPrevision/r/}
    rm -rf ${E1}/rootfs/repo/* #stop from growing.
    #save it, so maybe can reuse...
