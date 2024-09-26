@@ -1,7 +1,6 @@
 #!/bin/bash
 #called from 4create-wip-dep-order
 #create woof-installed-packages and devx-only-installed-packages
-#20240318
 
 export LANG=C
 xARCH="$(arch)"
@@ -11,7 +10,7 @@ if [ "${RP/*buildquantumvis*/yes}" == "yes" ];then
  #running in woofQV
  L1="${RP/buildquantumvis*/buildquantumvis}"
  RUNNINGWOOF=yes
-. ${L1}/configure/${xARCH}/DISTRO_SPECS
+. ${L1}/configure/${xARCH}/DISTRO_SPECS #has FOREIGN_COMPAT_VERSION, FOREIGN_BINARY_COMPAT
 . ${L1}/configure/${xARCH}/DISTRO_PKGS_SPECS
 else
  #running in quirky

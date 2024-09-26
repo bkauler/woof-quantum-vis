@@ -21,7 +21,7 @@ xARCH="$(arch)"
 mkdir -p /tmp/woofQV
 . /var/local/woofQV/VARS #has E1
 
-. ${L1}/configure/${xARCH}/DISTRO_SPECS
+. ${L1}/configure/${xARCH}/DISTRO_SPECS #has FOREIGN_BINARY_COMPAT, FOREIGN_COMPAT_VERSION
 . ${L1}/configure/${xARCH}/PKGS_MANAGEMENT #has PKG_NAME_ALIASES, PKG_NAME_IGNORE
 . ${L1}/configure/${xARCH}/DISTRO_PKGS_SPECS #has PKGS_SPECS_TABLE
 
@@ -133,8 +133,8 @@ do
  #ignore some pkgs...
  grep -q -x -F -f /tmp/woofQV/PKG_NAME_IGNORElines <<<${aN}
  if [ $? -eq 0 ];then
-  #20240224 but may want to install kirkstone alternative. ex: shadow
-  grep -q -G "|${aN}|.*|kirkstone|" ${E1}/woof-installed-packages-orig
+  #20240224 but may want to install scarthgap alternative. ex: shadow
+  grep -q -G "|${aN}|.*|${FOREIGN_COMPAT_VERSION}|" ${E1}/woof-installed-packages-orig
   if [ $? -ne 0 ];then
    continue
   fi
@@ -156,7 +156,7 @@ do
  if [ -z "$bN" ];then
   grep -F "|${aN}|" xdb-hasdeps >> xdb-hasdeps-sorted
  else
-  #change void name back to the kirkstone name...
+  #change void name back to the scarthgap name...
   grep -F "|${bN/|*/}|" xdb-hasdeps >> xdb-hasdeps-sorted
  fi
 done
