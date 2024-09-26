@@ -103,6 +103,7 @@
 #181028 rename 'repository' folder to 'releases'.
 #181120 scsijon reported "Processing, please wait" was on top of hostname-set dlg.
 #181122 q*.sfs renamed to easy*.sfs
+#190101 init script in initrd requires a pre-existing 'easyinitrd.mo' copied-up to .session. 190103 revert.
 #190103 fix translation of initrd. 190105 pass NEWLANG to lang2initrd
 #190110 LANG prepend, calls to help.sh etc.
 #190226 BOOT_SPECS in initrd no longer has INIT_LANG variable.
@@ -121,6 +122,7 @@
 #20220515 recompress easy.sfs from xz to lz4 (LZ4_HC).
 #20220715 hardware profile to detect running on different computer, PC_HARDWARE_PROFILE
 #20220715 hardware-profile /etc/clock, see also /etc/rc.d/rc.country, usr/sbin/delayedrun
+#20220801 move /.fsckme.flg to /mnt/${WKG_DEV}/${WKG_DIR}  ditto .XLOADED
 #20220911 chooselocale is called from 3buildeaysdistro, via chroot, do not have PC_HARDWARE_PROFILE
 #20221023 may be running as zeus super-user. 20221031 hmmm, maybe still need bump to root.
 #20230109 always create fr_FR, de_DE, etc.
@@ -134,7 +136,11 @@
 #20230511 make sure /etc/clock.$PC_HARDWARE_PROFILE gets created.
 #20230622 new tr console keyboard layout.
 #20230626 new sudo-sh replaces sudo.
-#20240319 also update KEYMAP in /data/settings/initrd/CONFIG; read in initrd.
+#20231125 also update KEYMAP in /mnt/wkg/sfs/settings/initrd/CONFIG; read in initrd. 20231126 fix.
+#20240909 if select/deselect zh locale, need reboot.
+#20240916 simplify translations.
+#20240917 zh: check if input-method pkg installed.
+#20240926 fix so works in both easyos and qv.
 
 #20230626
 if [ "$(whoami)" != "root" ];then
@@ -164,6 +170,17 @@ fi
 #. /etc/rc.d/BOOTCONFIG
 . /etc/rc.d/BOOTCONSTRAINED #120714
 . /root/.packages/build-choices #20230209 has BUILD_SUPPORT_LANGS
+
+#20240926
+if [ "$DISTRO_NAME_SHORT" == "Easy" ];then
+ WDpath="/mnt/${WKG_DEV}/${WKG_DIR}"
+ XLpath='/root/'
+ SFpath='/mnt/wkg/sfs'
+else
+ WDpath='/'
+ XLpath='/'
+ SFpath='/data'
+fi
 
 #20220715
 if [ -f /etc/clock.${PC_HARDWARE_PROFILE} ];then
@@ -259,8 +276,8 @@ if [ "$MYBASE" = "quicksetup" ];then #120313 only allow in main quicksetup windo
     HOSTNAME="`cat /etc/hostname`" #do not use $HOSTNAME, as hostname-set may have just been run.
     
     #120625 firewall checkbox...
-    TT_CH_F="$(gettext "Tick checkbox to activate the firewall (recommended)")"
-    L_CH_F="$(gettext "Firewall enabled")"
+    TT_CH_F="$(gettext 'Tick checkbox to activate the firewall (recommended)')"
+    L_CH_F="$(gettext 'Firewall enabled')"
     DEFAULT_FIREWALL='true' #190818
     #[ "`lsmod | grep '^iptable'`" != "" ] && DEFAULT_FIREWALL='true'
     #[ ! -f /etc/rc.d/rc.firewall ] && DEFAULT_FIREWALL='true' #151109 first startup, tick checkbox. 160423 remove.
@@ -306,14 +323,14 @@ if [ "$MYBASE" = "quicksetup" ];then #120313 only allow in main quicksetup windo
      TT_crdw="$(gettext 'Choose country for WiFi channels')"
      T_crdw="$(gettext 'CRD:')"
      HH_crdw="$(gettext 'Help: CRD wireless')"
-     H_crdw="$(gettext "A wireless network in home or office will broadcast on a channel. These are frequencies, numbered 1 to 14. Some countries only support a subset of these frequencies, and it is possible that a network may use a channel that the Linux kernel thinks is invalid for the country, hence will ignore it.
+     H_crdw="$(gettext "A wireless network in home or office will broadcast on a channel. These are frequencies, numbered 1 to 14. Some countries only support a subset of these frequencies, and it is possible that a network may use a channel that the Linux kernel thinks is invalid for the country, hence will ignore it.")
     
-If a channel is ignored, using a network manager, such as <b>SNS</b> (Simple Network Setup), will not find that network.
+$(gettext "If a channel is ignored, using a network manager, such as <b>SNS</b> (Simple Network Setup), will not find that network.")
     
-<span color='red'>Recommend, leave the setting at <b>00</b> (unset), unless you encounter the problem of being unable to see a wireless network. Setting it may cause a longer time to establish the wifi connection. Also, currently only SNS properly handles settings other than 00.</span>
+<span color='red'>$(gettext "Recommend, leave the setting at <b>00</b> (unset), unless you encounter the problem of being unable to see a wireless network. Setting it may cause a longer time to establish the wifi connection. Also, currently only SNS properly handles settings other than 00.")</span>
     
-<b>Technical notes</b>
-A list of country codes is in /etc/iso3166-1-alpha2, and /etc/modprobe.d/crdw.conf has the currently selected country code. QuickSetup may be used to change the setting, and this will create /etc/modprobe.d/crdw.conf which sets country code when the cfg80211 kernel module loads, which also informs the kernel (verifiable by 'iw reg get').")"
+$(gettext "<b>Technical notes</b>")
+$(gettext "A list of country codes is in /etc/iso3166-1-alpha2, and /etc/modprobe.d/crdw.conf has the currently selected country code. QuickSetup may be used to change the setting, and this will create /etc/modprobe.d/crdw.conf which sets country code when the cfg80211 kernel module loads, which also informs the kernel (verifiable by 'iw reg get').")"
      export DLG_HELP_CRDW="<window resizable=\"false\" title=\"${HH_crdw}\" icon-name=\"${HELPICON}\" window_position=\"1\"><vbox><text use-markup=\"true\"><label>\"${H_crdw}\"</label><variable>DLG_HELP_CRDW</variable></text><hbox><button><label>${M_close}</label><action type=\"closewindow\">DLG_HELP_CRDW</action></button></hbox></vbox></window>"
      CRDW_XML="<hbox><text><label>${T_crdw}</label></text>
      <combobox tooltip-text=\"${TT_crdw}\" width-request=\"143\">
@@ -372,13 +389,13 @@ $(gettext "The chosen locale file is generated in /usr/lib/locale (if not alread
   export DLG_HELP_LOCALE="<window resizable=\"false\" title=\"${H_l1}\" icon-name=\"${HELPICON}\" window_position=\"1\"><vbox><text use-markup=\"true\"><label>\"${H_l2}\"</label><variable>DLG_HELP_LOCALE</variable></text><hbox><button><label>${M_close}</label><action type=\"closewindow\">DLG_HELP_LOCALE</action></button></hbox></vbox></window>"
   
   H_u1="`gettext 'Help: UTF-8'`"
-  H_u2="`gettext 'UTF-8 is a Unicode standard in which international characters are represented in 8, 16 or more bits, and plain ASCII (8th bit = 0) text files are valid UTF-8 encoding. UTF-8 has become the defacto standard in Linux. The reason is, basically, that UTF-8 encoded files can be used anywhere in the world and do not need a particular <b>character set</b> translation.
+  H_u2="$(gettext "UTF-8 is a Unicode standard in which international characters are represented in 8, 16 or more bits, and plain ASCII (8th bit = 0) text files are valid UTF-8 encoding. UTF-8 has become the defacto standard in Linux. The reason is, basically, that UTF-8 encoded files can be used anywhere in the world and do not need a particular <b>character set</b> translation.")
 
-<b>Note 1:</b> Some Easy OS users do not use UTF-8 as there is a slight speed penalty running applications -- all English users are ok running without UTF-8.
+$(gettext "<b>Note 1:</b> Some users do not use UTF-8 as there is a slight speed penalty running applications -- all English users are ok running without UTF-8.")
      
-<b>Note 2:</b> Non-unicode rendering is achieved by 8-bit character sets, such as ISO-8859-1 for normal Latin1 English, or ISO-8859-2 for Eastern European Latin2 languages.
+$(gettext "<b>Note 2:</b> Non-unicode rendering is achieved by 8-bit character sets, such as ISO-8859-1 for normal Latin1 English, or ISO-8859-2 for Eastern European Latin2 languages.")
 
-Basically, if your language is not a <b>Latin</b> derivative, such as all Asian languages, then you will need UTF-8. Most non-English Linux users enable UTF-8, even for Latin-derivative languages, <b>so recommend tick the box</b>!'`"
+$(gettext "Basically, if your language is not a <b>Latin</b> derivative, such as all Asian languages, then you will need UTF-8. Most non-English Linux users enable UTF-8, even for Latin-derivative languages, <b>so recommend tick the box</b>!")"
   export DLG_HELP_UTF8="<window resizable=\"false\" title=\"${H_u1}\" icon-name=\"${HELPICON}\" window_position=\"1\"><vbox><text use-markup=\"true\"><label>\"${H_u2}\"</label><variable>DLG_HELP_UTF8</variable></text><hbox><button><label>${M_close}</label><action type=\"closewindow\">DLG_HELP_UTF8</action></button></hbox></vbox></window>"
 
   CURRLANG="`grep '^LANG=' /etc/profile | tr -d "'" | tr -d '"' | cut -f 2 -d '='`" #111022
@@ -413,6 +430,9 @@ Basically, if your language is not a <b>Latin</b> derivative, such as all Asian 
     # UTF8=''
     #fi
    fi
+   #190103 remove...
+   ##190101 planning to have 'easyinitrd.mo' builtin for all langs, initrd needs it copied-up to .session ...
+   #[ -f /usr/share/locale/en/LC_MESSAGES/easyinitrd.mo ] && touch /usr/share/locale/en/LC_MESSAGES/easyinitrd.mo
   fi
 
   #build language table...
@@ -554,11 +574,11 @@ ${CHOICES_CLI}"
  if [ "$SET_TIMEZONE" ];then
  
   H_t1="`gettext 'Help: Time Zone'`"
-  H_t2="`gettext 'This needs to be set to ensure that Easy knows the correct time and date.
-If you cannot find an entry for your location, choose one of the <b>GMT</b> entries. Finding the correct entry is best, as it automatically applies DST (Daylight Saving Time), whereas the GMT entries are fixed offsets from the GMT (UTC) reference.
+  H_t2="$(gettext "This needs to be set to ensure that the OS knows the correct time and date.")
+$(gettext "If you cannot find an entry for your location, choose one of the <b>GMT</b> entries. Finding the correct entry is best, as it automatically applies DST (Daylight Saving Time), whereas the GMT entries are fixed offsets from the GMT (UTC) reference.")
 
-<b>Technical</b>
-After making a choice, /etc/localtime will point to the appropriate timezone file in /usr/share/zoneinfo. However, note that the GMT files (in /usr/share/zoneinfo/Etc) actually have the opposite sign from the GMT entry that you have chosen -- this is just a technical detail, it does not affect the user in any way.'`"
+<b>$(gettext "Technical")</b>
+$(gettext "After making a choice, /etc/localtime will point to the appropriate timezone file in /usr/share/zoneinfo. However, note that the GMT files (in /usr/share/zoneinfo/Etc) actually have the opposite sign from the GMT entry that you have chosen -- this is just a technical detail, it does not affect the user in any way.")"
   export DLG_HELP_TIMEZONE="<window resizable=\"false\" title=\"${H_t1}\" icon-name=\"${HELPICON}\" window_position=\"1\"><vbox><text use-markup=\"true\"><label>\"${H_t2}\"</label><variable>DLG_HELP_TIMEZONE</variable></text><hbox><button><label>${M_close}</label><action type=\"closewindow\">DLG_HELP_TIMEZONE</action></button></hbox></vbox></window>"
   
   H_utc1="`gettext 'Help: UTC'`"
@@ -571,13 +591,13 @@ $(gettext 'UTC is Coordinated Universal Time, which is basically the same as GMT
 <b>$(gettext 'Get time from Internet')</b>
 $(gettext 'If your board does not have a hardware clock, it is essential to tick the <b>Time from Internet</b> checkbox to get the date and time from the Internet.')"
   else
-   H_utc2="`gettext 'All computers have a hardware clock that runs continuously from a battery, even when the computer is turned off. This clock can be set either to the local time or to UTC.
+   H_utc2="$(gettext 'All computers have a hardware clock that runs continuously from a battery, even when the computer is turned off. This clock can be set either to the local time or to UTC.')
 
-<b>UTC/GMT</b>
-UTC is Coordinated Universal Time, which is basically the same as GMT, Greenwich Mean Time. The latter is the time at the Royal Observatory in Greenwich, London -- this is a time that does not have daylight saving or summer time as does the rest of the UK. It is said to simplify things if the computer hardware clock is set to UTC.
+<b>$(gettext 'UTC/GMT')</b>
+$(gettext 'UTC is Coordinated Universal Time, which is basically the same as GMT, Greenwich Mean Time. The latter is the time at the Royal Observatory in Greenwich, London -- this is a time that does not have daylight saving or summer time as does the rest of the UK. It is said to simplify things if the computer hardware clock is set to UTC.')
 
-<b>Local time</b>
-By default, Easy OS assumes that the hardware clock is set to local time, as this is what MS DOS and Windows systems normally use. If you were to change the hardware clock to UTC, you would also have to ensure that all operating systems recognise that, else they will show the wrong time/date.'`"
+<b>$(gettext 'Local time')</b>
+$(gettext 'By default, the OS assumes that the hardware clock is set to local time, as this is what MS DOS and Windows systems normally use. If you were to change the hardware clock to UTC, you would also have to ensure that all operating systems recognise that, else they will show the wrong time/date.')"
   fi
   export DLG_HELP_UTC="<window resizable=\"false\" title=\"${H_utc1}\" icon-name=\"${HELPICON}\" window_position=\"1\"><vbox><text use-markup=\"true\"><label>\"${H_utc2}\"</label><variable>DLG_HELP_UTC</variable></text><hbox><button><label>${M_close}</label><action type=\"closewindow\">DLG_HELP_UTC</action></button></hbox></vbox></window>"
 
@@ -725,21 +745,21 @@ By default, Easy OS assumes that the hardware clock is set to local time, as thi
   [ -f ${KMAPPATH}/qwerty/us.kmap.gz ] && KEXT='.kmap'
 
   H_kb1="`gettext 'Help: Keyboard Layout'`"
-  H_kb2="`gettext 'Computer keyboards have different layouts, depending on the country and language.
+  H_kb2="$(gettext 'Computer keyboards have different layouts, depending on the country and language.')
 
-<b>Note:</b> After making a choice here, clicking the <b>OK</b> button will update the layout in X (graphical desktop) but not the console (when X not running) -- that requires a reboot.
+$(gettext '<b>Note:</b> After making a choice here, clicking the <b>OK</b> button will update the layout in X (graphical desktop) but not the console (when X not running) -- that requires a reboot.')
 
-<b>Technical</b>
-The choice made here is saved in /etc/keymap. The value specifies a console layout, from the directory /lib/keymaps. When X starts, the startup script /usr/bin/xwin translates that to the equivalent for X, from directory /etc/X11/xkb/symbols -- note, if no match is found, X falls back to using <b>us</b> layout -- please report if that happens to you.'`"
+<b>$(gettext 'Technical')</b>
+$(gettext 'The choice made here is saved in /etc/keymap. The value specifies a console layout, from the directory /lib/keymaps. When X starts, the startup script /usr/bin/xwin translates that to the equivalent for X, from directory /etc/X11/xkb/symbols -- note, if no match is found, X falls back to using <b>us</b> layout -- please report if that happens to you.')"
   export DLG_HELP_KEYBOARD="<window resizable=\"false\" title=\"${H_kb1}\" icon-name=\"${HELPICON}\" window_position=\"1\"><vbox><text use-markup=\"true\"><label>\"${H_kb2}\"</label><variable>DLG_HELP_KEYBOARD</variable></text><hbox><button><label>${M_close}</label><action type=\"closewindow\">DLG_HELP_KEYBOARD</action></button></hbox></vbox></window>"
   
   H_n1="`gettext 'Help: Keyboard Numlock'`"
-  H_n2="`gettext 'Most keyboards have a group of keys on the right side of the keyboard that are labeled <b>0</b> to <b>9</b>. These are intended for when heavy entry of numbers is required. They are dual-purpose, that is can also serve as arrow-keys, Home, End, PgUp, PgDn -- and the latter is usually the default. That is, numlock defaults to off.
+  H_n2="$(gettext 'Most keyboards have a group of keys on the right side of the keyboard that are labeled <b>0</b> to <b>9</b>. These are intended for when heavy entry of numbers is required. They are dual-purpose, that is can also serve as arrow-keys, Home, End, PgUp, PgDn -- and the latter is usually the default. That is, numlock defaults to off.')
 
-If the checkbox is ticked, numlock will be on when X starts.
+$(gettext 'If the checkbox is ticked, numlock will be on when X starts.')
 
-<b>Technical</b>
-The file /root/Startup/numlockx specifies whether numlock is on or off. if the file attribute is executable, then it will execute when X starts. The file contains either <b>numlockx on</b> or <b>numlockx off</b>, and may be edited directly if desired.'`"
+<b>$(gettext 'Technical')</b>
+$(gettext 'The file /root/Startup/numlockx specifies whether numlock is on or off. if the file attribute is executable, then it will execute when X starts. The file contains either <b>numlockx on</b> or <b>numlockx off</b>, and may be edited directly if desired.')"
   export DLG_HELP_NUMLOCK="<window resizable=\"false\" title=\"${H_n1}\" icon-name=\"${HELPICON}\" window_position=\"1\"><vbox><text use-markup=\"true\"><label>\"${H_n2}\"</label><variable>DLG_HELP_NUMLOCK</variable></text><hbox><button><label>${M_close}</label><action type=\"closewindow\">DLG_HELP_NUMLOCK</action></button></hbox></vbox></window>"
 
   DEF_KMAP="us"
@@ -882,21 +902,21 @@ if [ "$SET_X" ];then
  if [ "$SET_XWIZARD" ];then
 
   H_xw1=$(gettext 'Help: Xorg Wizards')
-  H_xw2=$(gettext 'If you tick a checkbox, you are flagging your wish to run the Wizard, and it will happen after you click the <b>OK</b> button.
+  H_xw2="$(gettext 'If you tick a checkbox, you are flagging your wish to run the Wizard, and it will happen after you click the <b>OK</b> button.')
 
-<b>Xorg Video Wizard</b>
-This is a text-mode application (keyboard-driven, no mouse, and requires exiting from X (the graphical desktop) to run), that enables you to set the screen resolution, refresh frequency, correct mouse/touchpad, and find a correct hardware-specific driver. Note, the <b>vesa</b> driver is generic, for any video hardware, but is slow. In some cases there is more than one hardware-specific driver and you have to choose the best one -- for example:')
+<b>$(gettext 'Xorg Video Wizard')</b>
+$(gettext 'This is a text-mode application (keyboard-driven, no mouse, and requires exiting from X (the graphical desktop) to run), that enables you to set the screen resolution, refresh frequency, correct mouse/touchpad, and find a correct hardware-specific driver. Note, the <b>vesa</b> driver is generic, for any video hardware, but is slow. In some cases there is more than one hardware-specific driver and you have to choose the best one -- for example:')"
   H_xw3='
 
 <i>Intel:  i810 intel
 nVidia: nv nouveau</i>
 
 '
-  H_xw4=$(gettext '<b>Video Upgrade Wizard</b>
-What this offers depends on the particular build of Easy OS. It may offer upgrade PETs for the commercial nVidia and ATI Xorg drivers. In the case of Wary Puppy, there is an offer to upgrade Xorg from version 7.3 to 7.6. Some builds of Puppy do not offer any upgrades via this Wizard, but may have upgrade PETs available elswhere, such as via the Puppy Package Manager or the Puppy Forum.
+  H_xw4="$(gettext '<b>Video Upgrade Wizard</b>
+What this offers depends on the particular build of the OS. It may offer upgrade PETs for the commercial nVidia and ATI Xorg drivers. In the case of Wary Puppy, there is an offer to upgrade Xorg from version 7.3 to 7.6. Some builds of Puppy do not offer any upgrades via this Wizard, but may have upgrade PETs available elswhere, such as via the Puppy Package Manager or the Puppy Forum.')
 
-<b>Note 1:</b> If you need to run either of these Wizards later on, they are available via the <b>setup</b> icon on the desktop, or the <b>Setup</b> category in the menu. 
-<b>Note 2:</b> The <b>Xorg Video Wizard</b> via the <b>setup</b> icon is a full graphical application, with many more options than the text-mode version, such as finetuning screen dimensions and adjusting brightness. You might want to run that afterward to further finetune your X configuration.')
+$(gettext '<b>Note 1:</b> If you need to run either of these Wizards later on, they are available via the <b>setup</b> icon on the desktop, or the <b>Setup</b> category in the menu.')
+$(gettext '<b>Note 2:</b> The <b>Xorg Video Wizard</b> via the <b>setup</b> icon is a full graphical application, with many more options than the text-mode version, such as finetuning screen dimensions and adjusting brightness. You might want to run that afterward to further finetune your X configuration.')"
   export DLG_HELP_XWIZARD="<window resizable=\"false\" title=\"${H_xw1}\" icon-name=\"${HELPICON}\" window_position=\"1\"><vbox><text use-markup=\"true\"><label>\"${H_xw2}${H_xw3}${H_xw4}\"</label><variable>DLG_HELP_XWIZARD</variable></text><hbox><button><label>${M_close}</label><action type=\"closewindow\">DLG_HELP_XWIZARD</action></button></hbox></vbox></window>"
   
   #note, quicksetup gets launched from /usr/sbin/delayedrun, but only for xorg, not xvesa.
@@ -1143,6 +1163,28 @@ B_cancel=$(gettext "Cancel")
 M_exit="`gettext 'Confirm the settings and click OK:'`"
 B_ok=$(gettext "OK")
 
+#170210 offer to recompress xz easy.sfs to gz-compressed... 20220515 LZ4_HC
+EXPANDFS_XML=""; CHECK_EXPFS=""
+if [ $DISPLAY ];then
+ if [ "$MYBASE" == "quicksetup" ];then #full window.
+  if [ -f /mnt/${WKG_DEV}/${WKG_DIR}releases/easy-${DISTRO_VERSION}/easy.sfs ];then #paranoid precaution
+   XZflag="$(unsquashfs -s /mnt/${WKG_DEV}/${WKG_DIR}releases/easy-${DISTRO_VERSION}/easy.sfs | grep '^Compression xz')"
+   if [ "$XZflag" ];then
+    H_fs1="$(gettext 'Help: Recompress easy.sfs')"
+    H_fs2="$(gettext 'The file easy.sfs has all of Easy Linux. It is loaded at bootup as a read-only layer in the layered filesystem.')
+    $(gettext 'easy.sfs is currently xz-compressed, which is a very high level of compression. This was chosen as it makes the download from the Internet smaller. However, it does make Easy Linux noticeably slower on slow CPUs or slow USB memory.')
+    $(gettext 'By ticking the checkbox, easy.sfs will be recompressed with lz4 compression, which will make easy.sfs bigger, but may result in noticeably faster responsiveness, especially when starting applications.')"
+    export DLG_HELP_EXPFS="<window resizable=\"false\" title=\"${H_fs1}\" icon-name=\"${HELPICON}\" window_position=\"1\"><vbox><text use-markup=\"true\"><label>\"${H_fs2}\"</label><variable>DLG_HELP_EXPFS</variable></text><hbox><button><label>${M_close}</label><action type=\"closewindow\">DLG_HELP_EXPFS</action></button></hbox></vbox></window>"
+    TT_CH_EXPFS="$(gettext 'Recompress easy.sfs from xz to lz4 compression')"
+    EXPANDFS_XML="
+    <text use-markup=\"true\"><label>\"<b><span fgcolor='white' bgcolor='#FF4040'> $(gettext 'Recompress easy.sfs:') </span></b>\"</label></text>
+      <checkbox tooltip-text=\"${TT_CH_EXPFS}\"><label>\"\"</label><variable>CHECK_EXPFS</variable><default>false</default></checkbox>
+      <button><input file>/usr/local/lib/X11/mini-icons/mini-question.xpm</input><action type=\"launch\">DLG_HELP_EXPFS</action></button>
+    <text><label>\"             \"</label></text>"
+   fi
+  fi
+ fi
+fi
 
 MAINCONTENTXML=""
 export QUICKSETUP_DIALOG="<window title=\"${WINTITLE}\" window_position=\"1\" icon-name=\"${WINICON}\" ${WINWIDTHPARAM} resizable=\"false\">
@@ -1187,9 +1229,9 @@ if [ $DISPLAY ];then
  if [ $SYNCME -eq 1 ];then
   sync & #make sure it is written to disk. 140217 separate process to avoid delay. could use 'fsync' but think better to flush everything.
  fi
- #note also, there is a totally different file, /.fsckme.flg, that forces a  20220801
+ #note also, there is a totally different file, ${WDpath}.fsckme.flg, that forces a  20220801
  #f.s. check if a forced reboot/shutdown (such as power failure).
- #note, also, there is a totally different file, /.XLOADED, set in /xwin, forces run xorgwizard
+ #note, also, there is a totally different file, ${XLpath}.XLOADED, set in /xwin, forces run xorgwizard
  #if a power failure or crash. xwin reads this also.
 
  RETVALS="`${GTKDIALOGEXE} --program=QUICKSETUP_DIALOG`"
@@ -1272,15 +1314,15 @@ if [ "$SET_KEYBOARD" ];then
     CODEPAGE="857"
    ;;
   esac
-  echo -n "${NEW_KMAP}${KEXT}" > /etc/keymap #120627 20240319
+  echo -n "${NEW_KMAP}${KEXT}" > /etc/keymap #120627
   #20231125 also write here, read in initrd...
   if [ "$KMAPPATH" == "/lib/keymaps" ];then #check same keymaps as used in initrd.
-   sed -i -e "s%^KEYMAP=.*%KEYMAP='${NEW_KMAP}'%" /data/settings/initrd/CONFIG
+   sed -i -e "s%^KEYMAP=.*%KEYMAP='${NEW_KMAP}'%" ${SFpath}/settings/initrd/CONFIG
    #20231126 see init... hmmm, recalc KB_HW_PROFILE as maybe kb plugged in just now...
    KB_HW_PROFILE="$(ls -1 -d /sys/class/input/*/*::capslock 2>/dev/null | cut -f 1-5 -d '/' | xargs -I XXX cat XXX/name | tr -d '\n'| sed -e 's%[^0-9a-zA-Z]%%g' | cut -c 1-60)"
-   #. /data/settings/initrd/CONFIG #has KEYMAP, KB_HW_PROFILE
-   echo -n "$NEW_KMAP" > /data/settings/initrd/keymap.${KB_HW_PROFILE}
-   sed -i -e "s%^KB_HW_PROFILE.*%KB_HW_PROFILE='${KB_HW_PROFILE}'%" /data/settings/initrd/CONFIG
+   #. ${SFpath}/settings/initrd/CONFIG #has KEYMAP, KB_HW_PROFILE
+   echo -n "$NEW_KMAP" > ${SFpath}/settings/initrd/keymap.${KB_HW_PROFILE}
+   sed -i -e "s%^KB_HW_PROFILE.*%KB_HW_PROFILE='${KB_HW_PROFILE}'%" ${SFpath}/settings/initrd/CONFIG
   fi
   #echo -n "$FONTMAP" > /etc/fontmap
   echo -n "$CODEPAGE" > /etc/codepage
@@ -1365,10 +1407,37 @@ if [ "$SET_LOCALE" ];then
  [ "$CHECK_UTF8" = "true" ] && UTF8='.UTF-8'
  
  #120215 rc.country calls 'chooselocale cli quiet'
- [ "$PARAM2" = "quiet" ] && CURRLANG=en_US #so as to force below code block to run...
-
+ if [ "$PARAM2" = "quiet" ];then
+  CURRLANG=en_US #so as to force below code block to run...
+ else #20240917
+  if [ "${LANGCHOICE:0:2}" == "zh" ];then
+   grep -q -E '^ibus-pinyin|^ibus-libpinyin' /root/.packages/woof-installed-packages /root/.packages/user-installed-packages
+   if [ $? -ne 0 ];then
+    CHmsg1="$(gettext 'ATTENTION')"
+    CHmsg2="$(gettext 'To type Simplified or Traditional Chinese at the keyboard, you will need to install either the <b>ibus-pinyin</b> or <b>ibus-libpinyin</b> package. You will find these in the PKGget package manager. A reboot will be required after installing the package.')"
+    popup "background=#ffa0a0 level=top process=wait terminate=ok|<big><b>${CHmsg1}</b>${CR}${CHmsg2}</big>"
+   fi
+  fi
+ fi
+ 
  if [ "$LANGCHOICE" != "" -a "${LANGCHOICE}${UTF8}" != "$CURRLANG" ];then
-  FLAG_CHANGED="${FLAG_CHANGED}${TT_mainlanguage}:restart|"
+  
+  #20240909 select/deselect chinese req reboot...
+  SETIT='restart'
+  case "${CURRLANG/_*/}" in
+   zh)
+    if [ "${LANGCHOICE/_*/}" != "zh" ];then
+     SETIT='reboot'
+    fi
+   ;;
+   *)
+    if [ "${LANGCHOICE/_*/}" == "zh" ];then
+     SETIT='reboot'
+    fi
+   ;;
+  esac
+  FLAG_CHANGED="${FLAG_CHANGED}${TT_mainlanguage}:${SETIT}|"
+  
   # creates locale files in /usr/lib/locale...
   OLDLANGLINE="LANG=$CURRLANG"
   NEWLANGLINE="LANG=${LANGCHOICE}"
@@ -1408,14 +1477,17 @@ if [ "$SET_LOCALE" ];then
      fi
     fi
    fi
+   #190103 remove...
+   ##190101 planning to have 'easyinitrd.mo' builtin for all langs, initrd needs it copied-up to .session ...
+   #[ -f /usr/share/locale/${LANGCHOICE%_*}/LC_MESSAGES/easyinitrd.mo ] && touch /usr/share/locale/${LANGCHOICE%_*}/LC_MESSAGES/easyinitrd.mo
   fi
   NEWLANG="`echo -n "$NEWLANGLINE" | cut -f 2 -d '='`" #ex: de_DE.UTF-8
   
   #20230218 .qlang 2-letter locale, used in init script in initrd...
-  if [ -s /.qlang ];then
-   QLANG="$(cat /.qlang)"
+  if [ -s ${WDpath}.qlang ];then
+   QLANG="$(cat ${WDpath}.qlang)"
    if [ "$QLANG" != "${NEWLANG/_*/}" ];then
-    echo -n "${NEWLANG/_*/}" > /.qlang
+    echo -n "${NEWLANG/_*/}" > ${WDpath}.qlang
    fi
   fi
   
