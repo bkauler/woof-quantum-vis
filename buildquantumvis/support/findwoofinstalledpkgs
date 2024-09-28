@@ -83,7 +83,7 @@ do
       continue
      ;;
     esac
-    #note, kirkstone pkgs are the only one that may be split between exe and dev...
+    #note, kirkstone|scarthgap pkgs are the only one that may be split between exe and dev...
     grep -q -E ' exe>dev | dev ' <<<${xEsplit}
     RET1=$?
     if [ $RET1 -eq 0 ];then
