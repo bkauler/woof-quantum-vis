@@ -4,7 +4,7 @@ mkdir -p usr/bin
 #keep only these (requires bash)...
 GLOBIGNORE='ps:free:pgrep:sysctl'
 cd usr/bin
-rm *
+rm * 2>/dev/null
 cd ../../
 unset GLOBIGNORE
 

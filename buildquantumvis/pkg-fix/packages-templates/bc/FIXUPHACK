@@ -4,6 +4,6 @@ mkdir -p usr/bin
 
 GLOBIGNORE='bc:dc'
 cd usr/bin
-rm *
+rm * 2>/dev/null
 cd ../../
 unset GLOBIGNORE

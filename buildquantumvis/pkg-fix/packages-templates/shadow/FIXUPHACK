@@ -17,6 +17,6 @@ fi
 #keep only these (requires bash)...
 GLOBIGNORE='groupadd:groupdel:groupmod:nologin:useradd:userdel:usermod'
 cd usr/bin
-rm *
+rm * 2>/dev/null
 cd ../../
 unset GLOBIGNORE
