@@ -857,6 +857,8 @@ yes|libreoffice-i18n-fr|libreoffice-i18n-fr|exe,doc>null|compat:current| #202401
 yes|libreoffice-i18n-pt|libreoffice-i18n-pt|exe,doc>null|compat:current| #20240112 libreoffice
 yes|libreoffice-i18n-ru|libreoffice-i18n-ru|exe,doc>null|compat:current| #20240112 libreoffice
 yes|libreoffice-i18n-tr|libreoffice-i18n-tr|exe,doc>null|compat:current| #20240112 libreoffice
+yes|libreoffice-i18n-zh-CN|libreoffice-i18n-zh-CN|exe,doc>null|compat:current| #20240927 libreoffice
+yes|libreoffice-i18n-zh-TW|libreoffice-i18n-zh-TW|exe,doc>null|compat:current| #20240927 libreoffice
 no|libreoffice-icons-colibre7p4p2|libreoffice-icons-colibre-v7.4.2|exe|pet:noarch| #some colibre icons are missing from libreoffice pkg. 20240113
 yes|librevenge|librevenge|exe,doc>null|compat:current| #20240112 libreoffice
 yes|librevenge-devel|librevenge-devel|dev|compat:current| #20240118
