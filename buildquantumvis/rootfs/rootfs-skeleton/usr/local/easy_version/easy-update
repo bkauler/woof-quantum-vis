@@ -34,6 +34,7 @@
 #20230503 cannot update fscrypt v1 to v2.  20230504
 #20231108 offer to update nvidia sfs. (see also initrd init). 20231109 check nv major version.
 #20240302 support easyvoid. 20240304 20240319 quantumvis
+#20240927 EASYOS_RELEASES_URL replaced with WOOF_RELEASES_URL
 
 export TEXTDOMAIN=easy-update
 export OUTPUT_CHARSET=UTF-8
@@ -48,7 +49,7 @@ PARENT="${$}"
 KERNVER="$(uname -r)" #20231108
 . /etc/rc.d/PUPSTATE #has PUP_HOME
 . /etc/DISTRO_SPECS #has DISTRO_BINARY_COMPAT, DISTRO_COMPAT_VERSION DISTRO_TARGETARCH
-. /root/.packages/DISTRO_PET_REPOS #has PET_REPOS, PACKAGELISTS_PET_ORDER, SFS_REPOS, EASYOS_RELEASES_URL
+. /root/.packages/DISTRO_PET_REPOS #has PET_REPOS, PACKAGELISTS_PET_ORDER, SFS_REPOS, WOOF_RELEASES_URL
 
 if [ ! "$DISTRO_NAME_SHORT" ];then #20230305 test if not defined in DISTRO_SPECS
  DISTRO_NAME_SHORT='Easy'
@@ -119,30 +120,30 @@ else
  SFS_REPO_URL="https://distro.ibiblio.org/easyos/${DISTRO_TARGETARCH}/packages/sfs"
 fi
 
-origEASYOS_RELEASES_URL=''
-if [ ! -z "$EASYOS_RELEASES_URL" ];then #20240302
-  origEASYOS_RELEASES_URL="$EASYOS_RELEASES_URL"
+origWOOF_RELEASES_URL=''
+if [ ! -z "$WOOF_RELEASES_URL" ];then #20240302
+  origWOOF_RELEASES_URL="$WOOF_RELEASES_URL"
   DEEPER=''
-  wget -4 -t 2 -T 20 --waitretry=20 --directory-prefix=/tmp/easy_version --level=1 ${EASYOS_RELEASES_URL} #20220512
-  #...this creates a html file /tmp/easy_version/${EASYOS_RELEASES_URL##*/}, ex: 'void'
-  mv -f /tmp/easy_version/${EASYOS_RELEASES_URL##*/} /tmp/easy_version/${DISTRO_COMPAT_VERSION} #20220519 fix filename.
+  wget -4 -t 2 -T 20 --waitretry=20 --directory-prefix=/tmp/easy_version --level=1 ${WOOF_RELEASES_URL} #20220512
+  #...this creates a html file /tmp/easy_version/${WOOF_RELEASES_URL##*/}, ex: 'void'
+  mv -f /tmp/easy_version/${WOOF_RELEASES_URL##*/} /tmp/easy_version/${DISTRO_COMPAT_VERSION} #20220519 fix filename.
   fsync /tmp/easy_version/${DISTRO_COMPAT_VERSION} #20201226 try fix weird error below if test fails.
 else
  #20210701 hmmm, pi4 files are one-deeper...
  if [ "$DISTRO_TARGETARCH" == "aarch64" ];then
   DEEPER='/rpi4'
-  EASYOS_RELEASES_URL="https://distro.ibiblio.org/easyos/${DISTRO_TARGETARCH}/releases/${DISTRO_COMPAT_VERSION}${DEEPER}/${YEAR}"
-  wget -4 -t 2 -T 20 --waitretry=20 --directory-prefix=/tmp/easy_version --level=1 ${EASYOS_RELEASES_URL} #20220512
+  WOOF_RELEASES_URL="https://distro.ibiblio.org/easyos/${DISTRO_TARGETARCH}/releases/${DISTRO_COMPAT_VERSION}${DEEPER}/${YEAR}"
+  wget -4 -t 2 -T 20 --waitretry=20 --directory-prefix=/tmp/easy_version --level=1 ${WOOF_RELEASES_URL} #20220512
   #...this creates a html file /tmp/easy_version/rpi4
-  mv -f /tmp/easy_version/${EASYOS_RELEASES_URL##*/} /tmp/easy_version/rpi4 #20220519 fix filename.
+  mv -f /tmp/easy_version/${WOOF_RELEASES_URL##*/} /tmp/easy_version/rpi4 #20220519 fix filename.
   fsync /tmp/easy_version/rpi4
   mv -f /tmp/easy_version/rpi4 /tmp/easy_version/${DISTRO_COMPAT_VERSION}
  else
   DEEPER=''
-  EASYOS_RELEASES_URL="http://distro.ibiblio.org/easyos/${DISTRO_TARGETARCH}/releases/${DISTRO_COMPAT_VERSION}/${YEAR}"
-  wget -4 -t 2 -T 20 --waitretry=20 --directory-prefix=/tmp/easy_version --level=1 ${EASYOS_RELEASES_URL} #20220512
-  #...this creates a html file /tmp/easy_version/${EASYOS_RELEASES_URL##*/}, ex: 'buster'
-  mv -f /tmp/easy_version/${EASYOS_RELEASES_URL##*/} /tmp/easy_version/${DISTRO_COMPAT_VERSION} #20220519 fix filename.
+  WOOF_RELEASES_URL="http://distro.ibiblio.org/easyos/${DISTRO_TARGETARCH}/releases/${DISTRO_COMPAT_VERSION}/${YEAR}"
+  wget -4 -t 2 -T 20 --waitretry=20 --directory-prefix=/tmp/easy_version --level=1 ${WOOF_RELEASES_URL} #20220512
+  #...this creates a html file /tmp/easy_version/${WOOF_RELEASES_URL##*/}, ex: 'buster'
+  mv -f /tmp/easy_version/${WOOF_RELEASES_URL##*/} /tmp/easy_version/${DISTRO_COMPAT_VERSION} #20220519 fix filename.
   fsync /tmp/easy_version/${DISTRO_COMPAT_VERSION} #20201226 try fix weird error below if test fails.
  fi
 fi
@@ -279,7 +280,7 @@ else #20220623
   mv -f XXX${LASTIMG} ${LASTIMG}
   echo "$(gettext 'You have this local file:') ${LASTIMG}"
   echo "$(gettext 'Looking online to see if a delta file exists...')"
-  wget -4 -S --spider ${EASYOS_RELEASES_URL}/${latestVER}/deltas/${LASTIMG}___${DISTRO_NAME_SHORT,,}-${latestVER}-${DISTRO_TARGETARCH}.img.delta > /tmp/easy-update-delta-probe 2>&1 
+  wget -4 -S --spider ${WOOF_RELEASES_URL}/${latestVER}/deltas/${LASTIMG}___${DISTRO_NAME_SHORT,,}-${latestVER}-${DISTRO_TARGETARCH}.img.delta > /tmp/easy-update-delta-probe 2>&1 
   grep -q 'HTTP/1\.1 200 OK' /tmp/easy-update-delta-probe
   if [ $? -ne 0 ];then
    echo " $(gettext '...no it does not. will have to download full-size latest version.')"
@@ -291,10 +292,10 @@ else #20220623
    
    #20220628 check md5sum of local file...
    if [ ! -f md5sum.txt ];then
-    download_file ${EASYOS_RELEASES_URL}/${DISTRO_VERSION}/md5sum.txt >/dev/null 2>&1
+    download_file ${WOOF_RELEASES_URL}/${DISTRO_VERSION}/md5sum.txt >/dev/null 2>&1
     RETVAL=$?
     if [ $RETVAL -ne 0 ];then
-     if [ -z "$origEASYOS_RELEASES_URL" ];then #20240302
+     if [ -z "$origWOOF_RELEASES_URL" ];then #20240302
       YEAR0=$(($YEAR-1))
       rm -f md5sum.txt 2>/dev/null
       download_file https://distro.ibiblio.org/easyos/${DISTRO_TARGETARCH}/releases/${DISTRO_COMPAT_VERSION}${DEEPER}/${YEAR0}/${DISTRO_VERSION}/md5sum.txt >/dev/null 2>&1
@@ -334,7 +335,7 @@ if [ "$HAVEDELTA" == "yes" ];then
  
  #20220624 get md5sum...
  rm -f md5sums.txt 2>/dev/null
- download_file ${EASYOS_RELEASES_URL}/${latestVER}/deltas/md5sums.txt
+ download_file ${WOOF_RELEASES_URL}/${latestVER}/deltas/md5sums.txt
  if [ $? -ne 0 ];then
   echo -en '\033[1;31m' #bright red.
   echo "$(gettext 'Something went wrong with the download. Aborting')"
@@ -346,7 +347,7 @@ if [ "$HAVEDELTA" == "yes" ];then
  fi
  
  rm -f ${LASTIMG}___${DISTRO_NAME_SHORT,,}-${latestVER}-${DISTRO_TARGETARCH}.img.delta 2>/dev/null
- download_file ${EASYOS_RELEASES_URL}/${latestVER}/deltas/${LASTIMG}___${DISTRO_NAME_SHORT,,}-${latestVER}-${DISTRO_TARGETARCH}.img.delta
+ download_file ${WOOF_RELEASES_URL}/${latestVER}/deltas/${LASTIMG}___${DISTRO_NAME_SHORT,,}-${latestVER}-${DISTRO_TARGETARCH}.img.delta
  RET=$?
  if [ $RET -eq 0 ];then
   MD5SUM="$(md5sum ${LASTIMG}___${DISTRO_NAME_SHORT,,}-${latestVER}-${DISTRO_TARGETARCH}.img.delta | cut -f 1 -d ' ')"
@@ -397,7 +398,7 @@ if [ "$askdl" != "" ];then
   
  #20220625 get md5sum... 20230221
  rm -f md5sum.txt 2>/dev/null
- download_file ${EASYOS_RELEASES_URL}/${latestVER}/md5sum.txt
+ download_file ${WOOF_RELEASES_URL}/${latestVER}/md5sum.txt
  if [ $? -ne 0 ];then
   echo -en '\033[1;31m' #bright red.
   echo "$(gettext 'Something went wrong with the download. Aborting')"
@@ -407,7 +408,7 @@ if [ "$askdl" != "" ];then
   echo -e "\033[1;31m${MSGexit}\033[0;39m"
   exit 9
  fi
- download_file ${EASYOS_RELEASES_URL}/${latestVER}/${DISTRO_NAME_SHORT,,}-${latestVER}-${DISTRO_TARGETARCH}.img
+ download_file ${WOOF_RELEASES_URL}/${latestVER}/${DISTRO_NAME_SHORT,,}-${latestVER}-${DISTRO_TARGETARCH}.img
  RETVAL=$?
  
  if [ $RETVAL -eq 0 ];then #20220625
