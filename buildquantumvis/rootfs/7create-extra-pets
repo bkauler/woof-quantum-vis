@@ -21,7 +21,7 @@ fi
 
 mkdir sandbox/devx-${DISTRO_VERSION}
 mkdir -p sandbox/devx-${DISTRO_VERSION}/usr/share/doc
-echo "devx-${DISTRO_VERSION}.pet is a meta-package that has installed all Void
+echo "devx-${DISTRO_VERSION}.pet is a meta-package to install all Void
 packages required for a complete compiling and development environment.
 In PKGget, you can uninstall devx-${DISTRO_VERSION}.pet and it will also
 uninstall all of the Void packages that had been installed.
@@ -110,7 +110,16 @@ cd ..
 mv -f sandbox/devx-${DISTRO_VERSION}.pet export/devx-${DISTRO_VERSION}.pet
 sync
 
+#20240927
+sed -i '/^devx-/d' rootfs/root/.packages/Packages-pet-noarch-official
+cat sandbox/devx-${DISTRO_VERSION}/pet.specs >> rootfs/root/.packages/Packages-pet-noarch-official
+sort rootfs/root/.packages/Packages-pet-noarch-official > export/Packages-pet-noarch-official
+cp -f export/Packages-pet-noarch-official rootfs/root/.packages/Packages-pet-noarch-official
+
 #now manually add this pet to the pet-void repo.
 echo "Created ${E1}/export/devx-${DISTRO_VERSION}.pet"
-echo "Have to manually add this to the pet-void repo"
+echo "DB entry inserted into ${E1}rootfs/root/.packages/Packages-pet-noarch-official"
+echo "However, have to manually add this pet to the online pet-void repo"
+echo "The updated db file is here:"
+echo "${E1}/export/Packages-pet-noarch-official"
 ###end###
