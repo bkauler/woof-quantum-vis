@@ -29,6 +29,12 @@ touch /tmp/FLAGrunningwoofv
 
 which xbps-create >/dev/null
 if [ $? -ne 0 ];then
+ if [ -x ${E1}/sandbox/xbps/usr/bin/xbps-create.static ];then
+  cp -a ${E1}/sandbox/xbps/usr/bin/xbps-create.static /usr/bin/xbps-create
+ fi
+fi
+which xbps-create >/dev/null
+if [ $? -ne 0 ];then
  echo "ERROR: xbps package not installed."
  exit 1
 fi
@@ -92,11 +98,11 @@ do
    case "${PSTrepo#*:}" in
     noarch)
      DBFILE="Packages-pet-noarch-official"
-     URL="https://distro.ibiblio.org/easyos/noarch/packages/pet/pet_packages-noarch"
+     URL="https://distro.ibiblio.org/quirky/quirky-void/noarch/packages/pet/pet_packages-noarch"
     ;;
     *) #pet:void
      DBFILE="Packages-pet-void-official"
-     URL="https://distro.ibiblio.org/easyos/${DISTRO_TARGETARCH}/packages/pet/pet_packages-void"
+     URL="https://distro.ibiblio.org/quirky/quirky-void/${DISTRO_TARGETARCH}/packages/pet/pet_packages-void"
     ;;
    esac
    #is it already downloaded?...

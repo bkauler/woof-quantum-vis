@@ -1,7 +1,6 @@
 #!/bin/bash
 #rootfs has been populated by 5populate-rootfs
-#now perform post-processing, prior to building easy.sfs
-#20240318
+#now perform post-processing, prior to building the drive-image.
 
 export LANG=C
 RP="$(realpath ${0})"
@@ -583,10 +582,12 @@ fi
 echo "Set some apps to run non-root"
 for aP in seamonkey firefox chromium hexchat claws opera
 do
- if [ -x rootfs/usr/bin/${aP} ];then
-  ./rootfs/usr/local/clients/setup-client "${aP}=true"
- else
-  echo "${aP}=false" >> rootfs/root/.clients-status #so that an unticked checkbox will display in loginmanager. 20211212 fix.
+ if [ -e rootfs/usr/bin/${aP} ];then #20240927
+  if [ -x rootfs/usr/bin/${aP} ];then
+   ./rootfs/usr/local/clients/setup-client "${aP}=true"
+  else
+   echo "${aP}=false" >> rootfs/root/.clients-status #so that an unticked checkbox will display in loginmanager. 20211212 fix.
+  fi
  fi
 done
 

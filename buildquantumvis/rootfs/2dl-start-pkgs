@@ -1,6 +1,5 @@
 #!/bin/ash
 #d/l packages to build the getting-started rootfs.
-#20240318
 
 export LANG=C
 RP="$(realpath ${0})"
@@ -34,7 +33,7 @@ if [ ! -f ${F1} ];then
 fi
 
 #d/l busybox static pet
-download_file https://distro.ibiblio.org/easyos/${DISTRO_TARGETARCH}/packages/pet/Packages-pet-void-official
+download_file https://distro.ibiblio.org/quirky/quirky-void/${DISTRO_TARGETARCH}/packages/pet/Packages-pet-void-official
 if [ $? -ne 0 ];then
  echo 'd/l busybox pet failed'
  exit 2
@@ -43,7 +42,7 @@ BB="$(grep -F '|busybox|' Packages-pet-void-official | cut -f 8 -d '|')"
 #ex: busybox-1.36.1-static-amd64.pet
 rm -f Packages-pet-void-official
 if [ ! -f ${BB} ];then
- download_file https://distro.ibiblio.org/easyos/${DISTRO_TARGETARCH}/packages/pet/pet_packages-void/${BB}
+ download_file https://distro.ibiblio.org/quirky/quirky-void/${DISTRO_TARGETARCH}/packages/pet/pet_packages-void/${BB}
  if [ $? -ne 0 ];then
   echo "ERROR downloading pet void database file"
   rm -f ./${BB} 2>/dev/null

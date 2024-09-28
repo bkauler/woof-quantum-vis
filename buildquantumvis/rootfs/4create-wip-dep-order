@@ -1,5 +1,4 @@
 #!/bin/bash
-#20240318
 
 export LANG=C
 RP="$(realpath ${0})"
