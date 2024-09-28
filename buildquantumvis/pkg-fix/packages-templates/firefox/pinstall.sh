@@ -35,9 +35,9 @@ if [ "$FFext" ];then
  cp -a ${FFext}/langpack* /tmp/3buildeasydistro-pinstall-ff/
  rm -f ${FFext}/langpack*
  BUILD_SUPPORT_LANGS='de:German en:English fr:French'
- #um, no, build-choice copied into rootfs later...
- #. ./root/.packages/build-choices
-. /usr/local/woofV/configure/build-choices #20240220
+ #um, no, build-choice copied into rootfs later... 20240927 is there i think...
+. ./root/.packages/build-choices
+#. /usr/local/woofV/configure/build-choices #20240220
  for aFFlang in $(echo "$BUILD_SUPPORT_LANGS" | tr ' ' '\n' | cut -f 1 -d ':' | tr '\n' ' ')
  do
   if [ "$aFFlang" == "no" ];then #20230423 20230424 remove nn
