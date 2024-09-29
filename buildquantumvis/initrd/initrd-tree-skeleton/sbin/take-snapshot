@@ -7,7 +7,7 @@ PATHDEF="$3" #ex: quantumvis/1
 
 #we want to take snapshots of these:
 #/mnt/${WKG_DEV}/${WKG_DIR}@qv
-#/mnt/${WKG_DEV}/${PATHDEF}/@home
+#/mnt/${WKG_DEV}/${PATHDEF}/@home #20240928 no longer have @home
 #20240403 no longer have @data subvolume...
 ##/mnt/${WKG_DEV}/${PATHDEF}/@data
 
@@ -51,12 +51,14 @@ if [ $? -ne 0 ];then
  rm -rf /mnt/${WKG_DEV}/${WKG_DIR}${SNAPNEW}
  exit 2
 fi
-btrfs subvolume snapshot /mnt/${WKG_DEV}/${PATHDEF}/@home /mnt/${WKG_DEV}/${WKG_DIR}${SNAPNEW}/@home
-if [ $? -ne 0 ];then
- echo "${S110:-Failed to create snapshot:} /mnt/${WKG_DEV}/${WKG_DIR}${SNAPNEW}/@home"
- rm -rf /mnt/${WKG_DEV}/${WKG_DIR}${SNAPNEW}
- exit 3
-fi
+#20240928 no longer have @home...
+#btrfs subvolume snapshot /mnt/${WKG_DEV}/${PATHDEF}/@home /mnt/${WKG_DEV}/${WKG_DIR}${SNAPNEW}/@home
+#if [ $? -ne 0 ];then
+# echo "${S110:-Failed to create snapshot:} /mnt/${WKG_DEV}/${WKG_DIR}${SNAPNEW}/@home"
+# rm -rf /mnt/${WKG_DEV}/${WKG_DIR}${SNAPNEW}
+# exit 3
+#fi
+
 #20240403 @data no longer exists...
 #btrfs subvolume snapshot /mnt/${WKG_DEV}/${PATHDEF}/@data /mnt/${WKG_DEV}/${WKG_DIR}${SNAPNEW}/@data
 #if [ $? -ne 0 ];then

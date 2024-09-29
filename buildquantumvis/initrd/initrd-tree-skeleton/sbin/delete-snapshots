@@ -78,13 +78,14 @@ do
   exit 4
  fi
  btrfs subvolume sync /mnt/${WKG_DEV}/${WKG_DIR}${aS}/@qv
- btrfs subvolume delete /mnt/${WKG_DEV}/${WKG_DIR}${aS}/@home
- if [ $? -ne 0 ];then
-  echo "${S130:-ERROR failed to delete:} /mnt/${WKG_DEV}/${WKG_DIR}${aS}/@home"
-  echo "${S131:-This is bad. Avoid using this snapshot until it can be repaired.}"
-  exit 4
- fi
- btrfs subvolume sync /mnt/${WKG_DEV}/${WKG_DIR}${aS}/@home
+ #20240928 removed @home...
+ #btrfs subvolume delete /mnt/${WKG_DEV}/${WKG_DIR}${aS}/@home
+ #if [ $? -ne 0 ];then
+ # echo "${S130:-ERROR failed to delete:} /mnt/${WKG_DEV}/${WKG_DIR}${aS}/@home"
+ # echo "${S131:-This is bad. Avoid using this snapshot until it can be repaired.}"
+ # exit 4
+ #fi
+ #btrfs subvolume sync /mnt/${WKG_DEV}/${WKG_DIR}${aS}/@home
  rm -rf /mnt/${WKG_DEV}/${WKG_DIR}${aS}
  sync
  echo -n "${aS} " >/sdeleted

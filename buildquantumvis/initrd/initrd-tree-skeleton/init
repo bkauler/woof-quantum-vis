@@ -634,15 +634,15 @@ if [ ! -d /mnt/${WKG_DEV}/${WKG_DIR}@files ];then
  #first bootup.
  ##@data will be unencrypted subvolume...
  #btrfs subvolume create /mnt/${WKG_DEV}/${PATHDEF}/@data
- #@home and @files will be encrypted subvolumes...
- btrfs subvolume create /mnt/${WKG_DEV}/${PATHDEF}/@home
+ #@home and @files will be encrypted subvolumes... 20240928 remove @home
+ #btrfs subvolume create /mnt/${WKG_DEV}/${PATHDEF}/@home
  #@files is at a higher level, is bind-mounted into whatever is the default snapshot...
  btrfs subvolume create /mnt/${WKG_DEV}/${WKG_DIR}@files
  
  #20240425 want to create a 2nd pristine snapshot...
  mkdir -p /mnt/${WKG_DEV}/${WKG_DIR}2
  btrfs subvolume snapshot /mnt/${WKG_DEV}/${PATHDEF}/@qv /mnt/${WKG_DEV}/${WKG_DIR}2/@qv
- btrfs subvolume create /mnt/${WKG_DEV}/${WKG_DIR}2/@home
+ #btrfs subvolume create /mnt/${WKG_DEV}/${WKG_DIR}2/@home  #20240928 remove
  REASON2="${S431:-Snapshot of pristine first bootup}"
  echo "2|${SNAPDATE}|${REASON2}" >> /mnt/${WKG_DEV}/${WKG_DIR}snapshot-record
  
@@ -663,8 +663,9 @@ if [ ! -d /mnt/${WKG_DEV}/${WKG_DIR}@files ];then
   if [ $? -eq 0 ];then
    ALLOW_ASK_PW='yes'
    FSKEYID="$(cat /FSKEYID)"
-   fscryptctl set_policy ${FSKEYID} /mnt/${WKG_DEV}/${PATHDEF}/@home
-   fscryptctl set_policy ${FSKEYID} /mnt/${WKG_DEV}/${WKG_DIR}2/@home #20240425
+   #20240928 remove @home
+   #fscryptctl set_policy ${FSKEYID} /mnt/${WKG_DEV}/${PATHDEF}/@home
+   #fscryptctl set_policy ${FSKEYID} /mnt/${WKG_DEV}/${WKG_DIR}2/@home #20240425
    fscryptctl set_policy ${FSKEYID} /mnt/${WKG_DEV}/${WKG_DIR}@files
   else
    echo -en "\\033[1;31m" #red foreground.
@@ -674,16 +675,17 @@ if [ ! -d /mnt/${WKG_DEV}/${WKG_DIR}@files ];then
   fi
  fi
  
- #populate @home and @files...
+ #populate @home and @files...  
  cp -a /skeleton/files/* /mnt/${WKG_DEV}/${WKG_DIR}@files/
- #cp -a /skeleton/home/* /mnt/${WKG_DEV}/${PATHDEF}/@home/
- #20240326 woofqv has populated rootfs/home, move content to @home...
- cp -a /mnt/${WKG_DEV}/${QV}/home/* /mnt/${WKG_DEV}/${PATHDEF}/@home/
- rm -rf /mnt/${WKG_DEV}/${QV}/home
- mkdir /mnt/${WKG_DEV}/${QV}/home
- cp -a /mnt/${WKG_DEV}/${WKG_DIR}2/@qv/home/* /mnt/${WKG_DEV}/${WKG_DIR}2/@home/ #20240425
- rm -rf /mnt/${WKG_DEV}/${WKG_DIR}2/@qv/home #20240425
- mkdir /mnt/${WKG_DEV}/${WKG_DIR}2/@qv/home #20240425
+ #20240928 remove @home...
+ ##20240326 woofqv has populated rootfs/home, move content to @home...
+ #cp -a /mnt/${WKG_DEV}/${QV}/home/* /mnt/${WKG_DEV}/${PATHDEF}/@home/
+ #rm -rf /mnt/${WKG_DEV}/${QV}/home
+ #mkdir /mnt/${WKG_DEV}/${QV}/home
+ #cp -a /mnt/${WKG_DEV}/${WKG_DIR}2/@qv/home/* /mnt/${WKG_DEV}/${WKG_DIR}2/@home/ #20240425
+ #rm -rf /mnt/${WKG_DEV}/${WKG_DIR}2/@qv/home #20240425
+ #mkdir /mnt/${WKG_DEV}/${WKG_DIR}2/@qv/home #20240425
+ 
  ##note: /skeleton/data must not exist, see above test.
  #mkdir /mnt/${WKG_DEV}/${PATHDEF}/@data/appimage
  #mkdir /mnt/${WKG_DEV}/${PATHDEF}/@data/flatpak
@@ -1027,7 +1029,7 @@ fi
 #mount these folders inside @qv (the rootfs after switch_root)...
 mkdir -p /newroot/data
 #mount --bind /mnt/${WKG_DEV}/${PATHDEF}/@data /newroot/data
-mount --bind /mnt/${WKG_DEV}/${PATHDEF}/@home /newroot/home
+#mount --bind /mnt/${WKG_DEV}/${PATHDEF}/@home /newroot/home #20240928
 mount --bind /mnt/${WKG_DEV}/${WKG_DIR}@files /newroot/files
 
 mount -o move /proc /newroot/proc
