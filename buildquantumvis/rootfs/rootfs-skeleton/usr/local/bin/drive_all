@@ -80,6 +80,7 @@ if [ "$(whoami)" != "root" ];then exec sudo-sh ${PPID} ${0} ${@}; fi
 #/dev/sdc2        30027776    1323760  28150608   5% /home
 #/dev/sdc2        30027776    1323760  28150608   5% /files
 #...20240928 no longer have @home
+#...20240930 @files optional, see $QV_FILES_SPARSE in build-choices and initrd/init
 
 CURPOS="`cat /tmp/desktop_drives_curpos`" #120110
 rm -f /tmp/desktop_drives_curpos #120110

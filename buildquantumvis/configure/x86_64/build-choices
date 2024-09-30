@@ -87,3 +87,7 @@ BUILD_SUPPORT_LANGS='bg:български cs:čeština da:dansk de:Deutsch el:�
 #20230429
 #v1 uses e4crypt utility, v2 uses fscryptctl utility in initrd. if nothing, default is v1.
 EOS_FSCRYPT_VER='2'
+
+#20240930
+#yes=/files is a sparse ext4 file. otherwise: /files is a btrfs subvolume
+QV_FILES_SPARSE='yes'

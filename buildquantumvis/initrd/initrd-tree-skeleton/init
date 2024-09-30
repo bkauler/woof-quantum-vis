@@ -24,6 +24,8 @@ KERNVER="$(uname -r)"
 CR='
 '
 
+. /build-choices #20240930 see initrd/create-initrd script. has QV_FILES_SPARSE
+
 exit_to_initrd() {
  [ ! "${1}" ] && set -- " Have exited from init script at this line number"
  echo -e '\033[1;31m' #bright red
@@ -628,16 +630,41 @@ fi
 NEW_KB_HW_PROFILE="$(ls -1 -d /sys/class/input/*/*::capslock 2>/dev/null | cut -f 1-5 -d '/' | xargs -I XXX cat XXX/name | tr -d '\n'| sed -e 's%[^0-9a-zA-Z]%%g' | cut -c 1-60)"
 
 ###handle 1st or subsequent bootup###
-ALLOW_ASK_PW=''; PW=''
+ALLOW_ASK_PW=''; PW=''; FIRSTflg=0
 #20240403 @data no longer exists...
-if [ ! -d /mnt/${WKG_DEV}/${WKG_DIR}@files ];then
+#20240930 files folder can be a ext4 sparse file instead of a btrfs subvolume...
+if [ "$QV_FILES_SPARSE" == "yes" ];then #20240930 see file build-choices
+ if [ ! -e /mnt/${WKG_DEV}/${WKG_DIR}.sparse-ext4 ];then FIRSTflg=1; fi
+else
+ if [ ! -e /mnt/${WKG_DEV}/${WKG_DIR}@files ];then FIRSTflg=1; fi
+fi
+if [ $FIRSTflg -eq 1 ];then #20240930
  #first bootup.
- ##@data will be unencrypted subvolume...
- #btrfs subvolume create /mnt/${WKG_DEV}/${PATHDEF}/@data
- #@home and @files will be encrypted subvolumes... 20240928 remove @home
- #btrfs subvolume create /mnt/${WKG_DEV}/${PATHDEF}/@home
- #@files is at a higher level, is bind-mounted into whatever is the default snapshot...
- btrfs subvolume create /mnt/${WKG_DEV}/${WKG_DIR}@files
+ if [ "$QV_FILES_SPARSE" == "yes" ];then #20240930 see file build-choices
+  wkgM=$(df -m /mnt/${WKG_DEV} | grep "^/dev/${WKG_DEV} " | tr -s ' ' | cut -f 4 -d ' ')
+  sparseM=$((${wkgM}/2))
+  #create a sparse file of size $sparseM MB...
+  truncate -s ${sparseM}M /mnt/${WKG_DEV}/${WKG_DIR}.sparse-ext4
+  LOOPsparse="$(losetup -f)"
+  losetup ${LOOPsparse} /mnt/${WKG_DEV}/${WKG_DIR}.sparse-ext4
+  echo "Creating ext4 sparse file: /mnt/${WKG_DEV}/${WKG_DIR}.sparse-ext4"
+  mke2fs -b 4096 -m 0 -L sparse -O ^has_journal,encrypt,^64bit,^huge_file -t ext4 ${LOOPsparse} >/dev/null 2>&1
+  if [ $? -ne 0 ];then
+   rm -f /mnt/${WKG_DEV}/${WKG_DIR}.sparse-ext4
+   err_exit "Failed to create ext4 sparse file: /mnt/${WKG_DEV}/${WKG_DIR}.sparse-ext4"
+  fi
+  mkdir /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt
+  #discard option will punch holes in sparse file when files deleted...
+  mount -t ext4 -o discard ${LOOPsparse} /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt
+  mkdir /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt/files #coz can only encrypt a folder.
+ else
+  ##@data will be unencrypted subvolume...
+  #btrfs subvolume create /mnt/${WKG_DEV}/${PATHDEF}/@data
+  #@home and @files will be encrypted subvolumes... 20240928 remove @home
+  #btrfs subvolume create /mnt/${WKG_DEV}/${PATHDEF}/@home
+  #@files is at a higher level, is bind-mounted into whatever is the default snapshot...
+  btrfs subvolume create /mnt/${WKG_DEV}/${WKG_DIR}@files
+ fi
  
  #20240425 want to create a 2nd pristine snapshot...
  mkdir -p /mnt/${WKG_DEV}/${WKG_DIR}2
@@ -659,24 +686,43 @@ if [ ! -d /mnt/${WKG_DEV}/${WKG_DIR}@files ];then
  if [ "$PW" ];then
   PASSPHRASE="$(echo -n ${PW}xxxx | argon2 ${SALT} -l 32 -r)" #64 byte hash generated from password.
   echo -n "$PASSPHRASE" > /PASSPHRASE
-  fscryptctl add_key /mnt/${WKG_DEV} < /PASSPHRASE > /FSKEYID 2>/dev/null
-  if [ $? -eq 0 ];then
-   ALLOW_ASK_PW='yes'
-   FSKEYID="$(cat /FSKEYID)"
-   #20240928 remove @home
-   #fscryptctl set_policy ${FSKEYID} /mnt/${WKG_DEV}/${PATHDEF}/@home
-   #fscryptctl set_policy ${FSKEYID} /mnt/${WKG_DEV}/${WKG_DIR}2/@home #20240425
-   fscryptctl set_policy ${FSKEYID} /mnt/${WKG_DEV}/${WKG_DIR}@files
+  if [ "$QV_FILES_SPARSE" == "yes" ];then #20240930
+   fscryptctl add_key /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt < /PASSPHRASE > /FSKEYID 2>/dev/null
+   if [ $? -eq 0 ];then
+    ALLOW_ASK_PW='yes'
+    FSKEYID="$(cat /FSKEYID)"
+    fscryptctl set_policy ${FSKEYID} /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt/files
+   else
+    echo -en "\\033[1;31m" #red foreground.
+    echo "${S145:-Sorry, the /files folder cannot be encrypted. The password will only be set for root login.}"  | fold -s -w 69 #red
+    echo -e "\\033[0;39m"
+    sleep 2
+   fi
   else
-   echo -en "\\033[1;31m" #red foreground.
-   echo "${S145:-Sorry, the folders in the working partition cannot be encrypted. The password will only be set for root login.}"  | fold -s -w 69 #red
-   echo -e "\\033[0;39m"
-   sleep 2
+   fscryptctl add_key /mnt/${WKG_DEV} < /PASSPHRASE > /FSKEYID 2>/dev/null
+   if [ $? -eq 0 ];then
+    ALLOW_ASK_PW='yes'
+    FSKEYID="$(cat /FSKEYID)"
+    #20240928 remove @home
+    #fscryptctl set_policy ${FSKEYID} /mnt/${WKG_DEV}/${PATHDEF}/@home
+    #fscryptctl set_policy ${FSKEYID} /mnt/${WKG_DEV}/${WKG_DIR}2/@home #20240425
+    fscryptctl set_policy ${FSKEYID} /mnt/${WKG_DEV}/${WKG_DIR}@files
+   else
+    echo -en "\\033[1;31m" #red foreground.
+    echo "${S145:-Sorry, the folders in the working partition cannot be encrypted. The password will only be set for root login.}"  | fold -s -w 69 #red
+    echo -e "\\033[0;39m"
+    sleep 2
+   fi
   fi
  fi
  
- #populate @home and @files...  
- cp -a /skeleton/files/* /mnt/${WKG_DEV}/${WKG_DIR}@files/
+ #prepopulate...  20240930
+ if [ "$QV_FILES_SPARSE" == "yes" ];then #20240930
+  cp -a /skeleton/files/* /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt/files/
+ else
+  cp -a /skeleton/files/* /mnt/${WKG_DEV}/${WKG_DIR}@files/
+ fi
+ 
  #20240928 remove @home...
  ##20240326 woofqv has populated rootfs/home, move content to @home...
  #cp -a /mnt/${WKG_DEV}/${QV}/home/* /mnt/${WKG_DEV}/${PATHDEF}/@home/
@@ -713,11 +759,16 @@ if [ ! -d /mnt/${WKG_DEV}/${WKG_DIR}@files ];then
  chmod 700 /mnt/${WKG_DEV}/${WKG_DIR}2/@qv/root
 else
  #subsequent bootups.
- fscryptctl get_policy /mnt/${WKG_DEV}/${WKG_DIR}@files >/dev/null 2>&1
- if [ $? -eq 0 ];then
-  POLICYflg=''
+ POLICYflg=1
+ if [ "$QV_FILES_SPARSE" == "yes" ];then #20240930
+  LOOPsparse="$(losetup -f)"
+  losetup ${LOOPsparse} /mnt/${WKG_DEV}/${WKG_DIR}.sparse-ext4
+  mount -t ext4 -o discard ${LOOPsparse} /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt
+  fscryptctl get_policy /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt/files >/dev/null 2>&1
+  POLICYflg=$?
  else
-  POLICYflg='xxx'
+  fscryptctl get_policy /mnt/${WKG_DEV}/${WKG_DIR}@files >/dev/null 2>&1
+  POLICYflg=$?
  fi
  
  touch /mnt/${WKG_DEV}/${QV}/data/settings/initrd/CONFIG
@@ -739,7 +790,7 @@ else
  fi
  [ "$KEYMAP" != "us" ] && gunzip -c /lib/keymaps/${KEYMAP}.gz | loadkmap
  
- if [ -z "$POLICYflg" ];then
+ if [ $POLICYflg -eq 0 ];then
   #folder has fscrypt enabled.
   echo
   if [ "$ALLOW_ASK_PW" == "yes" ];then
@@ -747,13 +798,25 @@ else
     ask_pw 1 #sets $PW
     PASSPHRASE="$(echo -n ${PW}xxxx | argon2 ${SALT} -l 32 -r)" #64 byte hash generated from password.
     echo -n "$PASSPHRASE" > /PASSPHRASE
-    fscryptctl add_key /mnt/${WKG_DEV} < /PASSPHRASE > /FSKEYID
-    if [  -d /mnt/${WKG_DEV}/${WKG_DIR}@files/downloads ];then
-     break
+    
+    if [ "$QV_FILES_SPARSE" == "yes" ];then #20240930
+     fscryptctl add_key /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt < /PASSPHRASE > /FSKEYID
+     if [  -d /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt/files/downloads ];then
+      break
+     else
+      FSKEYID="$(cat /FSKEYID)"
+      fscryptctl remove_key ${FSKEYID} /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt
+     fi
     else
-     FSKEYID="$(cat /FSKEYID)"
-     fscryptctl remove_key ${FSKEYID} /mnt/${WKG_DEV}
+     fscryptctl add_key /mnt/${WKG_DEV} < /PASSPHRASE > /FSKEYID
+     if [  -d /mnt/${WKG_DEV}/${WKG_DIR}@files/downloads ];then
+      break
+     else
+      FSKEYID="$(cat /FSKEYID)"
+      fscryptctl remove_key ${FSKEYID} /mnt/${WKG_DEV}
+     fi
     fi
+
     echo -e "\n\\e[1;30;43m ${S146:-Password incorrect. Try again} \\e[0;;m"
    done
    menu_delay_func #ask_pw calls menu_func, but some operations have to be done after pw entry.
@@ -1030,7 +1093,12 @@ fi
 mkdir -p /newroot/data
 #mount --bind /mnt/${WKG_DEV}/${PATHDEF}/@data /newroot/data
 #mount --bind /mnt/${WKG_DEV}/${PATHDEF}/@home /newroot/home #20240928
-mount --bind /mnt/${WKG_DEV}/${WKG_DIR}@files /newroot/files
+
+if [ "$QV_FILES_SPARSE" == "yes" ];then #20240930
+ mount --bind /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt/files /newroot/files
+else
+ mount --bind /mnt/${WKG_DEV}/${WKG_DIR}@files /newroot/files
+fi
 
 mount -o move /proc /newroot/proc
 

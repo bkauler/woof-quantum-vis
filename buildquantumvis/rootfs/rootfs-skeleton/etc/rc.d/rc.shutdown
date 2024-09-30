@@ -29,6 +29,7 @@
 #20230918 rerwin: remove deprecated ifconfig and iwconfig
 #20231223 fix find active network i/f
 #20240319 /.fsckme.flg
+#20240930 unmount sparse file.
 
 #110923
 . /usr/bin/gettext.sh # enables use of eval_gettext (several named variables) and ngettext (plurals)
@@ -51,6 +52,7 @@ export CDRECORD MKISOFS
 
 . /etc/rc.d/PUPSTATE #variables created at bootup
 . /etc/DISTRO_SPECS
+. /root/.packages/build-choices #20240930 has QV_FILES_SPARSE
 
 echo "${DISTRO_NAME_SHORT} $(gettext 'is now shutting down...')" > /dev/console
 
@@ -230,6 +232,24 @@ echo "Unmounting stray filesystems:"
 
 #091117 110928 if partition mounted, when choose shutdown, pc rebooted. found that param given to fuser must be mount-point, not /dev/*...
 #111106 do not execute fuser if network share mount (may hang, see http://murga-linux.com/puppy/viewtopic.php?t=73122)...
+
+#20240930
+if [ "$QV_FILES_SPARSE" == "yes" ];then
+ grep -q -F ' /files ' /proc/mounts
+ if [ $? -eq 0 ];then
+  fuser -k -m /files
+  sleep 0.1
+  sync
+  busybox umount /files
+ fi
+ grep -q -F ' /home ' /proc/mounts
+ if [ $? -eq 0 ];then
+  fuser -k -m /home
+  sleep 0.1
+  sync
+  busybox umount /home
+ fi
+fi
 
 #170131 easy linux need to do this differently... 20210525 leave out mntd easysave.ext4 (on /mnt/${WKG_DEV}/${WKG_DIR%/})
 if [ "$(echo "$MNTDPARTS" | grep '^aufs on / ')" != "" ];then #170207
