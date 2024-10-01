@@ -657,8 +657,9 @@ if [ $FIRSTflg -eq 1 ];then #20240930
   #discard option will punch holes in sparse file when files deleted...
   mount -t ext4 -o discard ${LOOPsparse} /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt
   mkdir /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt/files #coz can only encrypt a folder.
-  #20240931 /home will also be in ext4 sparse file...
-  mkdir /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt/home
+  #20241001 decided not to have /home in sparse file...
+  ##20240931 /home will also be in ext4 sparse file...
+  #mkdir /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt/home
  else
   ##@data will be unencrypted subvolume...
   #btrfs subvolume create /mnt/${WKG_DEV}/${PATHDEF}/@data
@@ -694,7 +695,7 @@ if [ $FIRSTflg -eq 1 ];then #20240930
     ALLOW_ASK_PW='yes'
     FSKEYID="$(cat /FSKEYID)"
     fscryptctl set_policy ${FSKEYID} /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt/files
-    fscryptctl set_policy ${FSKEYID} /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt/home
+    #fscryptctl set_policy ${FSKEYID} /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt/home #20241001 no.
    else
     echo -en "\\033[1;31m" #red foreground.
     echo "${S145:-Sorry, the /files folder cannot be encrypted. The password will only be set for root login.}"  | fold -s -w 69 #red
@@ -722,14 +723,15 @@ if [ $FIRSTflg -eq 1 ];then #20240930
  #prepopulate...  20240930
  if [ "$QV_FILES_SPARSE" == "yes" ];then #20240930
   cp -a /skeleton/files/* /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt/files/
-  #20240931 move /home contents to ext4 sparse file...
-  mkdir /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt/home/1
-  mkdir /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt/home/2
-  cp -a /mnt/${WKG_DEV}/${QV}/home/* /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt/home/1/
-  cp -a /mnt/${WKG_DEV}/${QV}/home/* /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt/home/2/
-  #no, leave original home folder alone, it will be bind-mounted over...
-  #rm -rf /mnt/${WKG_DEV}/${QV}/home
-  #mkdir /mnt/${WKG_DEV}/${QV}/home
+  #20241001 decided no...
+  ##20240931 move /home contents to ext4 sparse file...
+  #mkdir /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt/home/1
+  #mkdir /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt/home/2
+  #cp -a /mnt/${WKG_DEV}/${QV}/home/* /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt/home/1/
+  #cp -a /mnt/${WKG_DEV}/${QV}/home/* /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt/home/2/
+  ##no, leave original home folder alone, it will be bind-mounted over...
+  ##rm -rf /mnt/${WKG_DEV}/${QV}/home
+  ##mkdir /mnt/${WKG_DEV}/${QV}/home
  else
   cp -a /skeleton/files/* /mnt/${WKG_DEV}/${WKG_DIR}@files/
  fi
@@ -1115,7 +1117,7 @@ mkdir -p /newroot/data
 
 if [ "$QV_FILES_SPARSE" == "yes" ];then #20240930
  mount --bind /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt/files /newroot/files
- mount --bind /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt/home/${SNAPDEF} /newroot/home #20240931
+ #mount --bind /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt/home/${SNAPDEF} /newroot/home #20240931 20241001 no.
 else
  mount --bind /mnt/${WKG_DEV}/${WKG_DIR}@files /newroot/files
 fi

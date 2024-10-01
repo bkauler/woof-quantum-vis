@@ -15,7 +15,7 @@ if [ -f /nls/${QLANG}/take-snapshot.str ];then
 .  /nls/${QLANG}/take-snapshot.str
 fi
 
-. /build-choices #20240931 has QV_FILES_SPARSE
+#. /build-choices #20240931 has QV_FILES_SPARSE  20241001 no.
 
 #find the snapshots...
 SNAPS="$(find /mnt/${WKG_DEV}/${WKG_DIR} -mindepth 1 -maxdepth 1 -type d -name '[0-9]*')"
@@ -61,10 +61,10 @@ fi
 # exit 3
 #fi
 
-#20240931 /home in a ext4 sparse file...
-if [ "$QV_FILES_SPARSE" == "yes" ];then
- cp -a /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt/home/${SNAPDEF} /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt/home/${SNAPNEW}
-fi
+##20240931 /home in a ext4 sparse file...  20241001 no
+#if [ "$QV_FILES_SPARSE" == "yes" ];then
+# cp -a /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt/home/${SNAPDEF} /mnt/${WKG_DEV}/${WKG_DIR}.sparse-mnt/home/${SNAPNEW}
+#fi
 
 #20240403 @data no longer exists...
 #btrfs subvolume snapshot /mnt/${WKG_DEV}/${PATHDEF}/@data /mnt/${WKG_DEV}/${WKG_DIR}${SNAPNEW}/@data
