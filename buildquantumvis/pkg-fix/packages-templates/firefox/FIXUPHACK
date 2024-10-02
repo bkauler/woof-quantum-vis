@@ -11,7 +11,8 @@ if [ "$FFEXE" ];then
  #ln -s $FFFOLDER usr/lib/firefox
  if [ ! -e usr/bin/firefox ];then
   mkdir -p usr/bin
-  ln -s ../lib/firefox/firefox usr/bin/firefox
+  #20241001 must be -snf as usr/bin/firefox may exist but wrong symlink so fails above test.
+  ln -snf ../lib/firefox/firefox usr/bin/firefox
  fi
 fi
 
