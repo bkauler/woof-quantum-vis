@@ -222,13 +222,74 @@ menu_func() {
   SNAPBOOT)
    /sbin/choose-snapshot "${WKG_DEV}" "${WKG_DIR}" "${PATHDEF}"
    if [ $? -eq 0 ];then
-    PATHDEF="$(cat /NEWPATHDEF)" #ex: quantumvis/2
-    SNAPDEF="${PATHDEF##*/}"
-    QV="${PATHDEF}/@qv"
-    #. /mnt/${WKG_DEV}/${QV}/etc/DISTRO_SPECS
-    echo -n "${SNAPDEF}" > /mnt/${WKG_DEV}/${WKG_DIR}snapshot-default
-    SNAPDESC="$(grep "^${SNAPDEF}|" /mnt/${WKG_DEV}/${WKG_DIR}snapshot-record | cut -f 3 -d '|' | tr -d "'")" #french/italian may have apostrophe
-    SNAPDATE="$(grep "^${SNAPDEF}|" /mnt/${WKG_DEV}/${WKG_DIR}snapshot-record | cut -f 2 -d '|')"
+    
+    #20241002 check kernel version in snapshot...
+    NEWflg=0; REBOOTflg=0
+    PATHDEFnew="$(cat /NEWPATHDEF)" #ex: quantumvis/2
+    QVnew="${PATHDEFnew}/@qv"
+    if [ ! -d /mnt/${WKG_DEV}/${QVnew}/usr/lib/modules/${KERNVER} ];then
+     echo
+     echo -en "\\033[1;31m" #red foreground.
+     echo "The default kernel is version: ${KERNVER}"
+     echo "There is a potential problem. The snapshot that you want to boot into has not previously run with the default kernel version." | fold -s -w 69
+     echo "It has only run with these kernel versions:"
+     PREVkerns="$(find /mnt/${WKG_DEV}/${QVnew}/usr/lib/modules -mindepth 1 -maxdepth 1 -type d | sed -e 's%.*/%%' | tr '\n' ' ')"
+     echo "${PREVkerns}"
+     echo -e "\\033[0;39m"
+     echo
+     echo "You have a choice. Press ENTER to continue bootup, using the default kernel" | fold -s -w 69
+     echo "Or, press the SPACEBAR key then ENTER, to abort booting this snapshot."
+     echo "Or, press any other key then ENTER, to choose one of the kernels previously used by this snapshot. Be warned that the choice will then become the default kernel. Also, a reboot will be required to complete the change." | fold -s -w 69
+     IFS='' read NEWask
+     if [ -n "${NEWask}" ];then
+      if [ "${NEWask}" == " " ];then
+       NEWflg=1
+       echo " ...ok, staying with current snapshot."
+      else
+       CNTp=1
+       echo -n '' > /PREVKERNS
+       for aPREV in ${PREVkerns}
+       do
+        echo "${CNTp} ${aPREV}"
+        CNTp=$((${CNTp}+1))
+        echo "$aPREV" >> /PREVKERNS
+       done
+       echo "Type a number from the first column, then press ENTER: "
+       read NEWchoice
+       KERNchosen="$(cat /PREVKERNS | head -n ${NEWchoice} | tail -n 1)"
+       echo "OK, booting with this kernel: ${KERNchosen}"
+       echo "This kernel is now copied to the boot partition, replacing previous."
+       cp -f /mnt/${WKG_DEV}/${QVnew}/boot/vmlinuz-${KERNchosen} /mnt/${BOOT_DIR}/${WKG_DIR}vmlinuz
+       sync
+       echo
+       REBOOTflg=1
+      fi
+     else
+      echo " ...ok, continuing bootup."
+      cp -f /mnt/${BOOT_DIR}/${WKG_DIR}vmlinuz /mnt/${WKG_DEV}/${QVnew}/boot/vmlinuz-${KERNVER}
+      cp -a -f /mnt/${WKG_DEV}/${QV}/usr/lib/modules/${KERNVER} /mnt/${WKG_DEV}/${QVnew}/usr/lib/modules/
+      echo
+     fi
+    fi
+    
+    if [ $NEWflg -eq 0 ];then
+     PATHDEF="$(cat /NEWPATHDEF)" #ex: quantumvis/2
+     SNAPDEF="${PATHDEF##*/}"
+     QV="${PATHDEF}/@qv"
+     #. /mnt/${WKG_DEV}/${QV}/etc/DISTRO_SPECS
+     echo -n "${SNAPDEF}" > /mnt/${WKG_DEV}/${WKG_DIR}snapshot-default
+     SNAPDESC="$(grep "^${SNAPDEF}|" /mnt/${WKG_DEV}/${WKG_DIR}snapshot-record | cut -f 3 -d '|' | tr -d "'")" #french/italian may have apostrophe
+     SNAPDATE="$(grep "^${SNAPDEF}|" /mnt/${WKG_DEV}/${WKG_DIR}snapshot-record | cut -f 2 -d '|')"
+    
+     if [ $REBOOTflg -eq 1 ];then #20241002
+      echo -en "\\033[1;31m" #red foreground.
+      echo "YOU NOW HAVE TO REBOOT THE COMPUTER"
+      echo "Type CTRL-ALT-DEL, or in some cases have to hold down the power button."
+      echo "At the next bootup, just perform a normal bootup, do not choose anything from the menu." | fold -s -w 69
+      echo -e "\\033[0;39m"
+      sleep 9999999
+     fi
+    fi
    fi
   ;;
   NOX)
