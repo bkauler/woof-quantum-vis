@@ -115,7 +115,7 @@ yes|cddetect_quick|cddetect-quick|exe,dev>null,doc>null|compat:scarthgap|
 yes|cdparanoia|cdparanoia|exe|compat:current| #20240218
 yes|cdrtools|cdrtools|exe,doc>null|compat:current|
 yes|celluloid|celluloid|exe,doc>null|compat:current| #20240114 mpv and celluloid
-yes|CellWriter|CellWriter|exe,doc>null|compat:current|
+no|CellWriter|CellWriter|exe,doc>null|compat:current| #20241001 huh why put this in
 yes|celt|celt|exe,doc>null|compat:current| #20240114 mpv and celluloid
 yes|celt-devel|celt-devel|dev,doc>null|compat:current| #20240130
 yes|cgtkcalc|cgtkcalc|exe,dev>null,doc>null|compat:scarthgap|
