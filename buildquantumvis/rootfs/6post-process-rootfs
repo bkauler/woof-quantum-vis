@@ -78,6 +78,10 @@ depmod -b ${E1}/rootfs -F ${DISTRO_KERNEL_PET/.pet/}/boot/System.map ${KERNVER}
 #also get out the linux kernel...
 cp -a -f ${DISTRO_KERNEL_PET/.pet/}/boot/vmlinuz ./
 
+#20241002 also put kernel into /boot
+mkdir -p ${E1}/rootfs/boot
+cp -a -f ${DISTRO_KERNEL_PET/.pet/}/boot/vmlinuz ${E1}/rootfs/boot/vmlinuz-${KERNVER}
+
 cd ${E1}
 
 #delete invalid symlinks...
