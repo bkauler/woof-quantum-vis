@@ -647,7 +647,7 @@ if [ $FIRSTflg -eq 1 ];then #20240930
   truncate -s ${sparseM}M /mnt/${WKG_DEV}/${WKG_DIR}.sparse-ext4
   LOOPsparse="$(losetup -f)"
   losetup ${LOOPsparse} /mnt/${WKG_DEV}/${WKG_DIR}.sparse-ext4
-  echo "Creating ext4 sparse file: /mnt/${WKG_DEV}/${WKG_DIR}.sparse-ext4"
+  echo "Create ext4 sparse file: /mnt/${WKG_DEV}/${WKG_DIR}.sparse-ext4"
   mke2fs -b 4096 -m 0 -L sparse -O ^has_journal,encrypt,^64bit,^huge_file -t ext4 ${LOOPsparse} >/dev/null 2>&1
   if [ $? -ne 0 ];then
    rm -f /mnt/${WKG_DEV}/${WKG_DIR}.sparse-ext4
@@ -957,6 +957,39 @@ fi
 
 ###broken video###
 if [ $BROKENVID -eq 1 ];then
+
+ #20241002 kexec doesn't work
+ ##20240926 this requires kernel CONFIG_KEXEC.  20241001
+ #grep -q 'nomodeset' /proc/cmdline
+ #if [ $? -ne 0 ];then
+ # KPARAMS="$(cat /proc/cmdline)"
+ # UMNTflg=0
+ # if [ ! -f /mnt/${BOOT_DEV}/${BOOT_DIR}vmlinuz ];then
+ #  mkdir -p /mnt/${BOOT_DEV}
+ #  mount -t ${BOOT_FS} /dev/${BOOT_DEV} /mnt/${BOOT_DEV}
+ #  UMNTflg=1
+ # fi
+ # cp -f /mnt/${BOOT_DEV}/${BOOT_DIR}vmlinuz /
+ # cp -f /mnt/${BOOT_DEV}/${BOOT_DIR}initrd /
+ # sync
+ # if [ $UMNTflg -eq 1 ];then
+ #  umount /dev/${BOOT_DEV}
+ # fi
+ # fuser -k -m /mnt/${WKG_DEV}
+ # sleep 0.5
+ # for aL in $(losetup -a | cut -f 1 -d ':' | tr '\n' ' ')
+ # do
+ #  umount ${aL}
+ #  losetup -d ${aL} 2>/dev/null
+ # done
+ # sync
+ # umount /dev/${WKG_DEV}
+ # #rerun kernel....
+ # /bin/kexec --load /vmlinuz --initrd=/initrd --append="qfix=vid nomodeset ${KPARAMS}"
+ # /bin/kexec -e
+ # ###NEW KERNEL###
+ #fi
+
  #note: BROKENVID will need to be a kernel param, set via boot-manager menu.
  #prevent kernel drm gpu modules from loading...
  #instead of modeprobe.blacklist=nouveau modeprobe.blacklist=i915 modeprobe.blacklist=radeon modeprobe.blacklist=amdgpu modeprobe.blacklist=gma500_gfx
@@ -973,25 +1006,6 @@ blacklist radeon' > /mnt/${WKG_DEV}/${QV}/etc/modprobe.d/gpu.conf
  # now set a flag, /root/.profile will run xorgwizard-cli...
  touch /mnt/${WKG_DEV}/${QV}/.brokenvideo
  
- #20240926 this requires kernel CONFIG_KEXEC
- grep -q 'nomodeset' /proc/cmdline
- if [ $? -ne 0 ];then
-  UMNTflg=0
-  if [ ! -f /mnt/${BOOT_DEV}/${BOOT_DIR}vmlinuz ];then
-   mkdir -p /mnt/${BOOT_DEV}
-   mount -t ${BOOT_FS} /dev/${BOOT_DEV} /mnt/${BOOT_DEV}
-   UMNTflg=1
-  fi
-  cp -f /mnt/${BOOT_DEV}/${BOOT_DIR}vmlinuz /
-  cp -f /mnt/${BOOT_DEV}/${BOOT_DIR}initrd /
-  sync
-  [ $UMNTflg -eq 1 ] && umount /dev/${BOOT_DEV}
-  umount /dev/${WKG_DEV}
-  #rerun kernel....
-  KPARAMS="$(cat /proc/cmdline)"
-  /bin/kexec --load /vmlinuz --initrd=/initrd --append="qfix=vid nomodeset ${KPARAMS}"
-  ###REBOOT###
- fi
 fi
 
 ###setup PUPSTATE###
