@@ -746,8 +746,9 @@ cp -a rootfs-skeleton/etc/xdg/rox.sourceforge.net/MIME-types/* rootfs/etc/xdg/ro
 
 #190923 gnome-keyring is used by networkmanager and nm-applet to encrypt passwords.
 # gnome-keyring-daemon with "--login" option, may read this, we don't want it...
-echo "Pam hack"
-[ -f rootfs/etc/pam.d/login ] && rm -f rootfs/etc/pam.d/login
+#20241006 no, see "pam.d" in initrd/init...
+#echo "Pam hack"
+#[ -f rootfs/etc/pam.d/login ] && rm -f rootfs/etc/pam.d/login
 
 ##180523 trying to reduce size by moving gobject-introspection to devx (see pkg-list)
 #if [ ! -f rootfs/usr/bin/g-ir-inspect  ];then #test if pkg moved.
