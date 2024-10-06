@@ -183,6 +183,7 @@ yes|dosfstools|dosfstools|exe,dev>null,doc>null|compat:current|
 yes|dpkg-deb|dpkg|exe,doc>null|compat:current| #20240120 busybox applet broken.
 yes|droidcam|droidcam|exe,dev,doc>null|compat:scarthgap|
 yes|Dropbox_GUI|Dropbox_GUI|exe|pet:noarch|
+yes|duktape|duktape|exe,doc>null|compat:current| #20241006 needed by polkit
 yes|dvdauthor|dvdauthor|exe,doc>null|compat:current|
 yes|dvd_close|dvd-close|exe,doc>null|compat:scarthgap|
 yes|dvd+rw-tools|dvd+rw-tools|exe,doc>null|compat:current|
@@ -1177,7 +1178,7 @@ yes|p11-kit-devel|p11-kit-devel|dev|compat:current| #20240324
 yes|pa-applet|pa-applet|exe,dev,doc>null|compat:scarthgap|
 no|pam|pam,pam-libs|exe,doc>null|compat:current| #left out pam-base. 20240113 20240129 no
 no|pam-devel|pam-devel|dev|compat:current| #20240130
-yes|pam-libs|pam-libs|exe,doc>null|compat:current| #20240129
+yes|pam-libs|pam-libs|exe,doc>null|compat:current| #20240129 needed by polkit
 yes|pango|pango|exe|compat:current|
 yes|pango-xft|pango-xft|exe|compat:current| #20240406
 yes|pango-devel|pango-devel|dev|compat:current| #20240130
