@@ -1,0 +1,7 @@
+
+// ref: https://bbs.archlinux.org/viewtopic.php?id=160529
+// this will completely disable polkit...
+// 
+// polkit.addRule(function(action, subject) {
+//     return polkit.Result.YES;
+// });
