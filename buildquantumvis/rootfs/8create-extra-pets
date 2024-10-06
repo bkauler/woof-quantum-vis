@@ -37,9 +37,104 @@ if [ $? -ne 0 ];then
  urxvt -geometry 100x35 -e ${0}
  exit
 fi
+LANG1="${LANG/_*/}"
+case "$LANG1" in
+ bg) #bulgarian
+  S01="Инсталиране на всички пакети за пълна среда за разработка"
+  S03="ИНСТАЛИРАНЕТО ЗАВЪРШИ. НАТИСНЕТЕ КЛАВИША ENTER, ЗА ДА ЗАТВОРИТЕ ТЕРМИНАЛА"
+ ;;
+ cs) #czech
+  S01="Instalace všech balíčků pro kompletní vývojové prostředí"
+  S03="INSTALACE DOKONČENA. STISKNĚTE TLAČÍTKO ENTER PRO ZAVŘENÍ TERMINÁLU"
+ ;;
+ cn) #chinese, simplified
+  S01="安装完整开发环境的所有软件包"
+  S03="安装完成。按 Enter 键关闭终端"
+ ;;
+ da) #danish
+  S01="Installation af alle pakker til et komplet udviklingsmiljø"
+  S03="INSTALLERINGEN FÆRDIG. TRYK ENTER FOR AT LUKKE TERMINALEN"
+ ;;
+ de) #german
+  S01="Installieren aller Pakete für eine vollständige Entwicklungsumgebung"
+  S03="INSTALLATION BEENDET. DRÜCKEN SIE DIE ENTER-TASTE, UM TERMINAL ZU SCHLIESSEN"
+ ;;
+ el) #greek
+  S01="Εγκατάσταση όλων των πακέτων για ένα πλήρες περιβάλλον ανάπτυξης"
+  S03="Η ΕΓΚΑΤΑΣΤΑΣΗ ΟΛΟΚΛΗΡΩΘΗΚΕ. ΠΑΤΗΣΤΕ ΚΛΕΙΔΙ ENTER ΓΙΑ ΚΛΕΙΣΙΜΟ ΤΕΡΜΑΤΙΚΟΥ"
+ ;;
+ es) #spanish
+  S01="Instalación de todos los paquetes para un entorno de desarrollo completo"
+  S03="INSTALACIÓN FINALIZADA. PRESIONE LA TECLA ENTER PARA CERRAR EL TERMINAL"
+ ;;
+ fi) #finnish
+  S01="Kaikkien pakettien asennus täydellistä kehitysympäristöä varten"
+  S03="ASENNUS VALMIS. SULJE PÄÄTE PAINA ENTER-näppäintä"
+ ;;
+ fr) #french
+  S01="Installation de tous les packages pour un environnement de développement complet"
+  S03="INSTALLATION TERMINÉE. APPUYEZ SUR LA TOUCHE ENTRÉE POUR FERMER LE TERMINAL"
+ ;;
+ hu) #hungarian
+  S01="Az összes csomag telepítése a teljes fejlesztői környezethez"
+  S03="TELEPÍTÉS KÉSZ. NYOMJA MEG az ENTER billentyűt a TERMINÁL BEZÁRÁSÁHOZ"
+ ;;
+ is) #icelandic
+  S01="Setur upp alla pakka fyrir fullkomið þróunarumhverfi"
+  S03="UPPSETNINGU LOKIÐ. ÝTTU á ENTER LYKILINN TIL AÐ LOKA TERMINAL"
+ ;;
+ it) #italian
+  S01="Installazione di tutti i pacchetti per un ambiente di sviluppo completo"
+  S03="INSTALLAZIONE COMPLETATA. PREMERE INVIO PER CHIUDERE IL TERMINALE"
+ ;;
+ nl) #dutch
+  S01="Alle pakketten installeren voor een complete ontwikkelomgeving"
+  S03="INSTALLEREN VOLTOOID. DRUK OP ENTER-TOETS OM TERMINAL TE SLUITEN"
+ ;;
+ no) #norwegian
+  S01="Installere alle pakker for et komplett utviklingsmiljø"
+  S03="INSTALLERING FERDIG. TRYKK ENTER FOR Å LUKKE TERMINALEN"
+ ;;
+ pl) #polish
+  S01="Instalowanie wszystkich pakietów w celu uzyskania kompletnego środowiska programistycznego"
+  S03="INSTALACJA ZAKOŃCZONA. NACIŚNIJ KLAWISZ ENTER, ABY ZAMKNĄĆ TERMINAL"
+ ;;
+ pt) #portugues
+  S01="Instalando todos os pacotes para um ambiente de desenvolvimento completo"
+  S03="INSTALAÇÃO CONCLUÍDA. PRESSIONE A TECLA ENTER PARA FECHAR O TERMINAL"
+ ;;
+ ro) #romanian
+  S01="Instalarea tuturor pachetelor pentru un mediu de dezvoltare complet"
+  S03="INSTALARE TERMINATĂ. APĂSAȚI TASTA ENTER PENTRU A ÎNCHIDE TERMINALUL"
+ ;;
+ ru) #russian
+  S01="Установка всех пакетов для полной среды разработки"
+  S03="УСТАНОВКА ЗАВЕРШЕНА. НАЖМИТЕ КЛЮЧ ВВОД, ЧТОБЫ ЗАКРЫТЬ ТЕРМИНАЛ"
+ ;;
+ sq) #albanian
+  S01="Instalimi i të gjitha paketave për një mjedis të plotë zhvillimi"
+  S03="INSTALIMI U PËRFUNDOR. SHTYP TASTIN ENTER PËR TË MBYLLUR TERMINALIN"
+ ;;
+ sr) #serbian
+  S01="Инсталирање свих пакета за комплетно развојно окружење"
+  S03="ИНСТАЛАЦИЈА ЗАВРШЕНА. ПРИТИСНИТЕ ТИПКУ ЕНТЕР ДА ЗАТВОРИТЕ ТЕРМИНАЛ"
+ ;;
+ sv) #swedish
+  S01="Installera alla paket för en komplett utvecklingsmiljö"
+  S03="INSTALLATIONEN AVSLUTAD. TRYCK ENTER FÖR ATT STÄNGA TERMINALEN"
+ ;;
+ tr) #turkish
+  S01="Tam bir geliştirme ortamı için tüm paketler kuruluyor"
+  S03="KURULUM TAMAMLANDI. TERMİNALİ KAPATMAK İÇİN ENTER TUŞUNA BASIN"
+ ;;
+ *)
+  S01="Installing all packages for a complete development environment"
+  S03="INSTALL FINISHED. PRESS ENTER KEY TO CLOSE TERMINAL"
+ ;;
+esac
 xARCH="$(arch)"
 export XBPS_ARCH="$xARCH"
-popup "placement=top-middle background=#ffc080|<big>Installing all packages for a complete development environment</big>"
+popup "placement=top-middle background=#ffc080|<big>${S01}</big>"
 #devx-only-installed-packages has all the pkgs that we want in the devx
 #filter-out the scarthgap pkgs that may be in this list...
 PKGLIST="$(grep -F '|void|' /root/.packages/devx-only-installed-packages | cut -f 2 -d '|' | tr '\n' ' ')"
@@ -57,7 +152,7 @@ do
  grep "|${aPKG}|" /root/.packages/devx-only-installed-packages >> /root/.packages/user-installed-packages
 done
 killall popup
-echo "INSTALL FINISHED. PRESS ENTER KEY TO CLOSE TERMINAL"
+echo "${S03}"
 read keepgoing
 _EOF1
 
@@ -75,7 +170,8 @@ if [ $? -ne 0 ];then
 fi
 xARCH="$(arch)"
 export XBPS_ARCH="$xARCH"
-popup "placement=top-middle background=#ffc080|<big>Installing all packages for a complete development environment</big>"
+popup "placement=top-middle background=#ffc080|<big>Uninstalling development packages</big>"
+PKGLIST="$(grep -F '\-devel|' /root/.packages/user-installed-packages | cut -f 2 -d '|' | tr '\n' ' ')"
 for aPKG in ${PKGLIST}
 do
  INST="$(/usr/bin/xbps-query --show ${aPKG} --property state)"
@@ -95,7 +191,7 @@ do
  fi
 done
 killall popup
-echo "INSTALL FINISHED. PRESS ENTER KEY TO CLOSE TERMINAL"
+echo "UN-INSTALL FINISHED. PRESS ENTER KEY TO CLOSE TERMINAL"
 read keepgoing
 _EOF1
 
@@ -114,12 +210,252 @@ sync
 sed -i '/^devx-/d' rootfs/root/.packages/Packages-pet-noarch-official
 cat sandbox/devx-1.0/pet.specs >> rootfs/root/.packages/Packages-pet-noarch-official
 sort rootfs/root/.packages/Packages-pet-noarch-official > export/Packages-pet-noarch-official
-cp -f export/Packages-pet-noarch-official rootfs/root/.packages/Packages-pet-noarch-official
+#cp -f export/Packages-pet-noarch-official rootfs/root/.packages/Packages-pet-noarch-official
 
 #now manually add this pet to the pet-void repo.
 echo "Created ${E1}/export/devx-1.0.pet"
-echo "DB entry inserted into ${E1}rootfs/root/.packages/Packages-pet-noarch-official"
-echo "However, have to manually add this pet to the online pet-void repo"
+#echo "DB entry inserted into ${E1}rootfs/root/.packages/Packages-pet-noarch-official"
+echo "Have to manually add this pet to the online pet-void repo"
 echo "The updated db file is here:"
 echo "${E1}/export/Packages-pet-noarch-official"
+
+#####################################################
+echo
+echo -n "Press ENTER to continue: "
+read keepgoing
+
+if [ -d update ];then
+ rm -rf update
+fi
+mkdir update
+mkdir update/qv-update-${DISTRO_VERSION}
+
+#populate from rootfs-skeleton
+mkdir -p update/qv-update-${DISTRO_VERSION}/root/Startup
+mkdir update/qv-update-${DISTRO_VERSION}/usr
+
+for aF in .profile .Xdefaults .xinitrd .Xmodmap .Xresources
+do
+ cp -a -f rootfs/root/${aF} update/qv-update-${DISTRO_VERSION}/root/
+fi
+cp -a -u rootfs/root/Startup/* update/qv-update-${DISTRO_VERSION}/root/Startup/
+
+mkdir -p update/qv-update-${DISTRO_VERSION}/root/.packages
+for aF in DISTRO_COMPAT_REPOS DISTRO_COMPAT_REPOS-oe-scarthgap DISTRO_PET_REPOS DISTRO_PKGS_SPECS DISTRO_SPECS Packages-oe-scarthgap-official Packages-pet-noarch-official Packages-pet-void-official Packages-void-current Packages-void-current-nonfree PKGS_HOMEPAGES PKGS_MANAGEMENT
+do
+ cp -a -u rootfs/root/.packages/${aF} update/qv-update-${DISTRO_VERSION}/root/.packages/
+done
+#cp -a -f rootfs/root/.packages/woof-installed-packages update/qv-update-${DISTRO_VERSION}/root/.packages/woof-installed-packagesNEW
+
+cp -a ${L1}/rootfs/rootfs-skeleton/usr/bin update/qv-update-${DISTRO_VERSION}/usr/
+cp -a ${L1}/rootfs/rootfs-skeleton/usr/local update/qv-update-${DISTRO_VERSION}/usr/
+rm -rf update/qv-update-${DISTRO_VERSION}/usr/local/lib/X11/pixmaps
+cp -a -f --remove-destination rootfs/usr/local/petget/* update/qv-update-${DISTRO_VERSION}/usr/local/petget/
+cp -a -f --remove-destination rootfs/usr/local/pup_event/* update/qv-update-${DISTRO_VERSION}/usr/local/pup_event/
+
+mkdir update/qv-update-${DISTRO_VERSION}/usr/share
+cp -a ${L1}/rootfs/rootfs-skeleton/usr/share/applications update/qv-update-${DISTRO_VERSION}/usr/share/
+cp -a ${L1}/rootfs/rootfs-skeleton/usr/share/applications.in update/qv-update-${DISTRO_VERSION}/usr/share/
+cp -a ${L1}/rootfs/rootfs-skeleton/usr/share/locale update/qv-update-${DISTRO_VERSION}/usr/share/
+cp -a -u ${L1}/rootfs/rootfs-skeleton/usr/share/locale.in update/qv-update-${DISTRO_VERSION}/usr/share/locale/
+cp -a ${L1}/rootfs/rootfs-skeleton/usr/share/pixmaps update/qv-update-${DISTRO_VERSION}/usr/share/
+cp -a ${L1}/rootfs/rootfs-skeleton/usr/share/sss update/qv-update-${DISTRO_VERSION}/usr/share/
+
+sync
+
+#vmlinuz, initrd, modules
+cp -a rootfs/boot update/qv-update-${DISTRO_VERSION}/
+mkdir update/qv-update-${DISTRO_VERSION}/usr/lib
+cp -a rootfs/usr/lib/modules update/qv-update-${DISTRO_VERSION}/usr/lib/
+
+#update pets
+#copy all pets so can install if required...
+mkdir update/qv-update-${DISTRO_VERSION}/audit
+cp -a dl-pet update/qv-update-${DISTRO_VERSION}/audit/pending-pet
+
+FND1="$(find rootfs/usr/lib/modules -mindepth 1 -maxdepth 1 -type d | head -n 1)"
+KERNVER="${FND1##*/}"
+
+echo -n '' > update/qv-update-${DISTRO_VERSION}/pinstall.sh
+cat >> update/qv-update-${DISTRO_VERSION}/pinstall.sh <<'_EOF0'
+#!/bin/bash
+cp -a -f /pinstall.sh /tmp/pinstall.shCOPY
+exec /tmp/pinstall.shCOPY
+EXE="${0##*/}"
+pidof -o ${$} ${EXE} >/dev/null
+if [ $? -ne 0 ];then #run script in a terminal.
+ urxvt -geometry 100x35 -e ${0}
+ exit
+fi
+LANG1="${LANG/_*/}"
+case "$LANG1" in
+ de)
+  S01="QV wird aktualisiert, bitte warten..."
+  S02="Kernel-Version gebootet:"
+  S03="Neue Kernel-Version installiert:"
+  S04 ="Klicken Sie auf die Schaltfläche „Ja“, um den neuen Kernel in die Boot-Partition zu kopieren. Er wird dann zum neuen Standard-Boot-Kernel."
+  S05="Klicken Sie auf die Schaltfläche Nein, um abzulehnen."
+  S06="Hinweis: Sie können dies in Zukunft jederzeit manuell tun, indem Sie vmlinuz- und initrd-Dateien aus dem Ordner /boot in die Boot-Partition kopieren."
+  S07="OK, vmlinuz und initrd in die Boot-Partition kopiert. Neustart, damit es wirksam wird."
+  S08="Das Update von QV ist abgeschlossen. Dies gilt nicht für die Void XBPS-Pakete; Sie möchten sie möglicherweise aktualisieren oder auch nicht."
+  S09="Wenn Sie einen Snapshot haben, der gut funktioniert, möchten Sie möglicherweise nicht alle Void-Pakete vollständig aktualisieren. Machen Sie vielleicht einen Snapshot und aktualisieren Sie ihn."
+  S10="Ein vollständiges Update kann in einem Terminal wie folgt durchgeführt werden:"
+  S11="Update abgeschlossen, ENTER-Taste drücken, um Terminal zu schließen"
+  S12="Empfehlen Sie, dies für die zukünftige Verwendung aufzuschreiben:"
+ ;;
+ fr)
+  S01="Mise à jour de QV, veuillez patienter..."
+  S02="Version du noyau démarrée :"
+  S03="Nouvelle version du noyau installée :"
+  S04="Cliquez sur le bouton Oui pour copier le nouveau noyau sur la partition de démarrage et il deviendra le nouveau noyau de démarrage par défaut."
+  S05="Cliquez sur le bouton Non pour refuser."
+  S06="Remarque, vous pourrez le faire manuellement à tout moment dans le futur, en copiant les fichiers vmlinuz et initrd du dossier /boot vers la partition de démarrage."
+  S07="OK, vmlinuz et initrd copiés sur la partition de démarrage. Redémarrez pour prendre effet."
+  S08="La mise à jour de QV est terminée. Cela n'inclut pas les packages Void XBPS ; vous pouvez ou non vouloir les mettre à jour."
+  S09="Si vous disposez d'un instantané qui fonctionne correctement, vous ne souhaiterez peut-être pas effectuer une mise à jour complète de tous les packages Void. Prenez peut-être un instantané et mettez-le à jour."
+  S10="Une mise à jour complète peut être effectuée dans un terminal comme celui-ci :"
+  S11="Mise à jour terminée, appuyez sur la touche ENTER pour fermer le terminal"
+  S12="Je recommande de noter ceci pour une utilisation future :"
+ ;;
+ ru)
+  S01="Обновление QV, подождите..."
+  S02="Версия ядра загружена:"
+  S03="Установлена новая версия ядра:"
+  S04="Нажмите кнопку "Да", чтобы скопировать новое ядро в загрузочный раздел, и оно станет новым загрузочным ядром по умолчанию."
+  S05="Нажмите кнопку "Нет", чтобы отказаться."
+  S06="Обратите внимание: вы можете сделать это вручную в любое время в будущем, скопировав файлы vmlinuz и initrd из папки /boot в загрузочный раздел."
+  S07="ОК, vmlinuz и initrd скопированы в загрузочный раздел. Перезагрузитесь, чтобы изменения вступили в силу."
+  S08="Обновление QV завершено. Оно не включает пакеты Void XBPS; вы можете захотеть или не захотеть их обновлять."
+  S09="Если у вас есть снимок, который работает нормально, возможно, вам не захочется выполнять полное обновление всех пакетов Void. Возможно, сделайте снимок и обновите его."
+  S10="Полное обновление можно выполнить в терминале следующим образом:"
+  S11="Обновление завершено, нажмите клавишу ENTER, чтобы закрыть терминал"
+  S12="Рекомендуем записать это для дальнейшего использования:"
+ ;;
+ tr)
+  S01="QV güncelleniyor, lütfen bekleyin..."
+  S02="Çekirdek sürümü başlatıldı:"
+  S03="Yeni çekirdek sürümü yüklendi:"
+  S04="Yeni çekirdeği önyükleme bölümüne kopyalamak için Evet düğmesini tıklayın, böylece yeni varsayılan önyükleme çekirdeği haline gelecektir."
+  S05="Reddetmek için Hayır düğmesini tıklayın."
+  S06="Not, gelecekte istediğiniz zaman vmlinuz ve initrd dosyalarını /boot klasöründen önyükleme bölümüne kopyalayarak bunu manuel olarak yapabilirsiniz."
+  S07="Tamam, vmlinuz ve initrd önyükleme bölümüne kopyalandı. Etkili olması için yeniden başlatın."
+  S08="QV güncellemesi tamamlandı. Buna Void XBPS paketleri dahil değildir; bunları güncellemek isteyebilirsiniz veya istemeyebilirsiniz."
+  S09="Eğer düzgün çalışan bir anlık görüntünüz varsa, tüm Void paketlerinin tam güncellemesini yapmak istemeyebilirsiniz. Belki bir anlık görüntü alıp onu güncelleyebilirsiniz."
+  S10="Tam bir güncelleme aşağıdaki gibi bir terminalde yapılabilir:"
+  S11="Güncelleme tamamlandı, terminali kapatmak için ENTER tuşuna basın"
+  S12="Gelecekte kullanmak üzere bunu not etmenizi öneririz:"
+ ;;
+ *)
+  S01="Updating QV, please wait..."
+  S02="Kernel version booted:"
+  S03="New kernel version installed:"
+  S04="Click Yes button to copy the new kernel to the boot-partition and it will become the new default boot kernel."
+  S05="Click No button to decline."
+  S06="Note, you may do this manually at any time in the future, by copying vmlinuz and initrd files from /boot folder to the boot-partition."
+  S07="OK, vmlinuz and initrd copied to boot-partition. Reboot to take effect."
+  S08="The update of QV has completed. This does not include the Void XBPS packages; you may or may not want to update them."
+  S09="If you have a snapshot that is working nicely, you might not want to do a complete update of all Void packages. Maybe take a snapshot and update that."
+  S10="A complete update can be done in a terminal like this:"
+  S11="Update finished, press ENTER key to close terminal"
+  S12="Recommend write this down for future use:"
+ ;;
+esac
+_EOF0
+
+WOOFPETS="$(grep -F '.pet|' rootfs/.packages/woof-installed-packages | cut -f 2,3,8 -d '|' | tr '\n' ' ')"
+cat >> update/qv-update-${DISTRO_VERSION}/pinstall.sh <<"_EOF2"
+popup "placement=top-middle level=top background=#ffe020|<big>${S01}</big> "
+KERNVER="${KERNVER}"
+DISTRO_VERSION="${DISTRO_VERSION}"
+rm -f /pinstall.sh
+for aP in ${WOOFPETS}
+do
+ #ex: aP=ycalc|1.09.1-1-pyro64|ycalc-1.09.1-1-pyro64.pet
+ #if later or new then install it...
+ Pn=\$(echo \$aP | cut -f 1 -d ':')
+ Pv=\$(echo \$aP | cut -f 2 -d ':')
+ Pp=\$(echo \$aP | cut -f 3 -d ':')
+ grep -q -F "|\${Pp}|" /root/.packages/woof-installed-packages
+ if [ \$? -ne 0 ];then
+  #install it...
+  echo "Installing: \${Pp}"
+  petget /audit/pending-pet/\${Pp}
+  sed -i "/\${Pn}|/d" /root/.packages/woof-installed-packages
+  grep -F "|\${Pp}|" /root/.packages/user-installed-packages >> /root/.packages/woof-installed-packages
+  sed -i "/\${Pn}|/d" /root/.packages/user-installed-packages
+ fi
+done
+sort /root/.packages/woof-installed-packages > /root/.packages/woof-installed-packagesTMP
+mv -f /root/.packages/woof-installed-packagesTMP /root/.packages/woof-installed-packages
+sync
+rm -rf /audit/pending-pet
+killall popup
+_EOF2
+
+#maybe update boot-partition vmlinuz and initrd
+cat >> update/qv-update-${DISTRO_VERSION}/pinstall.sh <<'_EOF3'
+. /etc/rc.d/PUPSTATE
+Bflg=0
+grep -q "/mnt/${BOOT_DEV} " /proc/mounts
+if [ $? -ne 0 ];then
+ busybox mount -t ${BOOT_FS} /dev/${BOOT_DEV} /mnt/${BOOT_DEV}
+ Bflg=1
+fi
+BOOT_KERNVER="$(strings /mnt/${BOOT_DEV}/${BOOT_DIR}vmlinuz | grep -o '^[5-9]*\.[0-9]*\.[0-9]*')"
+if [ "${BOOT_KERNVER}" != "${KERNVER}" ];then
+ export QV_UPDATE_DLG="<window>
+ <vbox>
+  <text><label>\"${S02} ${KERNVER}
+${S03} ${BOOT_KERNVER}
+${S04}
+${S05}
+${S06}
+\"</label></text>
+  <hbox>
+   <button><label>Yes</label><action>exit:YES</action></button>
+   <button><label>No</label><action>exit:NO</action></button>
+  </hbox>
+ </vbox>
+</window>"
+ RET1="$(gtkdialog --program=QV_UPDATE_DLG --center)"
+ grep -q -F '"YES"' <<<"$RET1"
+ if [ $? -eq 0 ];then
+  cp -a -f /boot/vmlinuz-${KERNVER} /mnt/${BOOT_DEV}/${BOOT_DIR}vmlinuz
+  cp -a -f /boot/initrd-${DISTRO_VERSION} /mnt/${BOOT_DEV}/${BOOT_DIR}initrd
+  popup "level=top background=#a0ffa0 terminate=5 timecount=dn name=qvupdate|<big>${S07}</big>"
+ fi
+fi
+if [ $Bflg -eq 1 ];then
+ sync
+ busybox umount /mnt/${BOOT_DEV}
+fi
+_EOF3
+
+#maybe tell xbps to update...
+CR='
+'
+cat >> update/qv-update-${DISTRO_VERSION}/pinstall.sh <<'_EOF4'
+ popup "background=#c0ffc0 terminate=ok level=top|<big>${S08}${CR}${S09}${CR}${S10}${CR} xbps-install --sync --update --yes --ignore-file-conflicts</big>"
+ echo
+ echo "${S12}"
+ echo "xbps-install --sync --update --yes --ignore-file-conflicts"
+ echo
+ echo "${S11}"
+ read endscript
+_EOF4
+
+
+chmod 755 update/qv-update-${DISTRO_VERSION}/pinstall.sh
+
+echo
+echo "Creating update PET pkg...."
+
+SK="$(du -k -s update/qv-update-${DISTRO_VERSION} | cut -f 1)"
+echo "qv-update-${DISTRO_VERSION}|qv-update|${DISTRO_VERSION}||Utility|${SK}K||qv-update-${DISTRO_VERSION}.pet||Update QV||||" > sandbox/devx-1.0/pet.specs
+
+cd update
+dir2tgz qv-update-${DISTRO_VERSION}
+tgz2pet qv-update-${DISTRO_VERSION}.tar.gz
+cd ..
+echo "Have created update/qv-update-${DISTRO_VERSION}.pet"
 ###end###
