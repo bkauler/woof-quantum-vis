@@ -142,8 +142,9 @@ menu_func() {
  echo "SNAPBOOT ${CNTm} ${S408:-Choose snapshot to boot into}" >> /menulist
  CNTm=$(($CNTm+1))
  echo "FSCHECK ${CNTm} ${S025:-Filesystem check of working-partition}" >> /menulist
- CNTm=$(($CNTm+1))
- echo "FIXVIDEO ${CNTm} ${S401:-Run Xorg Wizard to fix broken video}" >> /menulist
+#20241006 remove...
+# CNTm=$(($CNTm+1))
+# echo "FIXVIDEO ${CNTm} ${S401:-Run Xorg Wizard to fix broken video}" >> /menulist
  CNTm=$(($CNTm+1))
  echo "DROPSHELL ${CNTm} ${S410:-Dropout to shell in initrd (developers only)}" >> /menulist
  CNTm=$(($CNTm+1))
@@ -1122,7 +1123,13 @@ if [ -e /sbin/sudo ];then
  cp -a -f --remove-destination /sbin/sudo /mnt/${WKG_DEV}/${QV}/usr/bin/
 fi
 #20240423 attempt disable pam, this will zeroize these files...
-for aF in /mnt/${WKG_DEV}/${QV}/etc/pam.d/*; do >$aF; done
+#for aF in /mnt/${WKG_DEV}/${QV}/etc/pam.d/*; do >$aF; done
+#20241006 try this instead...
+for aF in /mnt/${WKG_DEV}/${QV}/etc/pam.d/*; echo 'skip-authentication' >$aF; done
+#or, if delete /etc/pam.d then pam will read /etc/pam.conf instead...
+#rm -rf /mnt/${WKG_DEV}/${QV}/etc/pam.d 2>/dev/null
+#have pre-created this in rootfs-skeleton...
+#echo 'skip-authentication' > /mnt/${WKG_DEV}/${QV}/etc/pam.conf
 
 echo -n '' > /mnt/${WKG_DEV}/${QV}/data/settings/initrd/hdparm-power-down
 if [ $LOCKDOWN -eq 1 ];then
