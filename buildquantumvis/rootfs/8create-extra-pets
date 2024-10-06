@@ -10,24 +10,24 @@ mkdir -p /tmp/woofQV
 cd ${E1}
 
 #create a devx pet...
-echo "Creating devx-${DISTRO_VERSION}.pet package..."
+echo "Creating devx-1.0.pet package..."
 
-if [ -d sandbox/devx-${DISTRO_VERSION} ];then
- rm -rf sandbox/devx-${DISTRO_VERSION}
+if [ -d sandbox/devx-1.0 ];then
+ rm -rf sandbox/devx-1.0
 fi
-if [ -f export/devx-${DISTRO_VERSION}.pet ];then
- rm -f export/devx-${DISTRO_VERSION}.pet
+if [ -f export/devx-1.0.pet ];then
+ rm -f export/devx-1.0.pet
 fi
 
-mkdir sandbox/devx-${DISTRO_VERSION}
-mkdir -p sandbox/devx-${DISTRO_VERSION}/usr/share/doc
-echo "devx-${DISTRO_VERSION}.pet is a meta-package to install all Void
+mkdir sandbox/devx-1.0
+mkdir -p sandbox/devx-1.0/usr/share/doc
+echo "devx-1.0.pet is a meta-package to install all Void
 packages required for a complete compiling and development environment.
-In PKGget, you can uninstall devx-${DISTRO_VERSION}.pet and it will also
+In PKGget, you can uninstall devx-1.0.pet and it will also
 uninstall all of the Void packages that had been installed.
-" > sandbox/devx-${DISTRO_VERSION}/usr/share/doc/devx.txt
+" > sandbox/devx-1.0/usr/share/doc/devx.txt
 
-cat >> sandbox/devx-${DISTRO_VERSION}/pinstall.sh <<'_EOF1'
+cat >> sandbox/devx-1.0/pinstall.sh <<'_EOF1'
 #!/bin/ash
 #this is a meta-package to install all required packages for a complete
 #compiling development environment.
@@ -61,9 +61,9 @@ echo "INSTALL FINISHED. PRESS ENTER KEY TO CLOSE TERMINAL"
 read keepgoing
 _EOF1
 
-chmod 755 sandbox/devx-${DISTRO_VERSION}/pinstall.sh
+chmod 755 sandbox/devx-1.0/pinstall.sh
 
-cat >> sandbox/devx-${DISTRO_VERSION}/puninstall.sh <<'_EOF1'
+cat >> sandbox/devx-1.0/puninstall.sh <<'_EOF1'
 #!/bin/ash
 #un-install all required packages for a complete
 #compiling development environment.
@@ -99,25 +99,25 @@ echo "INSTALL FINISHED. PRESS ENTER KEY TO CLOSE TERMINAL"
 read keepgoing
 _EOF1
 
-chmod 755 sandbox/devx-${DISTRO_VERSION}/puninstall.sh
+chmod 755 sandbox/devx-1.0/puninstall.sh
 
-echo "devx-${DISTRO_VERSION}|devx|${DISTRO_VERSION}||Utility;development|32K||devx-${DISTRO_VERSION}.pet||meta-package for complete compile environment||||" > sandbox/devx-${DISTRO_VERSION}/pet.specs
+echo "devx-1.0|devx|1.0||Utility;development|32K||devx-1.0.pet||meta-package for complete compile environment||||" > sandbox/devx-1.0/pet.specs
 
 cd sandbox
-dir2tgz devx-${DISTRO_VERSION}
-tgz2pet devx-${DISTRO_VERSION}.tar.gz
+dir2tgz devx-1.0
+tgz2pet devx-1.0.tar.gz
 cd ..
-mv -f sandbox/devx-${DISTRO_VERSION}.pet export/devx-${DISTRO_VERSION}.pet
+mv -f sandbox/devx-1.0.pet export/devx-1.0.pet
 sync
 
 #20240927
 sed -i '/^devx-/d' rootfs/root/.packages/Packages-pet-noarch-official
-cat sandbox/devx-${DISTRO_VERSION}/pet.specs >> rootfs/root/.packages/Packages-pet-noarch-official
+cat sandbox/devx-1.0/pet.specs >> rootfs/root/.packages/Packages-pet-noarch-official
 sort rootfs/root/.packages/Packages-pet-noarch-official > export/Packages-pet-noarch-official
 cp -f export/Packages-pet-noarch-official rootfs/root/.packages/Packages-pet-noarch-official
 
 #now manually add this pet to the pet-void repo.
-echo "Created ${E1}/export/devx-${DISTRO_VERSION}.pet"
+echo "Created ${E1}/export/devx-1.0.pet"
 echo "DB entry inserted into ${E1}rootfs/root/.packages/Packages-pet-noarch-official"
 echo "However, have to manually add this pet to the online pet-void repo"
 echo "The updated db file is here:"
