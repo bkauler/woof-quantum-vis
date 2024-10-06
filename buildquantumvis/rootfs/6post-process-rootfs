@@ -81,6 +81,7 @@ cp -a -f ${DISTRO_KERNEL_PET/.pet/}/boot/vmlinuz ./
 #20241002 also put kernel into /boot
 mkdir -p ${E1}/rootfs/boot
 cp -a -f ${DISTRO_KERNEL_PET/.pet/}/boot/vmlinuz ${E1}/rootfs/boot/vmlinuz-${KERNVER}
+#20241006 also copying initrd into /boot, see 7create-drive-image
 
 cd ${E1}
 

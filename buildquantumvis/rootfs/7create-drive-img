@@ -43,6 +43,9 @@ busybox mount -o loop,compress-force=zstd:3,noatime -t btrfs btrfs-file btrfs-mo
 mkdir -p btrfs-mount/quantumvis/1
 cp -a ../rootfs btrfs-mount/quantumvis/1/qv
 sync
+#20241006 create a dummy file representing initrd (that will later be in /boot)...
+dd if=/dev/zero of=btrfs-mount/dummyfile bs=1M count=8
+sync
 #free space in bytes...
 FREEB=$(btrfs filesystem usage -b btrfs-mount | grep 'Free (estimated):' | sed -e 's%[^0-9(]*%%g' | cut -f 2 -d '(')
 CUTB=$(dc -e"${FREEB} 0.98 * p" | cut -f 1 -d '.')
@@ -213,6 +216,9 @@ busybox umount img_mntpt2
 busybox mount -o offset=${OFF2},loop,compress-force=zstd:3,noatime,subvol=quantumvis/1/@qv -t btrfs ${SKELETON_NAME}.img img_mntpt2
 echo "Copying rootfs into img file..."
 cp -a ../rootfs/* img_mntpt2/
+sync
+#20241006 6post-process-rootfs copied vmlinuz into /boot, also initrd...
+cp -a ../initrd/initrd img_mntpt2/boot/initrd-${DISTRO_VERSION}
 sync
 sleep 2
 busybox umount img_mntpt2
