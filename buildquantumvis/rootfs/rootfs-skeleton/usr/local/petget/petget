@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #(c) Copyright Barry Kauler 2009, puppylinux.com
 #2009 Lesser GPL licence v2 (http://www.fsf.org/licensing/licenses/lgpl.html).
 #Note: Puppy Package Manager is started from /usr/local/petget/pkg_chooser.sh for the GUI.
@@ -40,6 +40,7 @@
 #20221023 may be running as zeus super-user. 20221031 think still need to bump to root.
 #20230626 new sudo-sh
 #20230831 support Void Linux .xbps pkgs.
+#20241007 ONESHOT pkgs.
 
 export TEXTDOMAIN=petget___petget
 export OUTPUT_CHARSET=UTF-8
@@ -289,6 +290,16 @@ rm -f /tmp/petget-installed-pkgs-log 2>/dev/null
 echo "$DB_ENTRY" > /tmp/petget_missing_dbentries-Packages-alien
 /usr/local/petget/installpkg.sh $PKGPATH/$FULLPKGNAME
 RETVAL=$?
+
+#20241007 qv-update pet has installed (and its pinstall.sh run) then delete db entry...
+#if [ $RETVAL -eq 0 ];then
+ if [ -f /ONESHOT-${PKGNAME} ];then
+  rm -f /ONESHOT-${PKGNAME}
+  rm -f /root/.packages/${PKGNAME}.files
+  sed -i "/|${PKGNAME}/d" /root/.packages/user-installed-packages
+  exit
+ fi
+#fi
 
 #installpkg.sh has already done this...
 rm -f $PKGPATH/$FULLPKGNAME 2>/dev/null
