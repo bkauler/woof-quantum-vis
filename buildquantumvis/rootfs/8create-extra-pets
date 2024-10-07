@@ -367,34 +367,39 @@ case "$LANG1" in
   S11="Update finished, press ENTER key to close terminal."
   S12="Recommend write this down for future use:"
   S13="Updating OpenEmbedded packages..."
+  S20="Updating Void .xbps packages..."
+  S21="Install error. Press ENTER to keep going:"
+  S30="Yes"
+  S31="No"
  ;;
 esac
 _EOF0
 
 WOOFPETS="$(grep -F '.pet|' rootfs/root/.packages/woof-installed-packages | cut -f 2,3,8 -d '|' | tr '\n' ' ')"
-cat >> update/qv-update-${DISTRO_VERSION}/pinstall.sh <<"_EOF2"
+echo "WOOFPETS='${WOOFPETS}'
+KERNVER='${KERNVER}'
+DISTRO_VERSION='${DISTRO_VERSION}'" >> update/qv-update-${DISTRO_VERSION}/pinstall.sh
+cat >> update/qv-update-${DISTRO_VERSION}/pinstall.sh <<'_EOF2'
 popup "placement=top-middle level=top background=#ffe020|<big>${S01:-Updating QV, please wait...}</big> "
-KERNVER="${KERNVER}"
-DISTRO_VERSION="${DISTRO_VERSION}"
 rm -f /pinstall.sh
 for aP in ${WOOFPETS}
 do
  #ex: aP=ycalc|1.09.1-1-pyro64|ycalc-1.09.1-1-pyro64.pet
  #if later or new then install it...
- Pn=\$(echo \$aP | cut -f 1 -d ':')
- Pv=\$(echo \$aP | cut -f 2 -d ':')
- Pp=\$(echo \$aP | cut -f 3 -d ':')
- grep -q -F "|\${Pp}|" /root/.packages/woof-installed-packages
- if [ \$? -ne 0 ];then
-  if [ ! -f /audit/pending-pet/\${Pp} ];then
+ Pn=$(echo $aP | cut -f 1 -d ':')
+ Pv=$(echo $aP | cut -f 2 -d ':')
+ Pp=$(echo $aP | cut -f 3 -d ':')
+ grep -q -F "|${Pp}|" /root/.packages/woof-installed-packages
+ if [ $? -ne 0 ];then
+  if [ ! -f /audit/pending-pet/${Pp} ];then
    continue
   fi
   #install it...
-  echo "Installing: \${Pp}"
-  petget /audit/pending-pet/\${Pp}
-  sed -i "/\${Pn}|/d" /root/.packages/woof-installed-packages
-  grep -F "|\${Pp}|" /root/.packages/user-installed-packages >> /root/.packages/woof-installed-packages
-  sed -i "/\${Pn}|/d" /root/.packages/user-installed-packages
+  echo "Installing: ${Pp}"
+  petget /audit/pending-pet/${Pp}
+  sed -i "/${Pn}|/d" /root/.packages/woof-installed-packages
+  grep -F "|${Pp}|" /root/.packages/user-installed-packages >> /root/.packages/woof-installed-packages
+  sed -i "/${Pn}|/d" /root/.packages/user-installed-packages
  fi
 done
 sort /root/.packages/woof-installed-packages > /root/.packages/woof-installed-packagesTMP
@@ -407,26 +412,27 @@ _EOF2
 cp -a dl-txz update/qv-update-${DISTRO_VERSION}/audit/pending-txz
 
 WOOFTXZS="$(grep -F '.tar.xz|' rootfs/root/.packages/woof-installed-packages | cut -f 2,3,8 -d '|' | tr '\n' ' ')"
-cat >> update/qv-update-${DISTRO_VERSION}/pinstall.sh <<"_EOF5"
+echo "WOOFTXZS='${WOOFTXZS}'" >> update/qv-update-${DISTRO_VERSION}/pinstall.sh
+cat >> update/qv-update-${DISTRO_VERSION}/pinstall.sh <<'_EOF5'
 echo "${S13:-Updating OpenEmbedded packages...}"
 for aP in ${WOOFTXZS}
 do
  #ex: aP=android-tools|5.1.1.r37|android-tools-5.1.1.r37-r2-nocona-64.tar.xz
  #if later or new then install it...
- Pn=\$(echo \$aP | cut -f 1 -d ':')
- Pv=\$(echo \$aP | cut -f 2 -d ':')
- Pp=\$(echo \$aP | cut -f 3 -d ':')
- grep -q -F "|\${Pp}|" /root/.packages/woof-installed-packages
- if [ \$? -ne 0 ];then
-  if [ ! -f /audit/pending-txz/\${Pp} ];then
+ Pn=$(echo $aP | cut -f 1 -d ':')
+ Pv=$(echo $aP | cut -f 2 -d ':')
+ Pp=$(echo $aP | cut -f 3 -d ':')
+ grep -q -F "|${Pp}|" /root/.packages/woof-installed-packages
+ if [ $? -ne 0 ];then
+  if [ ! -f /audit/pending-txz/${Pp} ];then
    continue
   fi
   #install it...
-  echo "Installing: \${Pp}"
-  petget /audit/pending-txz/\${Pp}
-  sed -i "/\${Pn}|/d" /root/.packages/woof-installed-packages
-  grep -F "|\${Pp}|" /root/.packages/user-installed-packages >> /root/.packages/woof-installed-packages
-  sed -i "/\${Pn}|/d" /root/.packages/user-installed-packages
+  echo "Installing: ${Pp}"
+  petget /audit/pending-txz/${Pp}
+  sed -i "/${Pn}|/d" /root/.packages/woof-installed-packages
+  grep -F "|${Pp}|" /root/.packages/user-installed-packages >> /root/.packages/woof-installed-packages
+  sed -i "/${Pn}|/d" /root/.packages/user-installed-packages
  fi
 done
 sort /root/.packages/woof-installed-packages > /root/.packages/woof-installed-packagesTMP
@@ -435,6 +441,86 @@ sync
 rm -rf /audit/pending-txz
 killall popup
 _EOF5
+
+#update .xbps pkgs...
+WOOFXBPS1="$(grep -F '.xbps|' rootfs/root/.packages/woof-installed-packages | cut -f 2 -d '|')"
+echo "WOOFXBPS1='${WOOFXBPS1}'" >> update/qv-update-${DISTRO_VERSION}/pinstall.sh
+cat >> update/qv-update-${DISTRO_VERSION}/pinstall.sh <<'_EOF7'
+echo
+echo "${S20:-Updating Void .xbps packages...}"
+echo "${WOOFXBPS1}" > /tmp/qv-update-xbps-db0
+
+#if pkg no longer in build, remove it...
+for Pn in $(grep -F '.xbps|' /root/.packages/woof-installed-packages | cut -f 2 -d '|' | tr '\n' ' ')
+do
+ grep -q -F -x -f /tmp/qv-update-xbps-db0 <<<$Pn
+ if [ $? -ne 0 ];then
+  Pnvr="$(grep -F "|${Pn}|" /root/.packages/woof-installed-packages | cut -f 1 -d '|')"
+  sed -i "/${Pn}|/d" /root/.packages/woof-installed-packages
+  #xbps-remove ${Pnvr}
+  xbps-remove ${Pn}
+ fi
+done
+
+/usr/bin/xbps-query --list-hold-pkgs > /tmp/qv-update-hold-list
+WOOFXBPS2="$(grep -F '.xbps|' /root/.packages/woof-installed-packages | cut -f 2 -d '|')"
+echo "${WOOFXBPS2}" >> /tmp/qv-update-xbps-db0
+sort -u /tmp/qv-update-xbps-db0 > /tmp/qv-update-xbps-db1
+for Pn in $(cat /tmp/qv-update-xbps-db1)
+do
+ [ "$Pn" == "" ] && continue
+ sed -i "/${Pn}|/d" /root/.packages/user-installed-packages
+ #don't even try if pkg on hold...
+ grep -q "^${Pn}-[0-9]" /tmp/qv-update-hold-list
+ if [ $? -eq 0 ];then
+  continue
+ fi
+ /usr/bin/xbps-install --sync --yes --ignore-file-conflicts ${Pn}
+ if [ $? -ne 0 ];then
+  echo -n "${S21:-Install error. Press ENTER to keep going:} "
+  read keepgoing
+  if [ -n "$keepgoing" ];then
+   break
+  fi
+  continue
+ fi
+ #this needs work... ref: 5populate-rootfs ***FIX ME***
+ #for now, just run a pinstall.sh script if exists...
+ if [ -f /usr/local/petget/pkg-fix/packages-templates/${Pn}/pinstall.sh ];then
+  cd /
+  /usr/bin/sh /usr/local/petget/pkg-fix/packages-templates/${Pn}/pinstall.sh
+ fi
+ sed -i "/${Pn}|/d" /root/.packages/woof-installed-packages
+ grep -F "|${Pn}|" /root/.packages/user-installed-packages >> /root/.packages/woof-installed-packages
+ sed -i "/${Pn}|/d" /root/.packages/user-installed-packages
+done
+sort /root/.packages/woof-installed-packages > /root/.packages/woof-installed-packagesTMP
+mv -f /root/.packages/woof-installed-packagesTMP /root/.packages/woof-installed-packages
+sync
+
+WOOFXBPS3="$(grep -F '.xbps|' /root/.packages/user-installed-packages | cut -f 2 -d '|')"
+echo "${WOOFXBPS3}" > /tmp/qv-update-xbps-db2
+sort -u /tmp/qv-update-xbps-db2 > /tmp/qv-update-xbps-db3
+for Pn in $(cat /tmp/qv-update-xbps-db3)
+do
+ [ "$Pn" == "" ] && continue
+ sed -i "/${Pn}|/d" /root/.packages/user-installed-packages
+ grep -q -F "|${Pn}|" /root/.packages/woof-installed-packages
+ if [ $? -eq 0 ];then
+  continue
+ fi
+ /usr/bin/xbps-install --yes --ignore-file-conflicts ${Pn}
+ if [ $? -ne 0 ];then
+  echo -n "${S21:-Install error. Press ENTER to keep going:} "
+  read keepgoing
+  if [ -n "$keepgoing" ];then
+   break
+  fi
+  continue
+ fi
+done
+sync
+_EOF7
 
 #maybe update boot-partition vmlinuz and initrd
 cat >> update/qv-update-${DISTRO_VERSION}/pinstall.sh <<'_EOF3'
@@ -456,8 +542,8 @@ ${S05:-Click No button to decline.}
 ${S06:-Note, you may do this manually at any time in the future, by copying vmlinuz and initrd files from /boot folder to the boot-partition.}
 \"</label></text>
   <hbox>
-   <button><label>Yes</label><action>exit:YES</action></button>
-   <button><label>No</label><action>exit:NO</action></button>
+   <button><label>${S30:-Yes}</label><action>exit:YES</action></button>
+   <button><label>${S31:-No}</label><action>exit:NO</action></button>
   </hbox>
  </vbox>
 </window>"
@@ -480,9 +566,6 @@ CR='
 '
 cat >> update/qv-update-${DISTRO_VERSION}/pinstall.sh <<'_EOF4'
  popup "background=#c0ffc0 terminate=ok level=top|<big>${S08:-The update of QV has completed. This does not include the Void XBPS packages; you may or may not want to update them.}${CR}${S09:-If you have a snapshot that is working nicely, you might not want to do a complete update of all Void packages. Maybe take a snapshot and update that.}${CR}${S10:-A complete update can be done in a terminal like this:}${CR} xbps-install --sync --update --yes --ignore-file-conflicts</big>"
- echo
- echo "${S12:-Recommend write this down for future use:}"
- echo "xbps-install --sync --update --yes --ignore-file-conflicts"
  echo
  echo "${S11:-Update finished, press ENTER key to close terminal.}"
  read endscript
