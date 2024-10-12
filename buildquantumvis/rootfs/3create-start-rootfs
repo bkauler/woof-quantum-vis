@@ -182,6 +182,16 @@ if [ -s rootfs/ping.err ];then
 fi
 rm -f rootfs/ping.err
 
+#20241010 keep xbps*.static utilities
+mkdir sandbox/xbps-static
+for aS in $(find rootfs/usr/bin -name '*.static' | tr '\n' ' ')
+do
+ aP="${aS##*/}"
+ cp -a -f rootfs/usr/bin/${aP} sandbox/xbps-static/
+ mv -f sandbox/xbps-static/${aP} sandbox/xbps-static/${aP/.static/}
+done 
+sync
+
 ###startup rootfs###
 #ref: https://man.voidlinux.org/xbps-install.1
 #SSL_NO_VERIFY_PEER=1 ./chroot-rootfs rootfs xbps-install -Suy xbps-triggers base-files xbps
@@ -193,8 +203,7 @@ if [ ! -s rootfs/var/db/xbps/https___repo-fi_voidlinux_org_current/${xARCH}-repo
  echo "ERROR failed to access Void repository"
  exit 4
 fi
-rm -f rootfs/usr/bin/*.static
-sync
+
 
 #installed:
 #xbps-triggers glibc pam-base pam-libs pam acl attr shadow libcrypto3 libssl3
@@ -209,6 +218,12 @@ mv -f rootfs/usr/share/locale.in rootfs/usr/share/locale
 
 busybox umount rootfs/var/cache/xbps
 busybox umount rootfs/proc
+
+#20241009
+sync
+if [ -d rootfs-eqv ];then rm -rf rootfs-eqv; fi
+cp -a rootfs rootfs-eqv
+sync
 exit
 ####
 

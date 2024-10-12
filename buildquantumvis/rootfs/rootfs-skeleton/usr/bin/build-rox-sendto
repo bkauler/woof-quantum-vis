@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #(c) Copyright Barry Kauler 2018, license GPLv3 (/usr/share/legal)
 #rebuild the rox-filer "Open With" (Send To) right-click menu.
 #optional path/name of a single .desktop file, optional prefix +/-
@@ -20,18 +20,13 @@
 #20231205 add application_x-7z-compressed to xarchive
 #20231206 screen out firefox & vivaldi if not installed.
 #20240114 fix 20230902, add .xbps
-#20240318 woofQV compat. 20240324 fix.
 
-#may call this in woofQ, when current dir is in rootfs-complete, so test...
-RP="$(realpath ${0})"
-grep -q '/woofQV' <<<${RP}
-if [ $? -ne 0 ];then
- #running in quirky (not in woofQV)
- cd /
-else
- #running in woofQV
- true
-fi
+#may call this in woofQ, when current dir is sandbox3/rootfs-complete, so test...
+CWD="`pwd`"
+case "$CWD" in
+ *rootfs-complete) true ;;
+ *) cd / ;;
+esac
 
 cDT="${1}"; cDT1=''
 if [ "$cDT" ];then
@@ -172,7 +167,7 @@ do
   mozedit)        MIMEDIR='text_html application_xhtml+xml'; aNAME='SeaMonkey-Composer' ;;
   mozilla)        MIMEDIR='text_html application_xhtml+xml'; aNAME='SeaMonkey-Browser' ;;
 #  mozmail) MIMEDIR='' ;;
-  mtpaint)        MIMEDIR='image_bmp image_x-bmp image_x-ms-bmp image_gif image_jpeg image_jpg image_pjpeg image_x-pcx image_png image_x-png image_x-portable-anymap image_x-portable-bitmap image_x-portable-graymap image_x-portable-pixmap image_svg image_svg+xml image_x-tga image_tiff image_xbm image_x-xbm image_x-xbitmap image_xpm image_x-xpm image_x-xpixmap' ;;
+  mtpaint)        MIMEDIR='image_bmp image_x-bmp image_x-ms-bmp image_gif image_jpeg image_jpg image_pjpeg image_x-pcx image_png image_x-png image_x-portable-anymap image_x-portable-bitmap image_x-portable-graymap image_x-portable-pixmap image_svg image_svg+xml image_x-tga image_tiff image_webp image_xbm image_x-xbm image_x-xbitmap image_xpm image_x-xpm image_x-xpixmap' ;;
 #  mtpaintsnapshot.sh) MIMEDIR='' ;;
 #  mtr) MIMEDIR='' ;;
 #  Multiple-Sound-Card-Wizard) MIMEDIR='' ;;

@@ -10,7 +10,7 @@ mkdir -p /tmp/woofQV
 
 . /etc/rc.d/PUPSTATE
 . ${L1}/configure/${xARCH}/DISTRO_SPECS #has FOREIGN_BINARY_COMPAT, FOREIGN_COMPAT_VERSION
-. ${L1}/configure/${xARCH}/DISTRO_PKGS_SPECS #has PKGS_SPECS_TABLE
+. ${L1}/configure/${xARCH}/DISTRO_PKGS_SPECS #has PKGS_SPECS_TABLE  20241008
 . ${L1}/configure/${xARCH}/DISTRO_COMPAT_REPOS
 . ${L1}/configure/${xARCH}/DISTRO_PET_REPOS
 

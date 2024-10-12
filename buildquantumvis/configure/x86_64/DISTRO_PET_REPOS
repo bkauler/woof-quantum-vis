@@ -22,5 +22,5 @@ PET_REPOS="ibiblio.org|https://distro.ibiblio.org/quirky/quirky-void/amd64/packa
 
 PACKAGELISTS_PET_ORDER="Packages-pet-${DISTRO_DB_SUBNAME}-official Packages-pet-noarch-official"
 
-#ex: https://distro.ibiblio.org/easyos/amd64/releases/void
+#ex: https://distro.ibiblio.org/quirky/quirky-void/amd64/releases/base
 WOOF_RELEASES_URL="https://distro.ibiblio.org/quirky/quirky-void/${DISTRO_TARGETARCH}/releases"
