@@ -1,0 +1,160 @@
+#!/bin/sh
+#create eqv folder, embedded-QV to go on top of easy.sfs
+#run the scripts in sequence: 00eqv-pre 0create-skel 1update-pkg-dbs 2dl-start-pkgs
+#  3create-start-rootfs 4create-wip-dep-order 5populate-rootfs
+#  9eqv-sfs
+#00eqv-pre makes permanent changes, cannot use afterward for normal qv build.
+#2dl-start-pkgs only needs to be run once.
+#do not run 6post-process-rootfs, 7create-drive-img 8create-extra-pets
+
+export LANG=C
+RP="$(realpath ${0})"
+L1="${RP/buildquantumvis*/buildquantumvis}"
+xARCH="$(arch)"
+export XBPS_ARCH="$xARCH"
+mkdir -p /tmp/woofQV
+. /var/local/woofQV/VARS #has E1
+
+cp -a -f ${L1}/configure/${xARCH}/DISTRO_SPECS ${E1}/rootfs/etc/
+. ${E1}/rootfs/etc/DISTRO_SPECS
+
+#5populate-rootfs has mostly populated rootfs with scarthgap pkgs, find any void pkgs...
+#Vpkgs="$(grep -B2 '/repo-fi' ${E1}/rootfs/var/db/xbps/pkgdb-0.38.plist | grep '<string>' | grep -v '/repo-fi' | cut -f 2 -d '>' | cut -f 1 -d '<')"
+#ex: acl-2.3.2_1
+#bzip2-1.0.8_2
+#glibc-2.39_4
+#libarchive-3.7.6_1
+#libcrypto3-3.3.2_1
+#libedit-20240517.3.1_1
+#liblz4-1.9.4_1
+#liblzma-5.6.2_1
+#libssl3-3.3.2_1
+#libxbps-0.59.2_3
+#libxcrypt-compat-4.4.36_3
+#libzstd-1.5.6_1
+#ncurses-libs-6.5_1
+#run-parts-4.11.2_2
+#xbps-triggers-0.128_1
+#zlib-1.3.1_1
+#...no, that hasn't caught them all. do this...
+Vpkgs="$(grep -B6 '/repo-fi' ${E1}/rootfs/var/db/xbps/pkgdb-0.38.plist | grep '<string>' | grep -v '/repo-fi' | cut -f 2 -d '>' | cut -f 1 -d '<' | grep -v -E '.{30}' | grep '_[0-9]$')"
+#ex:
+#acl-2.3.2_1
+#bzip2-1.0.8_2
+#glibc-2.39_4
+#libarchive-3.7.6_1
+#libcrypto3-3.3.2_1
+#libedit-20240517.3.1_1
+#liblz4-1.9.4_1
+#liblzma-5.6.2_1
+#libssl3-3.3.2_1
+#libxbps-0.59.2_3
+#libxcrypt-compat-4.4.36_3
+#libzstd-1.5.6_1
+#ncurses-libs-6.5_1
+#openssl-3.3.2_1
+#run-parts-4.11.2_2
+#xbps-0.59.2_3
+#xbps-triggers-0.128_1
+#zlib-1.3.1_1
+
+
+#find all pkgs that are on hold...
+#Vhold="$(grep -B10 -F '>hold<' ${E1}/rootfs/var/db/xbps/pkgdb-0.38.plist | grep -E '^   <key' | cut -f 2 -d '>' | cut -f 1 -d '<')"
+#...returns names only. do it this way:
+Vhold="$(chroot ${E1}/rootfs /usr/bin/xbps-query --list-hold-pkgs)"
+#ex: xvinfo-1.1.5_2
+
+#unhold them all
+for aP in $Vhold
+do
+ [ -z "$aP" ] && continue
+ chroot ${E1}/rootfs /usr/bin/xbps-pkgdb -m unhold ${aP}
+done
+
+#we are creating a eqv folder layer on top of easy.sfs, want it as small as possible...
+for aP in ${Vpkgs}
+do
+ [ -z "$aP" ] && continue
+ chroot ${E1}/rootfs /usr/bin/xbps-remove --force --force-revdeps --clean-cache --yes ${aP}
+done
+sync
+
+#3create-start-rootfs created rootfs-eqv
+#now put the the xbps db from rootfs...
+rm -rf ${E1}/rootfs-eqv/var/db/xbps
+cp -a ${E1}/rootfs/var/db/xbps ${E1}/rootfs-eqv/var/db/
+sync
+
+#populate .packages
+mkdir -p ${E1}/rootfs-eqv/root/.packages
+cp -a -f ${L1}/configure/${xARCH}/* ${E1}/rootfs-eqv/root/.packages/
+rm -f ${E1}/rootfs-eqv/root/.packages/DISTRO_SPECS
+cp -a -f ${E1}/woof-installed-packages ${E1}/rootfs-eqv/root/.packages/
+touch ${E1}/rootfs-eqv/root/.packages/devx-only-installed-packages
+sync
+
+#restore db deps (ref: 00eqv-pre)
+for aDB in Packages-pet-noarch-official Packages-pet-void-official Packages-oe-scarthgap-official
+do
+ mv -f ${E1}/rootfs-eqv/root/.packages/${aDB}ORIG ${E1}/rootfs-eqv/root/.packages/${aDB}
+done
+
+#let's build it in the sandbox...
+cd ${E1}
+mkdir -p sandbox
+VER='1.0'
+if [ -d sandbox/eqv ];then rm -rf sandbox/eqv_${VER}; fi
+
+#populate with just enough...
+mkdir sandbox/eqv
+mkdir -p sandbox/eqv/var/db
+cp -a rootfs-eqv/var/db/xbps sandbox/eqv/var/db/
+mkdir sandbox/eqv/root
+cp -a rootfs-eqv/root/.packages sandbox/eqv/root/
+mkdir -p sandbox/eqv/usr/local
+cp -a rootfs-eqv/usr/local/petget sandbox/eqv/usr/local/
+cp -a rootfs-eqv/usr/local/easy_version sandbox/eqv/usr/local/
+
+mkdir -p sandbox/eqv/usr/share/pixmaps
+cp -a -f rootfs-eqv/usr/share/doc/qv48.png sandbox/eqv.png
+cp -a -f rootfs-eqv/usr/share/doc/qv48.png sandbox/eqv/usr/share/pixmaps/eqv48.png
+cp -a -f rootfs-eqv/usr/share/doc/qv48.png sandbox/eqv/usr/share/pixmaps/eqv.png
+cp -a -f rootfs-eqv/usr/local/lib/X11/pixmaps/ec-overlay48.png sandbox/
+cd sandbox
+pngoverlay-cairo eqv.png ec-overlay48.png ec-eqv48.png
+cp -a -f ec-eqv48.png eqv/usr/share/pixmaps/
+cd ..
+
+mkdir sandbox/eqv/usr/share/applications
+echo "[Desktop Entry]
+NoDisplay=true
+Name=eqv
+Exec=ec-chroot-eqv
+Icon=ec-eqv48.png
+Categories=X-Utility" > sandbox/eqv/usr/share/applications/eqv.desktop
+
+mkdir sandbox/eqv/usr/bin
+echo "#!/bin/sh
+empty -f ec-chroot eqv easy" > sandbox/eqv/usr/bin/ec-chroot-eqv
+chmod 755 sandbox/eqv/usr/bin/ec-chroot-eqv
+
+#bring back xbps static utilities  ref: 3create-start-rootfs
+#only xbps-install...
+cp -a -f sandbox/xbps-static/xbps-install sandbox/eqv/usr/bin/
+
+mkdir -p sandbox/eqv/etc
+cp -a -f rootfs/etc/DISTRO_SPECS sandbox/eqv/etc/
+
+sync
+cd sandbox
+dir2tgz eqv
+sync
+mkdir -p ../export
+cp -a -f eqv.tar.gz ../export/
+
+cp eqv.png ../export/
+sync
+
+echo "eqv in exports folder"
+###end###

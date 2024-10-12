@@ -1,0 +1,22 @@
+#!/bin/sh
+#prepare to build embedded-QV
+
+export LANG=C
+RP="$(realpath ${0})"
+L1="${RP/buildquantumvis*/buildquantumvis}"
+xARCH="$(arch)"
+
+echo "DISTRO_PKGS_SPECS is now a pkg list entirely of scarthgap packages, imitating EasyOS"
+cp -a -f ${L1}/configure/${xARCH}/DISTRO_PKGS_SPECSeqv ${L1}/configure/${xARCH}/DISTRO_PKGS_SPECS
+
+echo "Dependencies of Package-pet-* and Packages-oe-* removes so that no Void pkgs get built"
+for aDB in Packages-pet-noarch-official Packages-pet-void-official Packages-oe-scarthgap-official
+do
+ if [ ! -f ${L1}/configure/${xARCH}/${aDB}ORIG ];then
+  cp -a ${L1}/configure/${xARCH}/${aDB} ${L1}/configure/${xARCH}/${aDB}ORIG
+ fi
+ #note: + is a normal char, sed requires -E to treat it as special...
+ sed -i -e 's%|+[^|]*|%||%' ${L1}/configure/${xARCH}/${aDB}
+done
+sync
+
