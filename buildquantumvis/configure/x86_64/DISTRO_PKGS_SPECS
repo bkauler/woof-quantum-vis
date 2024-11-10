@@ -1176,6 +1176,7 @@ yes|ostree|ostree|exe,doc>null|compat:current| #20240115a flatpack
 yes|p11-kit|p11-kit|exe|compat:current|
 yes|p11-kit-devel|p11-kit-devel|dev|compat:current| #20240324
 yes|pa-applet|pa-applet|exe,dev,doc>null|compat:scarthgap|
+yes|packit|packit|exe|pet:noarch| #20241109
 no|pam|pam,pam-libs|exe,doc>null|compat:current| #left out pam-base. 20240113 20240129 no
 no|pam-devel|pam-devel|dev|compat:current| #20240130
 yes|pam-libs|pam-libs|exe,doc>null|compat:current| #20240129 needed by polkit
@@ -1409,6 +1410,7 @@ yes|trousers-devel|trousers-devel|dev|compat:current| #20240130
 yes|tzdata|tzdata|exe|compat:current| #20240218
 yes|uchardet|uchardet|exe,doc>null|compat:current| #20240114 mpv and celluloid
 yes|uchardet-devel|uchardet-devel|dev|compat:current| #20240130
+yes|uextract|uextract|exe|pet:noarch| #20241109
 yes|ufiformat|ufiformat|exe,dev,doc>null|compat:scarthgap|
 yes|unclutter|unclutter|exe,dev>null,doc>null|compat:scarthgap|
 yes|unibilium|unibilium|exe,doc>null|compat:current|
