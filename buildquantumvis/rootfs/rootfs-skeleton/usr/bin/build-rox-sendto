@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #(c) Copyright Barry Kauler 2018, license GPLv3 (/usr/share/legal)
 #rebuild the rox-filer "Open With" (Send To) right-click menu.
 #optional path/name of a single .desktop file, optional prefix +/-
@@ -20,6 +20,23 @@
 #20231205 add application_x-7z-compressed to xarchive
 #20231206 screen out firefox & vivaldi if not installed.
 #20240114 fix 20230902, add .xbps
+#20241020 generate usr/share/applications/mimeapps.list  20241021 20241027
+#20241027 add vscode (and text/x-zig).
+#20241028 add gvim
+#20241030 add sublime
+#20241103 want "ALL" to be top-level right-click menu.
+#20241103 for "ALL", exclude some with "ALLf"
+#20241107 exclude some apps from mimeapps.list
+#20241109 exclude pupzip
+
+export LANG=C #20241107 for speed.
+mkdir -p /tmp/build-rox-sendto #20241103
+#20241103 LISTz is archive files
+LISTz='application_gzip application_vnd.debian.binary-package application_x-7z-compressed application_x-bzip application_x-bzip-compressed-tar application_x-bzip2 application_x-compressed-tar application_x-gzip application_x-rar application_x-tar application_x-xz application_x-xz-compressed-tar application_zip application_x-deb application_x-rpm application_zstd application_x-zstd application_zstd-compressed-tar application_x-xbps application_pet'
+tr ' ' '\n' <<<"${LISTz}" > /tmp/build-rox-sendto/LISTz
+#20241107 exclude these from mimeapps.list ...
+LISTnoma='ghasher packit uextract'
+tr ' ' '\n' <<<"${LISTnoma}" > /tmp/build-rox-sendto/LISTnoma
 
 #may call this in woofQ, when current dir is sandbox3/rootfs-complete, so test...
 CWD="`pwd`"
@@ -48,6 +65,8 @@ else
 fi
 
 #now rebuild...
+echo -n '' > /tmp/build-rox-sendto/ALL #20241103
+echo -n '' > /tmp/build-rox-sendto/ALLf #20241103
 for aDT in $DTs
 do
  #um, we do want to include these, but take out default*...
@@ -55,6 +74,7 @@ do
  aDTbase="$(basename $aDT .desktop)"
  case $aDTbase in
   default*) continue ;;
+  pupzip) continue ;; #20241109
   firefox|vivaldi) #20231206
    #these are ask entries in the menu. they have NoDisplay=true
    #need to check if installed...
@@ -66,6 +86,7 @@ do
  aNAME="$(grep '^Name=' $aDT | head -n 1 | cut -f 2 -d '=' | cut -f 1 -d ' ')"
  aMT="$(grep '^MimeType=' $aDT | cut -f 2 -d '=' | tr ';' '\n' | grep -v '^x-' | tr '/' '_')"
  MIMEDIR=''
+ NOT='' #20241103
  aBAD='' #MimeType= in .desktop may have inappropriate entries, screen out.
  #ref: grep '^Exec=' *.desktop | cut -f 2 -d '=' | cut -f 1 -d ' ' | rev | cut -f 1 -d '/' | rev | sort -u | sed -e 's%^%  %' -e "s%$%) MIMEDIR='' ;;%"
  aCMD='' #20221123
@@ -75,7 +96,7 @@ do
   audacity) MIMEDIR='audio'; aNAME='Audacity' ;;
 #  aumix) MIMEDIR='' ;;
   bacongui-gtk)   MIMEDIR='text' ;;
-  bcrypt_gui) MIMEDIR='ALL' ;;
+  bcrypt_gui) MIMEDIR='ALL'; echo "${aEXE}" >> /tmp/build-rox-sendto/ALL; ;; #20241103
 #  bluepup) MIMEDIR='' ;;
 #  bootmanager) MIMEDIR='' ;;
   burniso2cd)     MIMEDIR='application_x-cd-image' ;;
@@ -122,12 +143,12 @@ do
 #  galculator) MIMEDIR='' ;;
 #  gcolorsel) MIMEDIR='' ;;
 #  gdmap) MIMEDIR='' ;;
-  geany)          MIMEDIR='text_plain text_x-chdr text_x-csrc text_x-c++hdr text_x-c++src text_x-java text_x-dsrc text_x-pascal text_x-perl text_x-python application_x-php application_x-httpd-php3 application_x-httpd-php4 application_x-httpd-php5 application_xml text_html text_css text_x-sql text_x-diff image_x-xpixmap application_xml application_javascript application_x-shellscript text_x-python3' ;;
+  geany)          MIMEDIR='text_plain text_x-chdr text_x-csrc text_x-c++hdr text_x-c++src text_x-java text_x-dsrc text_x-pascal text_x-perl text_x-python application_x-php application_x-httpd-php3 application_x-httpd-php4 application_x-httpd-php5 application_xml text_html text_css text_x-sql text_x-diff image_x-xpixmap application_xml application_javascript application_x-shellscript text_x-python3 text_x-nim' ;;
 #  getflash) MIMEDIR='' ;;
 #  gfnrename) MIMEDIR='' ;;
 #  gfontsel) MIMEDIR='' ;;
 #  gftp) MIMEDIR='' ;;
-  ghasher)        MIMEDIR='ALL' ;;
+  ghasher)        MIMEDIR='ALL'; echo "${aEXE}" >> /tmp/build-rox-sendto/ALL; ;; #20241103
 #  ghostview) MIMEDIR='' ;;
   gimp)           MIMEDIR='image_bmp image_g3fax image_gif image_x-fits image_x-pcx image_x-portable-anymap image_x-portable-bitmap image_x-portable-graymap image_x-portable-pixmap image_x-psd image_x-sgi image_x-tga image_x-xbitmap image_x-xwindowdump image_x-xcf image_x-compressed-xcf image_x-gimp-gbr image_x-gimp-pat image_x-gimp-gih image_tiff image_jpeg image_x-psp image_png image_x-icon image_x-xpixmap image_svg+xml application_pdf image_jp2 image_jpeg2000 image_jpx image_x-xcursor' ;;
 #  glipper_shell) MIMEDIR='' ;;
@@ -143,6 +164,7 @@ do
 #  gtk_chtheme_wrapper) MIMEDIR='' ;;
 #  gtklp) MIMEDIR='' ;;
 #  gtklpq) MIMEDIR='' ;;
+  gvim)    MIMEDIR='text_plain text_x-chdr text_x-csrc text_x-c++hdr text_x-c++src text_x-java text_x-dsrc text_x-pascal text_x-perl text_x-python application_x-php application_x-httpd-php3 application_x-httpd-php4 application_x-httpd-php5 application_xml text_html text_css text_x-sql text_x-diff image_x-xpixmap application_xml application_javascript application_x-shellscript text_x-python3 text_x-nim text_x-zig' ;;
   gwaveedit) MIMEDIR='audio'; aNAME='gWaveEdit' ;;
 #  gwhere) MIMEDIR='' ;;
 #  hardinfo) MIMEDIR='' ;;
@@ -174,7 +196,7 @@ do
   notecase)       MIMEDIR='application_x-notecase application_x-notecase-enc' ;;
 #  osmo) MIMEDIR='' ;;
   openshot)       MIMEDIR='video'; aNAME='OpenShot'; ;;
-  packit)         MIMEDIR='ALL' ;;
+  packit|PackIt)         MIMEDIR='ALLf'; echo "${aEXE}" >> /tmp/build-rox-sendto/ALLf; ;; #20241103
 #  partview) MIMEDIR='' ;;
 #  pbackup) MIMEDIR='' ;;
   pburn)          MIMEDIR='application_x-cd-image' ;;
@@ -249,12 +271,14 @@ do
   simpress|loimpress) MIMEDIR='application_vnd.oasis.opendocument.presentation application_vnd.oasis.opendocument.presentation-template application_vnd.ms-powerpoint application_vnd.openxmlformats-officedocument.presentationml.presentation application_vnd.openxmlformats-officedocument.presentationml.template application_vnd.openxmlformats-officedocument.presentationml.slideshow'; aNAME='LibreOffice-Impress' ;;
 #  sscontrol) MIMEDIR='' ;;
 #  ssh-gui) MIMEDIR='' ;;
+  sublime)    MIMEDIR='text_plain text_x-chdr text_x-csrc text_x-c++hdr text_x-c++src text_x-java text_x-dsrc text_x-pascal text_x-perl text_x-python application_x-php application_x-httpd-php3 application_x-httpd-php4 application_x-httpd-php5 application_xml text_html text_css text_x-sql text_x-diff image_x-xpixmap application_xml application_javascript application_x-shellscript text_x-python3 text_x-nim text_x-zig' ;;
   swriter|lowriter) MIMEDIR='text application_msword application_vnd.openxmlformats-officedocument.wordprocessingml.document application_vnd.openxmlformats-officedocument.wordprocessingml.template application_vnd.oasis.opendocument.text application_vnd.oasis.opendocument.text-template application_vnd.oasis.opendocument.text-web application_vnd.oasis.opendocument.text-master application_xml application_rtf'; aNAME='LibreOffice-Writer' ;;
 #  timezone-set) MIMEDIR='' ;;
 #  toppler) MIMEDIR='' ;;
 #  uget-gtk) MIMEDIR='' ;;
 #  urxvtcontrol) MIMEDIR='' ;;
 #  video_upgrade_wizard) MIMEDIR='' ;;
+  vscode)    MIMEDIR='text_plain text_x-chdr text_x-csrc text_x-c++hdr text_x-c++src text_x-java text_x-dsrc text_x-pascal text_x-perl text_x-python application_x-php application_x-httpd-php3 application_x-httpd-php4 application_x-httpd-php5 application_xml text_html text_css text_x-sql text_x-diff image_x-xpixmap application_xml application_javascript application_x-shellscript text_x-python3 text_x-nim text_x-zig' ;;
 #  wcpufreq) MIMEDIR='' ;;
 #  wizardwizard) MIMEDIR='' ;;
 #  xcalc) MIMEDIR='' ;;
@@ -278,18 +302,23 @@ do
   #also, some have inappropriate mime-type
   if [ "$aBAD" ];then
    xaBAD="$(echo "$aBAD" | tr ' ' '\n')"
-   echo "$xaBAD" > /tmp/brs-xabad
-   MIMEDIR="$(echo "$aMT" | grep -v -f /tmp/brs-xabad | sed -e 's%\*.*%%' -e 's%_$%%' | tr '\n' ' ' | sed -e 's% $%%')"
+   echo "$xaBAD" > /tmp/build-rox-sendto/brs-xabad
+   MIMEDIR="$(echo "$aMT" | grep -v -f /tmp/build-rox-sendto/brs-xabad | sed -e 's%\*.*%%' -e 's%_$%%' | tr '\n' ' ' | sed -e 's% $%%')"
   else
    MIMEDIR="$(echo "$aMT" | sed -e 's%\*.*%%' -e 's%_$%%' | tr '\n' ' ' | sed -e 's% $%%')"
   fi
  fi
  
  [ "$MIMEDIR" == "" ] && continue
+ if [ "$MIMEDIR" == "ALLf" ];then
+  #20241103 ALLf handled further down...
+  continue
+ fi
  if [ "$MIMEDIR" == "ALL" ];then
   if [ "$cDT1" == "-" ];then
    rm -f etc/xdg/rox.sourceforge.net/SendTo/${aNAME} 2>/dev/null
   else
+   #this will be inside "Open With..." entry in right-click...
    ln -snf /${aDT} etc/xdg/rox.sourceforge.net/SendTo/${aNAME}
   fi
   continue
@@ -326,5 +355,63 @@ do
  done
  
 done
+
+#20241020 generate usr/share/applications/mimeapps.list
+echo -n '' > /tmp/build-rox-sendto/mimeapps.list-tmp
+echo '[Default Applications]' > usr/share/applications/mimeapps.list
+#scan etc/xdg/rox.sourceforge.net/OpenWith...
+MIMEscan="$(find etc/xdg/rox.sourceforge.net/OpenWith -type l | xargs -I XXX ls -l XXX)"
+#ex: lrwxrwxrwx 1 root root 35 Oct 19 21:40 etc/xdg/rox.sourceforge.net/OpenWith/.video_x-theora+ogg/VLC -> /usr/share/applications/vlc.desktop
+while read aM
+do
+ Mtype="$(echo -n "$aM" | cut -f 5 -d '/' | tr '_' '/')" #ex: .video/x-theora
+ [ "${Mtype:0:1}" != "." ] && continue
+ Mtype="${Mtype:1:99}"
+ Mdt="${aM##*/}" #ex: vlc.desktop
+ [ "${Mdt/desktop/}" = "${Mdt}" ] && continue
+ grep -q -F '/usr/local/orange/' usr/share/applications/${Mdt} #20241021 orange-ball not yet installed
+ if [ $? -eq 0 ];then continue; fi
+ grep -q -F 'NoDisplay=true' usr/share/applications/${Mdt} #20241027
+ if [ $? -eq 0 ];then continue; fi
+ #20241107 exclude some...
+ Mname="${Mdt/.desktop/}"
+ grep -q -x -f /tmp/build-rox-sendto/LISTnoma <<<"${Mname}"
+ if [ $? -eq 0 ];then continue; fi
+ #20241106 fix format...
+ grep -q -F "${Mtype}=" /tmp/build-rox-sendto/mimeapps.list-tmp
+ if [ $? -eq 0 ];then
+  sed -i -e "s%\(${Mtype}=.*\)%\1;${Mdt}%" /tmp/build-rox-sendto/mimeapps.list-tmp
+ else
+  echo "${Mtype}=${Mdt}" >> /tmp/build-rox-sendto/mimeapps.list-tmp
+ fi
+ 
+ #20241103 for "ALLf" want right-click top-level menu entries for all cases...
+ if [ -s /tmp/build-rox-sendto/ALLf ];then
+  xMtype="$(echo -n "$Mtype" | tr '/' '_')" #ex: video_x-theora hmmm there is also application/xhtml/xml
+  #exclude archive files...
+  grep -q -x -F -f /tmp/build-rox-sendto/LISTz <<<"${xMtype}"
+  if [ $? -eq 0 ];then continue; fi
+  for aALL in $(cat /tmp/build-rox-sendto/ALLf | tr '\' ' ')
+  do
+   aNAME="$(grep '^Name=' usr/share/applications/${aALL}.desktop | head -n 1 | cut -f 2 -d '=' | cut -f 1 -d ' ')"
+   if [ "$cDT1" == "-" ];then
+    #ex: DTs=/usr/share/applications/abiword.desktop
+    if [ "/usr/share/applications/${aALL}.desktop" == "${DTs}" ];then
+     rm -f etc/xdg/rox.sourceforge.net/SendTo/.${xMtype}/${aNAME}
+     continue
+    fi
+   fi
+   ln -snf /usr/share/applications/${aALL}.desktop etc/xdg/rox.sourceforge.net/SendTo/.${xMtype}/${aNAME}
+  done
+ fi
+ 
+done <<<"${MIMEscan}"
+
+sort -u /tmp/build-rox-sendto/mimeapps.list-tmp >> usr/share/applications/mimeapps.list
+
+echo '
+[Added Associations]
+' >> usr/share/applications/mimeapps.list
+
 
 ###END###
