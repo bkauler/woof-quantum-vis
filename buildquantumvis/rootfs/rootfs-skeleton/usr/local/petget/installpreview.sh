@@ -36,6 +36,7 @@
 #20240307 cannot run non-root in container.
 #20240308 WKGFREEK is empty in a container.
 #20240318 20240405 20240414
+#20241112 don't just default to run non-root, ask.
 
 export TEXTDOMAIN=petget___installpreview.sh
 export OUTPUT_CHARSET=UTF-8
@@ -282,12 +283,31 @@ if [ $EVflg -eq 1 ];then #20240227
        grep -q '/' <<<${EXEC}
        if [ $? -ne 0 ];then
         if [ -x /usr/bin/${EXEC} ];then
-         if [ -x /usr/bin/${EXEC}.bin0 ];then
+        
+         #20241112 don't just default to run non-root, ask...
+         export IPV_ASK_DLG="<window title=\"PKGget: $(gettext 'package installed')\" image-name=\"/usr/local/lib/X11/pixmaps/pkg24.png\">
+     <vbox>
+      <text use-markup=\"true\"><label>\"$(gettext 'This package has been installed:') <b>${TREE1}</b>
+$(gettext 'The executable is:') /usr/bin/${EXEC}
+
+$(gettext 'Do you want to run the executable as the root user, or non-root?')
+$(gettext 'Choose root if you want unfettered system-wide write access. Choose non-root to restrict the executable to only be able to write in the application home folder or inside /files folder.')
+$(gettext 'Choose non-root if you are concerned about running the executable with maximum security.')
+$(gettext 'If in doubt, choose non-root; the next window will explain how you can flip the executable between root and non-root later, if you decide to change.')
+\"</label></text>
+      <hbox>
+       <button><label>root</label><action>EXIT:root</action></button>
+       <button><label>$(gettext 'non-root')</label><action>EXIT:nonroot</action></button>
+      </hbox>
+     </vbox></window>"
+         RETASK="$(gtkdialog --center --program=IPV_ASK_DLG)"
+         #20241101 also test for .bin (installed flatpak or appimage will have .bin not .bin0)
+         if [ -x /usr/bin/${EXEC}.bin0 -o -x /usr/bin/${EXEC}.bin ];then
           #this means previous version was already setup to run non-root
           #the update has installed a new /usr/bin/${EXEC}, so revert to run
           #as root, then back to non-root...
-          rm -f /usr/bin/${EXEC}.bin0
-          rm -f /usr/bin/${EXEC}.bin
+          rm -f /usr/bin/${EXEC}.bin0 2>/dev/null
+          rm -f /usr/bin/${EXEC}.bin 2>/dev/null
           #hide, so setup-client can bring back in future...
           if [ -d /home/.${EXEC} ];then #precaution.
            rm -rf /home/.${EXEC}
@@ -295,10 +315,14 @@ if [ $EVflg -eq 1 ];then #20240227
           mv -f /home/${EXEC} /home/.${EXEC} 2>/dev/null
           sed -i -e "s%^${EXEC}=.*%${EXEC}=false%" /root/.clients-status
          fi
-         /usr/local/clients/setup-client "${EXEC}=true"
-         NRflg=1
+         grep -q -F 'nonroot' <<<"${RETASK}"
+         if [ $? -eq 0 ];then
+          /usr/local/clients/setup-client "${EXEC}=true"
+          NRflg=1
+         fi
          break
         fi
+        
        fi
       fi
      done
