@@ -39,6 +39,7 @@ if [ $? -ne 0 ];then
  urxvt -geometry 100x35 -e ${0}
  exit
 fi
+export XBPS_ARCH="$(arch)"
 LANG1="${LANG/_*/}"
 case "$LANG1" in
  bg) #bulgarian
@@ -295,6 +296,7 @@ if [ $? -ne 0 ];then #run script in a terminal.
  urxvt -geometry 100x35 -e ${0}
  exit
 fi
+export XBPS_ARCH="$(arch)"
 LANG1="${LANG/_*/}"
 case "$LANG1" in
  de)
