@@ -12,18 +12,11 @@ gummiboot-20150311-1-xerus64|gummiboot|20150311-1-xerus64||BuildingBlock|200K||g
 hwclock-static-2.29.2-amd64|hwclock-static|2.29.2-amd64||BuildingBlock|132K||hwclock-static-2.29.2-amd64.pet||hwclock statically linked from util-linux pkg|oe|pyro||
 kirkstone-libs-20240311|kirkstone-libs|20240311||BuildingBlock|1628K||kirkstone-libs-20240311.pet||compatibility lib for kirstone app running in void|oe|kirkstone||
 libexttextcat-data-3.4.4-all|libexttextcat-data|3.4.4-all||BuildingBlock|688K||libexttextcat-data-3.4.4-all.pet|+libexttextcat|data files for libexttextcat, required by libreoffice||||
-linux_headers-6.6.11-20240115|linux_headers|6.6.11-20240115||BuildingBlock|12812K||linux_headers-6.6.11-20240115.pet||header files for 6.6.11 kernel||||
-linux_headers-6.6.15-20240204|linux_headers|6.6.15-20240204||BuildingBlock|12816K||linux_headers-6.6.15-20240204.pet||header files for 6.6.15 kernel||||
-linux_headers-6.6.16-20240212|linux_headers|6.6.16-20240212||BuildingBlock|12816K||linux_headers-6.6.16-20240212.pet||header files for 6.6.16 kernel||||
-linux_headers-6.6.47-20240825|linux_headers|6.6.47-20240825||BuildingBlock|12820K||linux_headers-6.6.47-20240825.pet||header files for 6.6.47 kernel||||
 linux_headers-6.6.52-20240927|linux_headers|6.6.52-20240927||BuildingBlock|12820K||linux_headers-6.6.52-20240927.pet||header files for 6.6.52 kernel||||
 linux_headers-6.8.1-20240323|linux_headers|6.8.1-20240323||BuildingBlock|13072K||linux_headers-6.8.1-20240323.pet||header files for 6.8.1 kernel||||
 linux_headers-6.8.1-20240325|linux_headers|6.8.1-20240325||BuildingBlock|13072K||linux_headers-6.8.1-20240325.pet||header files for 6.8.1 kernel||||
-linux_kernel-6.6.11-20240115-kirkstone64|linux_kernel|6.6.11-20240115-kirkstone64||BuildingBlock|172856K||linux_kernel-6.6.11-20240115-kirkstone64.pet||Linux kernel 6.6.11 compiled in EasyOS Kirkstone64 version 5.6.5|oe|kirkstone||
-linux_kernel-6.6.15-20240204-void64|linux_kernel|6.6.15-20240204-void64||BuildingBlock|174072K||linux_kernel-6.6.15-20240204-void64.pet||Linux kernel 6.6.15 compiled in EasyOS Void64 version 6.0.2|void|current||
-linux_kernel-6.6.16-20240212-void64|linux_kernel|6.6.16-20240212-void64||BuildingBlock|172852K||linux_kernel-6.6.16-20240212-void64.pet||Linux kernel 6.6.16 compiled in EasyOS Void64 version 6.0.2|void|current||
-linux_kernel-6.6.47-20240825-scarthgap64|linux_kernel|6.6.47-20240825-scarthgap64||BuildingBlock|171052K||linux_kernel-6.6.47-20240825-scarthgap64.pet||Linux kernel 6.6.47 compiled in EasyOS Scarthgap64 version 6.2|oe|scarthgap||
 linux_kernel-6.6.52-20240927-scarthgap64|linux_kernel|6.6.52-20240927-scarthgap64||BuildingBlock|169728K||linux_kernel-6.6.52-20240927-scarthgap64.pet||Linux kernel 6.6.52 compiled in EasyOS Scarthgap64 version 6.3.1|oe|scarthgap||
+linux_kernel-6.6.58-20241026-scarthgap64|linux_kernel|6.6.58-20241026-scarthgap64||BuildingBlock|169748K||linux_kernel-6.6.58-20241026-scarthgap64.pet||Linux kernel 6.6.58 compiled in EasyOS Scarthgap64 version 6.3.1|oe|scarthgap||
 linux_kernel-6.8.0-20240314-kirkstone64|linux_kernel|6.8.0-20240314-kirkstone64||BuildingBlock|173744K||linux_kernel-6.8.0-20240314-kirkstone64.pet||Linux kernel 6.8.0 compiled in EasyOS Kirkstone64 version 5.6.6|oe|kirkstone||
 linux_kernel-6.8.1-20240316-kirkstone64|linux_kernel|6.8.1-20240316-kirkstone64||BuildingBlock|171808K||linux_kernel-6.8.1-20240316-kirkstone64.pet||Linux kernel 6.8.1 compiled in  version ||||
 linux_kernel-6.8.1-20240323-btrfs-nofscrypt-k64|linux_kernel|6.8.1-20240323-btrfs-nofscrypt-k64||BuildingBlock|171988K||linux_kernel-6.8.1-20240323-btrfs-nofscrypt-k64.pet||Linux kernel 6.8.1 compiled in EasyOS Kirkstone64 version 5.6.6|oe|kirkstone||
