@@ -77,6 +77,7 @@ yes|bash|bash|exe,doc>null|compat:current|
 yes|bash-devel|bash-devel|dev,doc>null|compat:current| #20240130
 yes|bbc_provided|bbc-provided|exe,doc>null|compat:scarthgap|
 yes|bc|bc|exe,dev>null,doc>null|compat:current|
+yes|bcachefs-tools|bcachefs-tools|exe,dev>null,doc>null|compat:current| #20250601
 yes|bdftopcf|bdftopcf|exe,dev,doc>null|compat:scarthgap|
 yes|binutils|binutils|dev|compat:current| #20240218
 yes|binutils-libs|binutils-libs|dev|compat:current| #20240219
