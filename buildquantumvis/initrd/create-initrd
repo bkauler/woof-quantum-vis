@@ -1,5 +1,5 @@
 #!/bin/bash
-#called from 8create-drive-img
+#called from 7create-drive-img
 #$1 is allowed default size of wkg-partition in init script.
 #create /data/woofQV/initrd/initrd-tree, hence file initrd.
 
@@ -39,6 +39,12 @@ do
  fi
 done
 
+#20250601 bcachefs utility, dynamically-linked, musl, from alpine...
+cd ${E1}/initrd/initrd-tree #moved up.
+if [ -f ${L1}/bin-static/${xARCH}/bcachefs.tar.gz ];then
+ tar -xf ${L1}/bin-static/${xARCH}/bcachefs.tar.gz --strip-components=1
+fi
+
 sync
 
 ###create busybox symlinks###
@@ -66,7 +72,6 @@ cp -a -f ${L1}/configure/${xARCH}/DISTRO_SPECS ${E1}/initrd/initrd-tree/etc/
 
 #replace "EasyOS" in translation strings...
 #also replace "easy.sfs"
-cd ${E1}/initrd/initrd-tree
 if [ "${DISTRO_NAME_NORMAL}" != "EasyOS" ];then
  for aSTR in $(find nls -type f -name 'init.str' | tr '\n' ' ')
  do
