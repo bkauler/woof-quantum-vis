@@ -57,7 +57,7 @@ busybox umount btrfs-mount
 rm -f btrfs-file
 
 echo "$(gettext 'Creating skeleton drive image file')"
-P1M=23 #20240417 bump from 15
+P1M=47 #20240417 bump from 15. 20250601 bump from 23
 T1=$((1+${P1M}+${P2M}+1)) #total size of file.
 SKEL="qv-skeleton-${P1M}-${P2M}-${T1}mb.img"
 

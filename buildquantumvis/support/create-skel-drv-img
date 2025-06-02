@@ -85,12 +85,12 @@ sync
 losetup -d ${LOOPn}
 sleep 1
 
-echo "Creating fat12 filesystem..."
+#20250601 change fat12 to fat16...
+echo "Creating fat16 filesystem..."
 LOOPn="$(losetup -f)"
 OFF1b=$((1024*1024)) #1MiB
 losetup -o ${OFF1b} --sizelimit ${S1}MiB --sector-size 512 ${LOOPn} ${E1}/${SKEL}
-#too small for fat16
-mkdosfs -F 12 -n EASYVOID1 -S 512 ${LOOPn}
+mkdosfs -F 16 -n EASYVOID1 -S 512 ${LOOPn}
 sync
 
 mkdir -p ${E1}/mntpt1
