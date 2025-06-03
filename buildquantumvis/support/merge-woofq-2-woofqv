@@ -1,0 +1,156 @@
+#!/bin/bash
+#20250603
+#have been working on woofQ (EasyOS) last 6 months. 
+#a lot of it can be ported as-is to woofQV
+
+#my paths...
+WQ='/mnt/build/bk/git/woofq/easyos/easy-code/rootfs-skeleton'
+WQV='/mnt/build/bk/git/woof-quantum-vis/buildquantumvis/rootfs/rootfs-skeleton'
+
+if [ ! -d ${WQ} ];then
+ echo "Not exist: ${WQ}"
+ exit
+fi
+if [ ! -d ${WQV} ];then
+ echo "Not exist: ${WQV}"
+ exit
+fi
+
+FQS="$(find ${WQ}/usr/bin -mindepth 1 -maxdepth 1 -type f | tr '\n' ' ')"
+
+for aFQ in ${FQS}
+do
+ aFN="${aFQ##*/}"
+ if [ ! -e ${WQV}/usr/bin/${aFN} ];then
+  echo "File not exist: ${WQV}/usr/bin/${aFN}"
+  echo -n "ENTER to copy: "
+  read godoit
+  if [ "$godoit" == "" ];then
+   cp -a ${WQ}/usr/bin/${aFN} ${WQV}/usr/bin/
+  fi
+  continue
+ fi
+ cmp -s ${WQ}/usr/bin/${aFN} ${WQV}/usr/bin/${aFN}
+ if [ $? -ne 0 ];then
+  #some are specific to woofQV... have text "QUANTUMVISMARKER"
+  grep -q 'QUANTUMVISMARKER' ${WQV}/usr/bin/${aFN}
+  if [ $? -eq 0 ];then
+   continue
+  fi
+  #ask...
+  echo "Script different:"
+  echo "${WQ}/usr/bin/${aFN}"
+  echo "${WQV}/usr/bin/${aFN}"
+  echo -n "ENTER to ignore, any char to copy woofQ to woofQV: "
+  read DOIGNORE
+  if [ "$DOIGNORE" != "" ];then
+   cp -a -f --remove-destination ${WQ}/usr/bin/${aFN} ${WQV}/usr/bin/${aFN}
+  fi
+ fi
+done
+
+#ditto in usr/local...
+#find any missing folders...
+cd $WQ
+DQS="$(find usr/local -mindepth 1 -type d | tr '\n' ' ')"
+for aDQ in ${DQS}
+do
+ if [ ! -d ${WQV}/${aDQ} ];then
+  echo "Copying folder (not exist destination):"
+  echo "${WQ}/${aDQ}"
+  echo "${WQV}/${aDQ%/*}/"
+  echo -n "ENTER to copy: "
+  read godoit
+  if [ "$godoit" == "" ];then
+   cp -a ${WQ}/${aDQ} ${WQV}/${aDQ%/*}/
+  fi
+ fi
+done
+
+#find all files....
+FQS="$(find usr/local -mindepth 1 -type f | tr '\n' ' ')"
+
+for aFQ in ${FQS}
+do
+ if [ ! -e ${WQV}/${aFQ} ];then
+  echo "Copying file (not exist destination):"
+  echo "${WQ}/${aFQ}"
+  echo "${WQV}/${aFQ%/*}/"
+  echo -n "ENTER to copy: "
+  read godoit
+  if [ "$godoit" == "" ];then
+   cp -a ${WQ}/${aFQ} ${WQV}/${aFQ%/*}/
+  fi
+  continue
+ fi
+ grep -q 'QUANTUMVISMARKER' ${WQV}/${aFQ}
+ if [ $? -eq 0 ];then
+  continue
+ fi
+ cmp -s ${WQ}/${aFQ} ${WQV}/${aFQ}
+ if [ $? -eq 0 ];then
+  continue
+ fi
+ echo "Different file:"
+ echo "${WQ}/${aFQ}"
+ echo "${WQV}/${aFQ%/*}/"
+  echo -n "ENTER to ignore, any char to copy woofQ to woofQV: "
+  read DOIGNORE
+  if [ "$DOIGNORE" != "" ];then
+   cp -a -f --remove-destination ${WQ}/${aFQ} ${WQV}/${aFQ%/*}/
+  fi
+done
+sync
+
+#also etc folder...
+DQS="$(find etc -mindepth 1 -type d | tr '\n' ' ')"
+for aDQ in ${DQS}
+do
+ if [ ! -d ${WQV}/${aDQ} ];then
+  echo "Copying folder (not exist destination):"
+  echo "${WQ}/${aDQ}"
+  echo "${WQV}/${aDQ%/*}/"
+  echo -n "ENTER to copy: "
+  read godoit
+  if [ "$godoit" == "" ];then
+   cp -a ${WQ}/${aDQ} ${WQV}/${aDQ%/*}/
+  fi
+ fi
+done
+
+#find all files....
+FQS="$(find etc -mindepth 1 -type f | tr '\n' ' ')"
+
+for aFQ in ${FQS}
+do
+ if [ ! -e ${WQV}/${aFQ} ];then
+  echo "Copying file (not exist destination):"
+  echo "${WQ}/${aFQ}"
+  echo "${WQV}/${aFQ%/*}/"
+  echo -n "ENTER to copy: "
+  read godoit
+  if [ "$godoit" == "" ];then
+   cp -a ${WQ}/${aFQ} ${WQV}/${aFQ%/*}/
+  fi
+  continue
+ fi
+ grep -q 'QUANTUMVISMARKER' ${WQV}/${aFQ}
+ if [ $? -eq 0 ];then
+  continue
+ fi
+ cmp -s ${WQ}/${aFQ} ${WQV}/${aFQ}
+ if [ $? -eq 0 ];then
+  continue
+ fi
+ echo "Different file:"
+ echo "${WQ}/${aFQ}"
+ echo "${WQV}/${aFQ%/*}/"
+  echo -n "ENTER to ignore, any char to copy woofQ to woofQV: "
+  read DOIGNORE
+  if [ "$DOIGNORE" != "" ];then
+   cp -a -f --remove-destination ${WQ}/${aFQ} ${WQV}/${aFQ%/*}/
+  fi
+done
+sync
+###end###
+
