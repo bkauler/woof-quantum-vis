@@ -1,5 +1,5 @@
 #!/bin/sh
-#(c) copyright 2007 Barry Kauler
+#(c) copyright 2007 Barry Kauler  QUANTUMVISMARKER
 #2007 Lesser GPL licence v2 (http://www.fsf.org/licensing/licenses/lgpl.html)
 #launched from ~/.xinitrc, so X is running.
 #note, see also /usr/sbin/savepuppyd, launched from /etc/rc.d/rc.local0.

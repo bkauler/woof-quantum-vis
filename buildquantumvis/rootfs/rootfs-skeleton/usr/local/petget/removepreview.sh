@@ -1,5 +1,5 @@
 #!/bin/bash
-#(c) Copyright Barry Kauler 2009, puppylinux.com
+#(c) Copyright Barry Kauler 2009, puppylinux.com  QUANTUMVISMARKER
 #2009 Lesser GPL licence v2 (http://www.fsf.org/licensing/licenses/lgpl.html).
 #called from pkg_chooser.sh and petget.
 #package to be removed is TREE2, ex TREE2=abiword-1.2.3 (corrresponds to 'pkgname' field in db).

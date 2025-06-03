@@ -1,5 +1,5 @@
 #!/bin/sh
-#(c) Copyright Barry Kauler 2009, puppylinux.com
+#(c) Copyright Barry Kauler 2009, puppylinux.com  QUANTUMVISMARKER
 #2009 Lesser GPL licence v2 (http://www.fsf.org/licensing/licenses/lgpl.html).
 #called from /usr/local/petget/downloadpkgs.sh and petget.
 #passed param is the path and name of the downloaded package.

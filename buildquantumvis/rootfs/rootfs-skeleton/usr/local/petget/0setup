@@ -1,5 +1,5 @@
 #!/bin/bash
-#(c) Copyright 2009-2024 Barry Kauler. License GPLv3
+#(c) Copyright 2009-2024 Barry Kauler. License GPLv3  QUANTUMVISMARKER
 
 LANGORG="$(locale | grep '^LANG=' | cut -d '=' -f 2)"
 export LANG=C #faster.

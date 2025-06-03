@@ -1,5 +1,5 @@
 #!/bin/sh
-#(c) Copyright Nov 2009 Barry Kauler puppylinux.com
+#(c) Copyright Nov 2009 Barry Kauler puppylinux.com  QUANTUMVISMARKER
 #2009 Lesser GPL licence v2 (http://www.fsf.org/licensing/licenses/lgpl.html)
 #code taken out of the icon_switcher gui app.
 #i created this script for desk_icon_theme_jq8flat-1 pet pkg, called from pinstall.sh

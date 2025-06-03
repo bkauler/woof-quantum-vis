@@ -1,5 +1,5 @@
 #!/bin/bash
-#ref: /etc/profile.d/xbps-aliases
+#ref: /etc/profile.d/xbps-aliases QUANTUMVISMARKER
 #20240310 uninstall fixes.
 
 mkdir -p /tmp/woofQV

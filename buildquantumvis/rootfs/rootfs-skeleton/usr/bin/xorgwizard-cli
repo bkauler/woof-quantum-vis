@@ -1,5 +1,5 @@
 #!/bin/sh
-#(c) Copyright Barry Kauler, April 2013, bkhome.org
+#(c) Copyright Barry Kauler, April 2013, bkhome.org  QUANTUMVISMARKER
 #license GPL3 (refer: /usr/share/doc/legal).
 #130427 completely rewritten Xorg Wizard. runs without X.
 # note, /root/.profile and /usr/sbin/xorgwizard also modified.

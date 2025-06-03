@@ -1,5 +1,5 @@
 #!/bin/bash
-#ref: /etc/profile.d/xbps-aliases
+#ref: /etc/profile.d/xbps-aliases  QUANTUMVISMARKER
 
 mkdir -p /tmp/woofQV
 . /etc/DISTRO_SPECS

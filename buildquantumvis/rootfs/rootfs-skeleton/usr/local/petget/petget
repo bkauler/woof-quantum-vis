@@ -1,5 +1,5 @@
 #!/bin/bash
-#(c) Copyright Barry Kauler 2009, puppylinux.com
+#(c) Copyright Barry Kauler 2009, puppylinux.com  QUANTUMVISMARKER
 #2009 Lesser GPL licence v2 (http://www.fsf.org/licensing/licenses/lgpl.html).
 #Note: Puppy Package Manager is started from /usr/local/petget/pkg_chooser.sh for the GUI.
 #'petget' is for commandline execution, especially from ROX-Filer.

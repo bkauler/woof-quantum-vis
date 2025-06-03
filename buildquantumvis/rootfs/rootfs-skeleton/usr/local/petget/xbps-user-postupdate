@@ -1,5 +1,5 @@
 #!/bin/bash
-#called from /etc/rc.d/rc.update
+#called from /etc/rc.d/rc.update  QUANTUMVISMARKER
 #passed in name and name-version. ex: libwv libwv-1.2.9_5
 #this package was already user-installed. after easyvoid version update
 #rc.update has updated the pkg to new version, then called here.

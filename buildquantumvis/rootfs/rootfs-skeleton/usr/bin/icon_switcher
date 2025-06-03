@@ -1,5 +1,5 @@
 #!/bin/sh
-#(c) Copyright Nov 2007 Barry Kauler www.puppylinux.com
+#(c) Copyright Nov 2007 Barry Kauler www.puppylinux.com  QUANTUMVISMARKER
 #2007 Lesser GPL licence v2 (http://www.fsf.org/licensing/licenses/lgpl.html)
 #written dec 2007 for Puppy Linux.
 #v3.98 BK: fix unionfs saving problem when newer file in pup_save.

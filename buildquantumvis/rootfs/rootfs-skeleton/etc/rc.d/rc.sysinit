@@ -1,5 +1,5 @@
 #!/bin/ash
-#(c) copyright Barry Kauler 2024. license GPL v3 (/usr/share/doc/legal)
+#(c) copyright Barry Kauler 2024. license GPL v3 (/usr/share/doc/legal) QUANTUMVISMARKER
 #20240320 rewrite for quantumvis.
 #20240922 fix mount /dev/pts
 

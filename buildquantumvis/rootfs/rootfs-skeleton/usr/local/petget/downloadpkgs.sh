@@ -1,5 +1,5 @@
 #!/bin/sh
-#(c) Copyright Barry Kauler 2009, puppylinux.com
+#(c) Copyright Barry Kauler 2009, puppylinux.com  QUANTUMVISMARKER
 #2009 Lesser GPL licence v2 (see /usr/share/doc/legal).
 #called from /usr/local/petget/installpreview.sh
 #The database entries for the packages to be installed are in /tmp/petget_missing_dbentries-*

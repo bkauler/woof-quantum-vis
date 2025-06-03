@@ -1,5 +1,5 @@
 #!/bin/bash
-#call from /etc/rc.d/rc.update
+#call from /etc/rc.d/rc.update QUANTUMVISMARKER
 #rc.update calls xbps-user-postupdate, which expects /root/.packages/Packages-
 # -void-current & -nonfree to be latest.
 #20240318

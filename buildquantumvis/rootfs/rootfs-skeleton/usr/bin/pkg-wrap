@@ -1,5 +1,5 @@
 #!/bin/bash
-#frontend for the package managers in EasyOS.
+#frontend for the package managers in EasyOS. QUANTUMVISMARKER
 #called via "pkg" desktop icon.
 #20230408 add Flatpak Installer. 
 #20230408 inside container, only offer PKGget

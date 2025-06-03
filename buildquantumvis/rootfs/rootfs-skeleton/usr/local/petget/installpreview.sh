@@ -1,5 +1,5 @@
 #!/bin/bash
-#(c) Copyright Barry Kauler 2009, puppylinux.com
+#(c) Copyright Barry Kauler 2009, puppylinux.com  QUANTUMVISMARKER
 #2009 Lesser GPL licence v2 (http://www.fsf.org/licensing/licenses/lgpl.html).
 #called from pkg_chooser.sh
 #package to be previewed prior to installation is TREE1 -- inherited from parent.

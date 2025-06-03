@@ -1,5 +1,5 @@
 #!/bin/sh
-#(c) Copyright bkauler 2006,2007 www.puppylinux.com
+#(c) Copyright bkauler 2006,2007 www.puppylinux.com  QUANTUMVISMARKER
 #2007 Lesser GPL licence v2 (http://www.fsf.org/licensing/licenses/lgpl.html)
 #131210 rewritten, based on rc.shutdown 130217.
 #140106 /fsckme.flg renamed to /.fsckme.flg. see also rc.sysinit, /sbin/init.

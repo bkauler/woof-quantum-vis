@@ -1,5 +1,5 @@
 #!/bin/bash
-#(c) Copyright 2008,2024 Barry Kauler, bkhome.org
+#(c) Copyright 2008,2024 Barry Kauler, bkhome.org  QUANTUMVISMARKER
 #2008,2024 GPL licence v3 (see /usr/share/doc/legal)
 #/sbin/pup_event_frontend_d creates a desktop icon and copy of this script for each drive, ex:
 # for drive sda: cp -a /usr/local/bin/drive_all /root/.pup_event/drive_sda/AppRun

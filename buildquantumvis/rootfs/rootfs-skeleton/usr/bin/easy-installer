@@ -1,6 +1,6 @@
 #!/bin/bash
 #(c) Copyright Barry Kauler, Feb. 2017. License GPL v3 (usr/share/doc/legal)
-#20240406 rewritten for QV.
+#20240406 rewritten for QV.  QUANTUMVISMARKER
 
 export TEXTDOMAIN=easy-installer
 export OUTPUT_CHARSET=UTF-8

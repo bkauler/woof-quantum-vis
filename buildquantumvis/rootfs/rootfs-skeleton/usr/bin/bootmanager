@@ -1,5 +1,5 @@
 #!/bin/sh
-#BK 2007, original idea from sunburnt
+#BK 2007, original idea from sunburnt  QUANTUMVISMARKER
 #Lesser GPL licence v2 (/usr/share/doc/legal). 2007 www.puppylinux.com
 #written for Puppy 2.16.
 #/etc/rc.d/BOOTCONFIG has variable EXTRASFSLIST='kde.sfs devx_216.sfs'

@@ -1,4 +1,5 @@
 #!/bin/bash
+# QUANTUMVISMARKER
 
 export TEXTDOMAIN=qv-installer
 export OUTPUT_CHARSET=UTF-8

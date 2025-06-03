@@ -1,5 +1,5 @@
 #!/bin/bash
-#20240303 install an .xbps package in easyvoid.
+#20240303 install an .xbps package in easyvoid.  QUANTUMVISMARKER
 #copied code from installpreview.sh
 #use this script in a running easyvoid.
 #pass in full pkg name, ex: abiword-1.2.4_1.x86_64.xbps
