@@ -1,4 +1,5 @@
 #!/bin/sh
+# QUANTUMVISMARKER
 #(c) Copyright Barry Kauler 2009, puppylinux.com
 #2009 Lesser GPL licence v2 (http://www.fsf.org/licensing/licenses/lgpl.html).
 #called from pkg_chooser.sh, provides filtered formatted list of uninstalled pkgs.
@@ -33,8 +34,9 @@
 #20230914 stupid grep now objects to '\-' use busybox grep. no, grep -P works. no, in case only have busybox grep, it doesn't understand -P
 #20240227 add gtk4, qt6
 #20240324 Packages-void-current and Packages-void-current-nonfree fix confusion.
+#20250604 edit TEXTDOMAIN
 
-export TEXTDOMAIN=petget___filterpkgs.sh
+export TEXTDOMAIN=petget___filterpkgs
 export OUTPUT_CHARSET=UTF-8
 
 #export LANG=C

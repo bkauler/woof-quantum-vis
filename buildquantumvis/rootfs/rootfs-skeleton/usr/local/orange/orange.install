@@ -7,6 +7,9 @@
 #  also expect exist /usr/share/pixmaps/icon-name.png
 #20240906 if uninstall, need to remove .bin, .bin0
 #20241016 PNalt alternative package name (devuan).
+#20241212 pkg may be a pet.
+#20250102 bug fix line 167
+#20250301 fix if install as root.
 
 export TEXTDOMAIN=orange
 export OUTPUT_CHARSET=UTF-8
@@ -99,6 +102,9 @@ if [ -z "$DBfnd" ];then
   if [ -n "$DBfnd" ];then PN="${PNalt}"; fi
  fi
 fi
+if [ -z "$DBfnd" ];then #20241212
+ DBfnd="$(grep -H -F "|${PN}|" /root/.packages/Packages-pet-${DISTRO_COMPAT_VERSION}-official | head -n 1)"
+fi
 if [ -z "$DBfnd" ];then #precaution
  ##debian...
  #DBfnd="$(grep -H '|obs-studio|' /root/.packages/Packages-${DISTRO_BINARY_COMPAT}-${DISTRO_COMPAT_VERSION}-* | head -n 1)"
@@ -160,7 +166,7 @@ MC="$(grep "[ ,]${DC}[ ,]" /etc/xdg/menus/hierarchy | cut -f 1 -d ' ' | head -n 
 #...top menu category
 #fix .desktop file...
 sed -i -e "s%^Icon=.*%Icon=${EN}.png%" ${DT}
-sed -i -e "s%^Exec=.*%^Exec=${EN}%"  ${DT}
+sed -i -e "s%^Exec=.*%Exec=${EN}%"  ${DT}
 
 case "${MC}" in
  Desktop)    MENUtop="$(gettext 'Desktop')" ;;
@@ -238,6 +244,13 @@ if [ "${UI_DESK_MANAGER}" == "jwm" ];then
  MF="<frame>
    <text use-markup=\"true\"><label>\"<b>$(gettext 'Tray icon')</b>\"</label></text>
    <text use-markup=\"true\"><label>\"$(gettext 'An entry has been created in the menu; however, for your convenience an icon has also been created in the tray.')\"</label></text>
+ </frame>"
+elif [ "${UN}" == "root" ];then #20250301
+ MF="<frame>
+   <text use-markup=\"true\"><label>\"<b>$(gettext 'Desktop icon')</b>\"</label></text>
+   <text use-markup=\"true\"><label>\"$(gettext 'An entry has been created in the menu; however, you can also create a desktop icon.')
+$(gettext 'Run Rox-Filer and find the .desktop file in /usr/share/applications and drag it onto the desktop.')
+$(gettext 'You can do it any time in the future, and also can delete the desktop icon by right-click and choose Remove.')\"</label></text>
  </frame>"
 else #rox
  MF="    <frame>

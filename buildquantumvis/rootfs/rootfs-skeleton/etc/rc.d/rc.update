@@ -1,4 +1,5 @@
 #!/bin/ash
+# QUANTUMVISMARKER
 #131217 called from rc.sysinit, as background process.
 #150303 append space in echo text.
 #170920 init script in initrd, creates /.sfschg.flg if sfs layers changed (and has prev version if a version upgrade)

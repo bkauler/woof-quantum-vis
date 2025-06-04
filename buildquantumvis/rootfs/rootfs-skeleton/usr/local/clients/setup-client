@@ -1,5 +1,5 @@
 #!/bin/bash
-#20210906 based on support/setup-spot
+#20210906 based on support/setup-spot  QUANTUMVISMARKER
 #20230409 also called from /usr/local/appi/appi, /usr/local/flapi/flapi
 #20230805 also called from /usr/local/clients/choose-clients
 #called from dir2sfs, 3buildeasydistro

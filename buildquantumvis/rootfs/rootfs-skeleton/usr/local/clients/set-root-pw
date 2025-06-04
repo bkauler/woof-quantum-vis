@@ -1,5 +1,5 @@
 #!/bin/bash
-#20230805 called from /usr/sbin/loginmanager.
+#20230805 called from /usr/sbin/loginmanager.  QUANTUMVISMARKER
 
 export TEXTDOMAIN=clients
 export OUTPUT_CHARSET=UTF-8

@@ -239,7 +239,7 @@ status_func
 MYPATH="`grep -iE 'path' /etc/samba/smb.conf| grep -v '^#' |grep -v 'var'|grep -v 'tmp'|awk 'NR==1{print $3}'`" #151002 fix
 if [ ! "$MYPATH" ];then
  if [ "$WKG_DEV" ];then #170203
-  #MYPATH="/files" #easy linux
+  #MYPATH="/mnt/${WKG_DEV}/${WKG_DIR}files" #easy linux
   MYPATH='/files' #20211205
  else
   MYPATH=/file #151002

@@ -19,6 +19,8 @@
 #20240903 path now /usr/local/flapi
 #20240905 translate menu top category. aware of jwm-mode. new notes-security
 #20240906 brave browser.
+#20241104 run build-rox-sendto as a separate process, because slow.
+#20250205 more height.
 
 if [ "$(whoami)" != "root" ];then
  if [ -x /usr/bin/sudo-sh ];then
@@ -183,6 +185,7 @@ ENTRIESvideo="$(cat /tmp/flatpak/ENTRIESvideo)"
 ENTRIESother="$(cat /tmp/flatpak/ENTRIESother)"
 
 ###main gui###
+tHEIGHT='382' #20250205
 PACKAGE="Flatpak"
 DESCRIPTION="$(gettext 'Description')"
 SIZE="$(gettext 'Size')"
@@ -192,70 +195,70 @@ export FP_DLG1="<window title=\"$(gettext 'Flatpak Installer')\" image-name=\"/u
     <notebook labels=\"$(gettext 'Audio')|$(gettext 'Developer')|$(gettext 'Games')|$(gettext 'Graphics')|$(gettext 'Network')|$(gettext 'Office')|$(gettext 'Productivity')|$(gettext 'System')|$(gettext 'Video')|$(gettext 'Other')\">
       <tree column-resizeable=\"0\">
         <label>${PACKAGE}||${DESCRIPTION}</label>
-        <height>354</height>
+        <height>${tHEIGHT}</height>
         <variable>TREEaudio</variable>
         <action signal=\"enter-notify-event\" type=\"refresh\">TREEaudio</action>
         ${ENTRIESaudio}
       </tree>
       <tree column-resizeable=\"0\">
         <label>${PACKAGE}||${DESCRIPTION}</label>
-        <height>354</height>
+        <height>${tHEIGHT}</height>
         <variable>TREEdeveloper</variable>
         <action signal=\"enter-notify-event\" type=\"refresh\">TREEdeveloper</action>
         ${ENTRIESdeveloper}
       </tree>
       <tree column-resizeable=\"0\">
         <label>${PACKAGE}||${DESCRIPTION}</label>
-        <height>354</height>
+        <height>${tHEIGHT}</height>
         <variable>TREEgames</variable>
         <action signal=\"enter-notify-event\" type=\"refresh\">TREEgames</action>
         ${ENTRIESgames}
       </tree>
       <tree column-resizeable=\"0\">
         <label>${PACKAGE}||${DESCRIPTION}</label>
-        <height>354</height>
+        <height>${tHEIGHT}</height>
         <variable>TREEgraphics</variable>
         <action signal=\"enter-notify-event\" type=\"refresh\">TREEgraphics</action>
         ${ENTRIESgraphics}
       </tree>
       <tree column-resizeable=\"0\">
         <label>${PACKAGE}||${DESCRIPTION}</label>
-        <height>354</height>
+        <height>${tHEIGHT}</height>
         <variable>TREEnetwork</variable>
         <action signal=\"enter-notify-event\" type=\"refresh\">TREEnetwork</action>
         ${ENTRIESnetwork}
       </tree>
       <tree column-resizeable=\"0\">
         <label>${PACKAGE}||${DESCRIPTION}</label>
-        <height>354</height>
+        <height>${tHEIGHT}</height>
         <variable>TREEoffice</variable>
         <action signal=\"enter-notify-event\" type=\"refresh\">TREEoffice</action>
         ${ENTRIESoffice}
       </tree>
       <tree column-resizeable=\"0\">
         <label>${PACKAGE}||${DESCRIPTION}</label>
-        <height>354</height>
+        <height>${tHEIGHT}</height>
         <variable>TREEproductivity</variable>
         <action signal=\"enter-notify-event\" type=\"refresh\">TREEproductivity</action>
         ${ENTRIESproductivity}
       </tree>
       <tree column-resizeable=\"0\">
         <label>${PACKAGE}||${DESCRIPTION}</label>
-        <height>354</height>
+        <height>${tHEIGHT}</height>
         <variable>TREEsystem</variable>
         <action signal=\"enter-notify-event\" type=\"refresh\">TREEvideo</action>
         ${ENTRIESsystem}
       </tree>
       <tree column-resizeable=\"0\">
         <label>${PACKAGE}||${DESCRIPTION}</label>
-        <height>354</height>
+        <height>${tHEIGHT}</height>
         <variable>TREEvideo</variable>
         <action signal=\"enter-notify-event\" type=\"refresh\">TREEvideo</action>
         ${ENTRIESvideo}
       </tree>
       <tree column-resizeable=\"0\">
         <label>${PACKAGE}||${DESCRIPTION}</label>
-        <height>354</height>
+        <height>${tHEIGHT}</height>
         <variable>TREEother</variable>
         <action signal=\"enter-notify-event\" type=\"refresh\">TREEother</action>
         ${ENTRIESother}
@@ -369,7 +372,7 @@ case "${aAPP}" in
  SpaceCadetPinball) TRIPLET='com.github.k4zmu2a.spacecadetpinball'; MENUcat='X-Fun'; MENUtop='Fun'; MENUname='SpaceCadetPinball 3D pinball game'; ;;
  Stremio) TRIPLET='com.stremio.Stremio'; MENUcat='X-Multimedia-mediaplayer'; MENUtop='Multimedia'; MENUname='Stremio streaming media player'; ;;
  GnuCash) TRIPLET='org.gnucash.GnuCash'; MENUcat='X-Business-finance'; MENUtop='Business'; MENUname='GnuCash accounting software'; ;;
- Tor) TRIPLET='com.github.micahflee.torbrowser-launcher'; MENUcat='X-Internet-browser'; MENUtop='Internet'; MENUname='Tor secure web browser'; ;;
+ Tor) TRIPLET='org.torproject.torbrowser-launcher'; MENUcat='X-Internet-browser'; MENUtop='Internet'; MENUname='Tor secure web browser'; ;;
  UnGoogled) TRIPLET='com.github.Eloston.UngoogledChromium'; MENUcat='X-Internet-browser'; MENUtop='Internet'; MENUname='Un-Googled Chromium web browser' ;;
  KTorrent) TRIPLET='org.kde.ktorrent'; MENUcat='P2P'; MENUtop='Internet'; MENUname='KTorrent KDE BitTorrent client'; ;;
  Maps) TRIPLET='org.gnome.Maps'; MENUcat='X-Personal'; MENUtop='Personal'; MENUname='Maps OpenStreetMaps world map'; ;;
@@ -696,8 +699,8 @@ else
  jwm -reload
 fi
 
-#update the right-click menu...
-build-rox-sendto /usr/share/applications/${aAPP,,}.desktop
+#update the right-click menu... 20241104 sep process
+build-rox-sendto /usr/share/applications/${aAPP,,}.desktop &
 
 if [ "$EOS_FSCRYPT_VER" == "1" ];then #20230502
  #20230409 flatpak sandbox doesn't work properly with ext4 fscrypt.

@@ -1,4 +1,5 @@
 #!/bin/sh
+# QUANTUMVISMARKER
 #Exit from window manager will cause return to xwin, which reads
 #/tmp/wmexitmode.txt and will relaunch w.m.
 #180128 easy linux, kill containers, moved from rc.shutdown. see also wmpoweroff, wmexit, wmreboot

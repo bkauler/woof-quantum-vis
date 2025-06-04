@@ -28,6 +28,7 @@ elif [ "$MAINCAT" == "document" ];then
  case "$SUBCAT" in
   bookreader) CATS='^Categories.*X-Document-viewer' ;;
   htmleditor) CATS='^Exec.*bluegriffon|^Exec.*mozedit|^Exec.*swriter|^Categories.*WebDevelopment' ;;
+  ocr)        CATS='^Exec.*gimagereader|^Categories.*OCR' ;;
   pdfmanager) CATS='^Exec.*peasypdf'  ;;
   pdfreader)  CATS='^Exec.*evince' ;;
   scanner)    CATS='^Categories.*X-Graphic-scanner' ;;
@@ -73,7 +74,7 @@ elif [ "$MAINCAT" == "media" ];then
  esac
 elif [ "$MAINCAT" == "utility" ];then
  case "$SUBCAT" in
-  clipboard)     CATS='^Exec=glipper|^Exec=xclipboard' ;;
+  clipboard)     CATS='^Exec=glipper|^Exec=xclipboard|^Exec=parcellite' ;;
   colorselector) CATS='^Exec=gcolorsel' ;;
   diskmap)       CATS='^Exec=gdmap' ;;
   drives)        CATS='^Exec=gparted|^Exec=easydd' ;;

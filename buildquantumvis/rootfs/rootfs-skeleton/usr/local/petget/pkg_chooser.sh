@@ -48,11 +48,12 @@
 #20230914 void: update pkg db every time run pkgget.
 #20230914 stupid grep: "grep: warning: stray \ before -" use busybox grep. no, grep -P works. no, in case only have busybox grep, it doesn't understand -P
 #20240228 when easyvoid has pkgget frontend for xbps, no need to update pkg db at startup. 20240229 revert.
-#20240414 fix reporting false "ALREADY INSTALLED"
+#20241018 remove "devuan-" prefix on radiobuttons.
+#20250510 remove ".sh" from TEXTDOMAIN
 
 #/usr/local/petget/service_pack.sh & #121125 offer download Service Pack.
 
-export TEXTDOMAIN=petget___pkg_chooser.sh
+export TEXTDOMAIN=petget___pkg_chooser
 export OUTPUT_CHARSET=UTF-8
 
 #20230626
@@ -93,8 +94,8 @@ if [ "$DISTRO_BINARY_COMPAT" == "void" ];then #20230914 20240229
  if [ ! -e /tmp/petget/void-db-updated-flg ];then
   ping -4 -c 1 -w 5 -q google.com
   if [ $? -ne 0 ];then
-   EM1="$(gettext 'PKGget requires Internet access')"
-   popup "background=#ffa0a0 terminate=ok process=wait level=top|<big>${EM1}</big>"
+   E1="$(gettext 'PKGget requires Internet access')"
+   popup "background=#ffa0a0 terminate=ok process=wait level=top|<big>${E1}</big>"
    exit
   fi
   W1="$(gettext 'As Void Linux is a rolling release, need to update the package database every time run PKGget. Please wait...')"
@@ -154,11 +155,9 @@ fi
 if [ ! -f /tmp/petget/petget_installed_patterns_system ];then
  INSTALLED_PATTERNS_SYS="`cat /root/.packages/layers-installed-packages | cut -f 2 -d '|' | sed -e 's%^%|%' -e 's%$%|%' -e 's%\\-%\\\\-%g'`"
  echo "$INSTALLED_PATTERNS_SYS" > /tmp/petget/petget_installed_patterns_system
- 
- #20240414 this is reporting false "ALREADY INSTALLED". ex: "gcc"...
- ##PKGS_SPECS_TABLE also has system-installed names, some of them are generic combinations of pkgs...
- #INSTALLED_PATTERNS_GEN="`echo "$PKGS_SPECS_TABLE" | grep '^yes' | cut -f 2 -d '|' |  sed -e 's%^%|%' -e 's%$%|%' -e 's%\\-%\\\\-%g'`"
- #echo "$INSTALLED_PATTERNS_GEN" >> /tmp/petget/petget_installed_patterns_system
+ #PKGS_SPECS_TABLE also has system-installed names, some of them are generic combinations of pkgs...
+ INSTALLED_PATTERNS_GEN="`echo "$PKGS_SPECS_TABLE" | grep '^yes' | cut -f 2 -d '|' |  sed -e 's%^%|%' -e 's%$%|%' -e 's%\\-%\\\\-%g'`"
+ echo "$INSTALLED_PATTERNS_GEN" >> /tmp/petget/petget_installed_patterns_system
  
  #120822 in precise puppy have a pet 'cups' instead of the ubuntu debs. the latter are various pkgs, including 'libcups2'.
  #we don't want libcups2 showing up as a missing dependency, so have to screen these alternative names out...
@@ -277,7 +276,7 @@ do
  REPOCUT="`echo -n "$ONEREPO" | cut -f 2-4 -d '-'`"
  [ "$REPOS_RADIO" = "" ] && FIRST_DB="$REPOCUT"
  xREPOCUT="$(echo -n "$REPOCUT" | sed -e 's%\-official$%%')" #120905 window too wide.
- xREPOCUT="$(echo -n "$xREPOCUT" | sed -e 's%^debian\-%%')" #20230309
+ xREPOCUT="$(echo -n "$xREPOCUT" | sed -e 's%^debian\-%%' -e 's%^devuan\-%%')" #20230309  20241018 devuan
  REPOS_RADIO="${REPOS_RADIO}<radiobutton><label>${xREPOCUT}</label><action>/tmp/petget/filterversion.sh ${REPOCUT}</action><action>/usr/local/petget/filterpkgs.sh</action><action>refresh:TREE1</action></radiobutton>"
  echo "$REPOCUT" >> /tmp/petget/petget_active_repo_list #120903 needed in findnames.sh
  repocnt=`expr $repocnt + 1`
