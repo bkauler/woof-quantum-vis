@@ -1,3 +1,4 @@
+# QUANTUMVISMARKER
 export QT5DIR=/usr
 #this requires 'qtstyleplugins' to be installed...
 export QT_QPA_PLATFORMTHEME=gtk2

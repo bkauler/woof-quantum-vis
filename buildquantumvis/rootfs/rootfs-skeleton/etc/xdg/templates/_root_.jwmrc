@@ -2,6 +2,7 @@
 
 <JWM>
 
+ <!-- QUANTUMVISMARKER -->
  <!-- IMPORTANT, ONLY EDIT /etc/xdg/templates/_root_.jwmrc -->
  <!-- jwm menu for puppy Linux -->
  <RootMenu label="Menu" labeled="false" height="24" onroot="3">
