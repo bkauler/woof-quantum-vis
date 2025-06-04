@@ -1,5 +1,5 @@
 #!/bin/sh
-#100704 this was originally in Nathan's Wallpaper package.
+#100704 this was originally in Nathan's Wallpaper package.  QUANTUMVISMARKER
 # called by 'pwallpaper' wallpaper setter.
 #140101 background_reshape has changed. see also /root/.xinitrc.
 #140101 new app, Qwallpaper, calls set_bg.

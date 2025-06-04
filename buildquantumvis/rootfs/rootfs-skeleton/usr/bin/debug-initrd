@@ -1,5 +1,5 @@
 #!/bin/sh
-#called from menu "Shutdown -> Reboot to initrd (developers only)".
+#called from menu "Shutdown -> Reboot to initrd (developers only)".  QUANTUMVISMARKER
 #ref: /etc/xdg/templates/_root_.jmwrc and init in initrd.
 #200802 first release.
 #200806 put .debug.flg in boot-partition, so can see it when booted to zram.

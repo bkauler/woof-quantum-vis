@@ -1,5 +1,5 @@
 #!/bin/sh
-#Exit from X, will cause return to xwin.
+#Exit from X, will cause return to xwin.  QUANTUMVISMARKER
 #141206 fix if only have busybox ps.
 #180128 easy linux, kill containers, moved from rc.shutdown. see also wmpoweroff, wmreboot, restartwm
 #200203 for 180128 add 2>/dev/null

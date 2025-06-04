@@ -1,5 +1,5 @@
 #!/bin/sh
-#(c) Copyright Barry Kauler March 2013, bkhome.org.
+#(c) Copyright Barry Kauler March 2013, bkhome.org. QUANTUMVISMARKER
 #License GPL3 2013 (see /usr/share/doc/legal).
 #hack to fix font sizes. Puppy has moved from 78 to 96 dpi.
 #can be called from a running puppy, standalone, from ppm, or from woof.

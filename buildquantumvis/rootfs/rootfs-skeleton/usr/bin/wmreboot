@@ -1,5 +1,5 @@
 #!/bin/sh
-#introduced v0.9.8
+#introduced v0.9.8  QUANTUMVISMARKER
 #called from /root/.fvwm95rc, .jwmrc at shutdown.
 
 . /etc/rc.d/PUPSTATE #20220526 has EOS_SUPPORT_CONTAINERS, EOS_TOP_LEVEL_ZRAM

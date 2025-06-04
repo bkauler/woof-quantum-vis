@@ -2,6 +2,8 @@
 #20250603
 #have been working on woofQ (EasyOS) last 6 months. 
 #a lot of it can be ported as-is to woofQV
+#a script in woofQ that must not be copied has string "WOOFQONLYMARKER"
+#a script in woofQV that must not be written to has string "QUANTUMVISMARKER"
 
 #my paths...
 WQ='/mnt/build/bk/git/woofq/easyos/easy-code/rootfs-skeleton'
@@ -21,6 +23,10 @@ FQS="$(find ${WQ}/usr/bin -mindepth 1 -maxdepth 1 -type f | tr '\n' ' ')"
 for aFQ in ${FQS}
 do
  aFN="${aFQ##*/}"
+ grep -q 'WOOFQONLYMARKER' ${WQ}/usr/bin/${aFN}
+ if [ $? -eq 0 ];then
+  continue
+ fi
  if [ ! -e ${WQV}/usr/bin/${aFN} ];then
   echo "File not exist: ${WQV}/usr/bin/${aFN}"
   echo -n "ENTER to copy: "
@@ -41,9 +47,9 @@ do
   echo "Script different:"
   echo "${WQ}/usr/bin/${aFN}"
   echo "${WQV}/usr/bin/${aFN}"
-  echo -n "ENTER to ignore, any char to copy woofQ to woofQV: "
+  echo -n "ENTER to copy woofQ to woofQV: "
   read DOIGNORE
-  if [ "$DOIGNORE" != "" ];then
+  if [ "$DOIGNORE" == "" ];then
    cp -a -f --remove-destination ${WQ}/usr/bin/${aFN} ${WQV}/usr/bin/${aFN}
   fi
  fi
@@ -66,6 +72,7 @@ do
   fi
  fi
 done
+sync
 
 #find all files....
 FQS="$(find usr/local -mindepth 1 -type f | tr '\n' ' ')"
@@ -94,9 +101,9 @@ do
  echo "Different file:"
  echo "${WQ}/${aFQ}"
  echo "${WQV}/${aFQ%/*}/"
-  echo -n "ENTER to ignore, any char to copy woofQ to woofQV: "
+  echo -n "ENTER to copy woofQ to woofQV: "
   read DOIGNORE
-  if [ "$DOIGNORE" != "" ];then
+  if [ "$DOIGNORE" == "" ];then
    cp -a -f --remove-destination ${WQ}/${aFQ} ${WQV}/${aFQ%/*}/
   fi
 done
@@ -123,6 +130,10 @@ FQS="$(find etc -mindepth 1 -type f | tr '\n' ' ')"
 
 for aFQ in ${FQS}
 do
+ grep -q 'WOOFQONLYMARKER' ${WQ}/${aFQ}
+ if [ $? -eq 0 ];then
+  continue
+ fi
  if [ ! -e ${WQV}/${aFQ} ];then
   echo "Copying file (not exist destination):"
   echo "${WQ}/${aFQ}"
@@ -145,9 +156,9 @@ do
  echo "Different file:"
  echo "${WQ}/${aFQ}"
  echo "${WQV}/${aFQ%/*}/"
-  echo -n "ENTER to ignore, any char to copy woofQ to woofQV: "
+  echo -n "ENTER to copy woofQ to woofQV: "
   read DOIGNORE
-  if [ "$DOIGNORE" != "" ];then
+  if [ "$DOIGNORE" == "" ];then
    cp -a -f --remove-destination ${WQ}/${aFQ} ${WQV}/${aFQ%/*}/
   fi
 done

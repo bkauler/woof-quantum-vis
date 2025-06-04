@@ -1,5 +1,5 @@
 #!/bin/sh
-# 10 Feb 2010 by shinobar (Masaki Shinomiya <shino@pos.to>)
+# 10 Feb 2010 by shinobar (Masaki Shinomiya <shino@pos.to>)  QUANTUMVISMARKER
 # 15 Feb 2010 remove include dir etc. from list
 # 18 Jul 2010 work without layouts file, remove error messages from dialog reply
 # 21 Jul 2010 opton '-load' force sets X properties

@@ -1,11 +1,13 @@
 #!/bin/ash
 #20230623
+#called from /usr/bin/sudo-sh C binary executable.
 #sudo does not work. something to do with busybox mkpasswd now using sha512?
 #script that wants to run as root has code that runs sudo-sh (suid binary)
 # hence here. ex: /usr/sbin/bootmanager
 #20230630 type-hint="6", ref: https://oldforum.puppylinux.com/viewtopic.php?t=115554
 #20231218 added cancel button.
 #20240713 remove >/dev/console
+#20250329 fix if no password entered. ref: https://forum.puppylinux.com/viewtopic.php?t=14098
 
 export TEXTDOMAIN=sudo-sh
 export OUTPUT_CHARSET=UTF-8
@@ -86,6 +88,10 @@ else
  echo #>/dev/console
  echo -n "$(gettext 'Type admin password required to run this app:') " #>/dev/console
  read -t 30 rootPW
+fi
+
+if [ -z "$rootPW" ];then #20250329
+ rootPW='thequickbrownfox'
 fi
 
 rootSALT="$(grep '^root:' /etc/shadow | cut -f 3 -d '$')"

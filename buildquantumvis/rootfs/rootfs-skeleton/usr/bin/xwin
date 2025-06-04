@@ -1,5 +1,5 @@
 #!/bin/bash
-#(c) Copyright Barry Kauler 2003,2004,2005,2006,2007,2013 www.puppylinux.com
+#(c) Copyright Barry Kauler 2003,2004,2005,2006,2007,2013 www.puppylinux.com  QUANTUMVISMARKER
 #2007 Lesser GPL licence v2 (http://www.fsf.org/licensing/licenses/lgpl.html)
 #131204 have taken script from woof, 130725, cut down for quirky6.
 #140217 if need to do hard reboot, make sure /root/.XLOADED written to disk.
