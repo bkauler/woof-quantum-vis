@@ -3,6 +3,7 @@
 #have been working on woofQ (EasyOS) last 6 months. 
 #a lot of it can be ported as-is to woofQV
 #a script in woofQ that must not be copied has string "WOOFQONLYMARKER"
+#also, a file 'WOOFQONLYMARKER' in a folder means do not copy folder.
 #a script in woofQV that must not be written to has string "QUANTUMVISMARKER"
 
 #my paths...
@@ -18,6 +19,7 @@ if [ ! -d ${WQV} ];then
  exit
 fi
 
+echo "STEP1: Finding files in usr/bin ..."
 FQS="$(find ${WQ}/usr/bin -mindepth 1 -maxdepth 1 -type f | tr '\n' ' ')"
 
 for aFQ in ${FQS}
@@ -55,12 +57,25 @@ do
  fi
 done
 
+############################################
 #ditto in usr/local...
 #find any missing folders...
+echo
+echo "STEP2: finding folders in usr/local ..."
 cd $WQ
 DQS="$(find usr/local -mindepth 1 -type d | tr '\n' ' ')"
 for aDQ in ${DQS}
 do
+ if [ -f ${WQ}/${aDQ}/WOOFQONLYMARKER ];then
+  continue
+ fi
+ UPx="${aDQ%/*}"
+ while [ "${UPx}" != "usr/local" -a "${UPx}" != "" ];do
+  if [ -f ${WQ}/${UPx}/WOOFQONLYMARKER ];then
+   continue 2
+  fi
+  UPx="${UPx%/*}"
+ done
  if [ ! -d ${WQV}/${aDQ} ];then
   echo "Copying folder (not exist destination):"
   echo "${WQ}/${aDQ}"
@@ -75,10 +90,30 @@ done
 sync
 
 #find all files....
+echo
+echo "STEP3: finding files in usr/local ..."
 FQS="$(find usr/local -mindepth 1 -type f | tr '\n' ' ')"
 
 for aFQ in ${FQS}
 do
+ if [ "${aFQ##*/}" == "WOOFQONLYMARKER" ];then
+  continue
+ fi
+ #if file WOOFQONLYMARKER exists current dir or higher, ignore...
+ UPx="${aFQ%/*}"
+ while [ "${UPx}" != "usr/local" -a "${UPx}" != "" ];do
+  if [ -f ${WQ}/${UPx}/WOOFQONLYMARKER ];then
+   continue 2
+  fi
+  UPx="${UPx%/*}"
+ done
+ if [ ! -d ${WQV}/${aFQ%/*} ];then
+  continue
+ fi
+ grep -q 'WOOFQONLYMARKER' ${aFQ}
+ if [ $? -eq 0 ];then
+  continue
+ fi
  if [ ! -e ${WQV}/${aFQ} ];then
   echo "Copying file (not exist destination):"
   echo "${WQ}/${aFQ}"
@@ -109,10 +144,23 @@ do
 done
 sync
 
+#############################################
 #also etc folder...
+echo
+echo "STEP4: finding folders in etc ..."
 DQS="$(find etc -mindepth 1 -type d | tr '\n' ' ')"
 for aDQ in ${DQS}
 do
+ if [ -f ${WQ}/${aDQ}/WOOFQONLYMARKER ];then
+  continue
+ fi
+ UPx="${aDQ%/*}"
+ while [ "${UPx}" != "etc" -a "${UPx}" != "" ];do
+  if [ -f ${WQ}/${UPx}/WOOFQONLYMARKER ];then
+   continue 2
+  fi
+  UPx="${UPx%/*}"
+ done
  if [ ! -d ${WQV}/${aDQ} ];then
   echo "Copying folder (not exist destination):"
   echo "${WQ}/${aDQ}"
@@ -126,10 +174,30 @@ do
 done
 
 #find all files....
+echo
+echo "STEP5: finding files in etc ..."
 FQS="$(find etc -mindepth 1 -type f | tr '\n' ' ')"
 
 for aFQ in ${FQS}
 do
+ case "${aFQ##*/}" in
+  WOOFQONLYMARKER) continue ;;
+  group|gshadow|ld.so.cache|ld-so.conf|passwd|shadow) continue ;;
+ esac
+ if [ "${aFQ##*/}" == "WOOFQONLYMARKER" ];then
+  continue
+ fi
+ #if file WOOFQONLYMARKER exists current dir or higher, ignore...
+ UPx="${aFQ%/*}"
+ while [ "${UPx}" != "etc" -a "${UPx}" != "" ];do
+  if [ -f ${WQ}/${UPx}/WOOFQONLYMARKER ];then
+   continue 2
+  fi
+  UPx="${UPx%/*}"
+ done
+ if [ ! -d ${WQV}/${aFQ%/*} ];then
+  continue
+ fi
  grep -q 'WOOFQONLYMARKER' ${WQ}/${aFQ}
  if [ $? -eq 0 ];then
   continue
@@ -163,5 +231,93 @@ do
   fi
 done
 sync
-###end###
 
+#####################################
+#also usr/share...
+#find any missing folders...
+echo
+echo "STEP6: finding folders in usr/share ..."
+cd $WQ
+DQS="$(find usr/share -mindepth 1 -type d | tr '\n' ' ')"
+for aDQ in ${DQS}
+do
+ if [ -f ${WQ}/${aDQ}/WOOFQONLYMARKER ];then
+  continue
+ fi
+ UPx="${aDQ%/*}"
+ while [ "${UPx}" != "usr/share" -a "${UPx}" != "" ];do
+  if [ -f ${WQ}/${UPx}/WOOFQONLYMARKER ];then
+   continue 2
+  fi
+  UPx="${UPx%/*}"
+ done
+ if [ ! -d ${WQV}/${aDQ} ];then
+  echo "Copying folder (not exist destination):"
+  echo "${WQ}/${aDQ}"
+  echo "${WQV}/${aDQ%/*}/"
+  echo -n "ENTER to copy: "
+  read godoit
+  if [ "$godoit" == "" ];then
+   cp -a ${WQ}/${aDQ} ${WQV}/${aDQ%/*}/
+  fi
+ fi
+done
+sync
+
+#find all files....
+echo
+echo "STEP7: finding files in usr/share ..."
+FQS="$(find usr/share -mindepth 1 -type f | tr '\n' ' ')"
+
+for aFQ in ${FQS}
+do
+ #ignore file WOOFQONLYMARKER...
+ if [ "${aFQ##*/}" == "WOOFQONLYMARKER" ];then
+  continue
+ fi
+ #if file WOOFQONLYMARKER exists current dir or higher, ignore...
+ UPx="${aFQ%/*}"
+ while [ "${UPx}" != "usr/share" -a "${UPx}" != "" ];do
+  if [ -f ${WQ}/${UPx}/WOOFQONLYMARKER ];then
+   continue 2
+  fi
+  UPx="${UPx%/*}"
+ done
+ if [ ! -d ${WQV}/${aFQ%/*} ];then
+  continue
+ fi
+ grep -q 'WOOFQONLYMARKER' ${aFQ}
+ if [ $? -eq 0 ];then
+  continue
+ fi
+ if [ ! -e ${WQV}/${aFQ} ];then
+  echo "Copying file (not exist destination):"
+  echo "${WQ}/${aFQ}"
+  echo "${WQV}/${aFQ%/*}/"
+  echo -n "ENTER to copy: "
+  read godoit
+  if [ "$godoit" == "" ];then
+   cp -a ${WQ}/${aFQ} ${WQV}/${aFQ%/*}/
+  fi
+  continue
+ fi
+ grep -q 'QUANTUMVISMARKER' ${WQV}/${aFQ}
+ if [ $? -eq 0 ];then
+  continue
+ fi
+ cmp -s ${WQ}/${aFQ} ${WQV}/${aFQ}
+ if [ $? -eq 0 ];then
+  continue
+ fi
+ echo "Different file:"
+ echo "${WQ}/${aFQ}"
+ echo "${WQV}/${aFQ%/*}/"
+  echo -n "ENTER to copy woofQ to woofQV: "
+  read DOIGNORE
+  if [ "$DOIGNORE" == "" ];then
+   cp -a -f --remove-destination ${WQ}/${aFQ} ${WQV}/${aFQ%/*}/
+  fi
+done
+sync
+
+###end###
