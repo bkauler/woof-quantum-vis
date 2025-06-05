@@ -7,7 +7,7 @@ QV is a new very experimental Linux distribution, under development and still ev
 
 [BarryK News](https://bkhome.org/news/tag_quirky.html)
 
-In a nutshell, QV has many features of EasyOS, except does not have a layered filesystem, nor SFS files. It is a "frugal full" installation, built from Void Linux packages using the XBPS package manager. It also has some EasyOS Kirkstone .tar.xz and PET packages. Another very significant feature is that QV is installed in a btrfs filesystem, with support for compression and snapshots.
+In a nutshell, QV has many features of EasyOS, except does not have a layered filesystem, nor SFS files. It is a "frugal full" installation, built from Void Linux packages using the XBPS package manager. It also has some EasyOS Scarthgap .tar.xz and PET packages. Another very significant feature is that QV is installed in a btrfs filesystem, with support for compression and snapshots.
 
 The letters "QV" may mean "Quirky Void", as this is a very quirky distribution compared with Void Linux. Or, it may mean "Quantum Vis", which is Latin for "has everything that you need".
 
