@@ -922,6 +922,10 @@ if [ "$KEYMAP" ];then
 fi
 
 ###trim###
+#20250604 import trim detection from woofQ init...
+#***TODO***
+
+
 if [ "$TRIMflg" ];then
  [ ! -f /mnt/${WKG_DEV}/${PATHDEF}/.easyos-bootcnt ] && echo -n '0' > /mnt/${WKG_DEV}/${PATHDEF}/.os-bootcnt
  BOOTCNT=$(cat /mnt/${WKG_DEV}/${PATHDEF}/.os-bootcnt)
