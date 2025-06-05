@@ -651,8 +651,9 @@ P2M='1253' #woofQV edits this.
 if [ "$Wsize" == "848M" -o "$Wsize" == "${P2M}M" -o "$Wsize" == "880M" ];then #current skeleton.
  #starting sector of wkg partition...
  Wstart="$(fdisk -u -l /dev/${WKG_DRV} | grep "^/dev/${WKG_DEV} " | tr -s ' ' | rev | cut -f 6 -d ' ' | rev)"
- #need to be paranoid here, to get this right, restrict to my skeletons... 1 + 15MiB or 1 + 23MiB
- if [ "$Wstart" == "32768" -o "$Wstart" == "49152" ];then #20240418
+ #20240418 need to be paranoid here, to get this right, restrict to my skeletons... 1 + 15MiB or 1 + 23MiB
+ #20250605 for qv, now have bigger vfat partition 47MiB +1 = 98304 sectors
+ if [ "$Wstart" == "32768" -o "$Wstart" == "49152" -o "$Wstart" == "98304" ];then
   #this has to be done with all partitions in WKG_DRV unmounted...
   echo -n -e "\\033[1;35m${S120:-Resizing working-partition to fill drive}\\033[0;39m\n " #purple
   echo -e "d\n${WKG_PARTNUM}\nn\np\n${WKG_PARTNUM}\n${Wstart}\n\nw" | fdisk -u /dev/${WKG_DRV} > /dev/null 2>&1
