@@ -246,7 +246,7 @@ LOOP1="$(losetup -f)"
 losetup -o ${OFF1} ${LOOP1} ${SKELETON_NAME}.img
 UUID1="$(blkid ${LOOP1} | tr ' ' '\n' | grep '^UUID=' | cut -f 2 -d '"')"
 busybox mount -t vfat -o offset=1048576,loop ${SKELETON_NAME}.img img_mntpt
-sed -e -i "s%boot_uuid=[^ ]*%boot_uuid=${UUID1}%" img_mntpt/limine.cfg
+sed -i -e "s%boot_uuid=[^ ]*%boot_uuid=${UUID1}%" img_mntpt/limine.cfg
 sync
 busybox umount img_mntpt
 losetup -d ${LOOP1}
