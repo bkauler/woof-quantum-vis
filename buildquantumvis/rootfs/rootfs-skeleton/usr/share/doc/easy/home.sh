@@ -11,6 +11,7 @@
 #200223 changed forum link to murga. 200714 change to easyos.org/forum
 #20210525 changed forum link.
 #20240330 QV
+#20250604 change blog url from tag_easy to tag_quirky
 
 export TEXTDOMAIN=easyhelp
 export OUTPUT_CHARSET=UTF-8
@@ -197,12 +198,12 @@ cat >> ${NEWFILE} <<_EOF
           <tbody>
            <tr>
             <td valign="top">
-             <b><a href="http://bkhome.org/news/tag_easy.html">${MSGy1}</a></b>
+             <b><a href="http://bkhome.org/news/tag_quirky.html">${MSGy1}</a></b>
             </td>
            </tr>
            <tr>
             <td valign="top">
-             <b><a href="https://forum.puppylinux.com/viewforum.php?f=63">${MSGy2}</a></b>
+             <b><a href="https://forum.puppylinux.com/viewforum.php?f=226">${MSGy2}</a></b>
             </td>
            </tr>
           </tbody>
