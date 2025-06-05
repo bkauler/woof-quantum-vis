@@ -2,9 +2,9 @@
 bluegriffon-1.0-1-amd64|bluegriffon|1.0-1-amd64||Document;edit|52720K||bluegriffon-1.0-1-amd64.pet|+gtk+|BlueGriffon WYSIWYG HTML editor|oe|dunfell||
 broadcom-sta-wl-20201202-k6.6.15-20240204-current64|broadcom-sta-wl|20201202-k6.6.15-20240204-current64||BuildingBlock|7380K||broadcom-sta-wl-20201202-k6.6.15-20240204-current64.pet|+linux_kernel&eq6.6.15|Broadcom wl.ko alternative driver|void|current||
 broadcom-sta-wl-20201202-k6.6.47-20240825-scarthgap64|broadcom-sta-wl|20201202-k6.6.47-20240825-scarthgap64||BuildingBlock|7380K||broadcom-sta-wl-20201202-k6.6.47-20240825-scarthgap64.pet|+linux_kernel&eq6.6.47|Broadcom wl.ko alternative driver|oe|scarthgap||
+broadcom-sta-wl-20201202-k6.6.52-20240927-scarthgap64|broadcom-sta-wl|20201202-k6.6.52-20240927-scarthgap64||BuildingBlock|7380K||broadcom-sta-wl-20201202-k6.6.52-20240927-scarthgap64.pet|+linux_kernel&eq6.6.52|Broadcom wl.ko alternative driver|oe|scarthgap||
 broadcom-sta-wl-20201202-k6.8.1-20240323-kirkstone64|broadcom-sta-wl|20201202-k6.8.1-20240323-kirkstone64||BuildingBlock|7380K||broadcom-sta-wl-20201202-k6.8.1-20240323-kirkstone64.pet|+linux_kernel&eq6.8.1|Broadcom wl.ko alternative driver|oe|kirkstone||
 broadcom-sta-wl-20201202-k6.8.1-20240325-kirkstone64|broadcom-sta-wl|20201202-k6.8.1-20240325-kirkstone64||BuildingBlock|7380K||broadcom-sta-wl-20201202-k6.8.1-20240325-kirkstone64.pet|+linux_kernel&eq6.8.1|Broadcom wl.ko alternative driver|oe|kirkstone||
-broadcom-sta-wl-20201202-k6.6.52-20240927-scarthgap64|broadcom-sta-wl|20201202-k6.6.52-20240927-scarthgap64||BuildingBlock|7380K||broadcom-sta-wl-20201202-k6.6.52-20240927-scarthgap64.pet|+linux_kernel&eq6.6.52|Broadcom wl.ko alternative driver|oe|scarthgap||
 btrfs-progs-fscrypt-6.5.1-231201-amd64|btrfs-progs-fscrypt|6.5.1-231201-amd64||BuildingBlock|4708K||btrfs-progs-fscrypt-6.5.1-231201-amd64.pet||btrfs utilities with fscrypt support|oe|kirkstone||
 busybox-1.36.1-static-amd64|busybox|1.36.1-static-amd64||BuildingBlock|1296K||busybox-1.36.1-static-amd64.pet||linux utilities, compiled statically with musl||||
 devx-1.0|devx|1.0||Utility;development|32K||devx-1.0.pet||meta-package for complete compile environment||||
@@ -12,9 +12,11 @@ gummiboot-20150311-1-xerus64|gummiboot|20150311-1-xerus64||BuildingBlock|200K||g
 hwclock-static-2.29.2-amd64|hwclock-static|2.29.2-amd64||BuildingBlock|132K||hwclock-static-2.29.2-amd64.pet||hwclock statically linked from util-linux pkg|oe|pyro||
 kirkstone-libs-20240311|kirkstone-libs|20240311||BuildingBlock|1628K||kirkstone-libs-20240311.pet||compatibility lib for kirstone app running in void|oe|kirkstone||
 libexttextcat-data-3.4.4-all|libexttextcat-data|3.4.4-all||BuildingBlock|688K||libexttextcat-data-3.4.4-all.pet|+libexttextcat|data files for libexttextcat, required by libreoffice||||
+linux_headers-6.15.1-20250605|linux_headers|6.15.1-20250605||BuildingBlock|13548K||linux_headers-6.15.1-20250605.pet||header files for 6.15.1 kernel||||
 linux_headers-6.6.52-20240927|linux_headers|6.6.52-20240927||BuildingBlock|12820K||linux_headers-6.6.52-20240927.pet||header files for 6.6.52 kernel||||
 linux_headers-6.8.1-20240323|linux_headers|6.8.1-20240323||BuildingBlock|13072K||linux_headers-6.8.1-20240323.pet||header files for 6.8.1 kernel||||
 linux_headers-6.8.1-20240325|linux_headers|6.8.1-20240325||BuildingBlock|13072K||linux_headers-6.8.1-20240325.pet||header files for 6.8.1 kernel||||
+linux_kernel-6.15.1-20250605-qv|linux_kernel|6.15.1-20250605-qv||BuildingBlock|191516K||linux_kernel-6.15.1-20250605-qv.pet||Linux kernel 6.15.1 compiled in Quantum Vis version 250601|void|current||
 linux_kernel-6.6.52-20240927-scarthgap64|linux_kernel|6.6.52-20240927-scarthgap64||BuildingBlock|169728K||linux_kernel-6.6.52-20240927-scarthgap64.pet||Linux kernel 6.6.52 compiled in EasyOS Scarthgap64 version 6.3.1|oe|scarthgap||
 linux_kernel-6.6.58-20241026-scarthgap64|linux_kernel|6.6.58-20241026-scarthgap64||BuildingBlock|169748K||linux_kernel-6.6.58-20241026-scarthgap64.pet||Linux kernel 6.6.58 compiled in EasyOS Scarthgap64 version 6.3.1|oe|scarthgap||
 linux_kernel-6.8.0-20240314-kirkstone64|linux_kernel|6.8.0-20240314-kirkstone64||BuildingBlock|173744K||linux_kernel-6.8.0-20240314-kirkstone64.pet||Linux kernel 6.8.0 compiled in EasyOS Kirkstone64 version 5.6.6|oe|kirkstone||
