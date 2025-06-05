@@ -241,6 +241,16 @@ losetup -d ${LOOP3}
 
 [ -f qv-${DISTRO_VERSION}-${DISTRO_TARGETARCH}.img ] && rm -f qv-${DISTRO_VERSION}-${DISTRO_TARGETARCH}.img
 
+#20250605 somehow the uuid of vfat partition got changed...
+LOOP1="$(losetup -f)"
+losetup -o ${OFF1} ${LOOP1} ${SKELETON_NAME}.img
+UUID1="$(blkid ${LOOP1} | tr ' ' '\n' | grep '^UUID=' | cut -f 2 -d '"')"
+busybox mount -t vfat -o offset=1048576,loop ${SKELETON_NAME}.img img_mntpt
+sed -e -i "s%boot_uuid=[^ ]*%boot_uuid=${UUID1}%" img_mntpt/limine.cfg
+sync
+busybox umount img_mntpt
+losetup -d ${LOOP1}
+
 mv -f ${SKELETON_NAME}.img qv-${DISTRO_VERSION}-${DISTRO_TARGETARCH}.img
 md5sum qv-${DISTRO_VERSION}-${DISTRO_TARGETARCH}.img > md5sum.txt
 sync
