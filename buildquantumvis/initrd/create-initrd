@@ -21,6 +21,10 @@ fi
 mkdir -p ${E1}/initrd
 
 ###copy skeleton initrd###
+#20250604 d/l woofQV from github, has lost permissions...
+chown -R ${L1}/initrd/initrd-tree-skeleton/skeleton/files
+find ${L1}/initrd/initrd-tree-skeleton/skeleton/files -mindepth 1 -type d | xargs -I XXX chmod 2770 XXX
+chmod 2770 ${L1}/initrd/initrd-tree-skeleton/skeleton/files
 cp -a ${L1}/initrd/initrd-tree-skeleton ${E1}/initrd/initrd-tree
 find ${E1}/initrd/initrd-tree -type f -name 'EMPTYDIRMARKER' -delete
 sync
