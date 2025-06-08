@@ -142,9 +142,9 @@ menu_func() {
  echo "SNAPBOOT ${CNTm} ${S408:-Choose snapshot to boot into}" >> /menulist
  CNTm=$(($CNTm+1))
  echo "FSCHECK ${CNTm} ${S025:-Filesystem check of working-partition}" >> /menulist
-#20241006 remove...
-# CNTm=$(($CNTm+1))
-# echo "FIXVIDEO ${CNTm} ${S401:-Run Xorg Wizard to fix broken video}" >> /menulist
+ #20241006 remove... 20250608 restore...
+ CNTm=$(($CNTm+1))
+ echo "FIXVIDEO ${CNTm} ${S401:-Run Xorg Wizard to fix broken video}" >> /menulist
  CNTm=$(($CNTm+1))
  echo "DROPSHELL ${CNTm} ${S410:-Dropout to shell in initrd (developers only)}" >> /menulist
  CNTm=$(($CNTm+1))
@@ -415,6 +415,17 @@ EOT
  return 0
 }
 
+#20250608 display countdown, on same line...
+#ref: https://serverfault.com/questions/532559/bash-script-count-down-5-minutes-display-on-single-line
+countdown_func() {
+ SECS=$1
+ [ -z "$SECS" ] && SECS=5
+ while [ $SECS -gt 0 ];do
+  echo -ne "\r${SECS}\033[0K"
+  SECS=$((${SECS}-1))
+ done
+}
+
 #if qlang kernel boot param...
 if [ "$qlang" ];then
  QLANG="$qlang"
@@ -513,6 +524,27 @@ else
  BOOT_DEV="$WKG_DEV"
  BOOT_FS="$WKG_FS"
  BOOT_DIR="$WKG_DIR"
+fi
+
+#20250608 BROKENVID set in menu...
+if [ $BROKENVID -eq 1 ];then
+ grep -q 'nomodeset' /proc/cmdline
+ if [ $? -ne 0 ];then
+  KPARAMS="$(cat /proc/cmdline)"
+  mkdir -p /mnt/${BOOT_DEV}
+  if [ ! -f /mnt/${BOOT_DEV}/${BOOT_DIR}vmlinuz ];then
+   mount -t ${BOOT_FS} /dev/${BOOT_DEV} /mnt/${BOOT_DEV}
+  fi
+  echo
+  echo -e "\\033[1;31m ${S500:-NOTICE: the kernel is about to restart. If asked for the password, enter it. Or, if there is no password, just press ENTER when the menu appears.}\\033[0;39m" | fold -s -w 69 #red.
+  echo -e "\\033[1;31m ${S501:-There will be a normal bootup, except the Xorg Video Wizard will run.}\\033[0;39m" | fold -s -w 69 #red.
+  echo -e "\\033[1;31m ${S502:-Technical note: kernel restart will have the \"nomodeset\" commandline parameter.}\\033[0;39m" | fold -s -w 69 #red.
+  echo -e "\\033[1;31m ${S503:-Counting down to restart...}\\033[0;39m" #red.
+  countdown_func 20
+  /bin/kexec --load /mnt/${BOOT_DEV}/${BOOT_DIR}vmlinuz --initrd=/mnt/${BOOT_DEV}/${BOOT_DIR}initrd --command-line="qfix=vid nomodeset ${KPARAMS}"
+  /bin/kexec -e
+  #...kernel will restart, with "qfix=vid nomodeset"
+ fi
 fi
 
 #20240324 read optional qfix= kernel boot parameter
@@ -1024,40 +1056,7 @@ fi
 
 ###broken video###
 if [ $BROKENVID -eq 1 ];then
-
- #20241002 kexec doesn't work
- ##20240926 this requires kernel CONFIG_KEXEC.  20241001
- #grep -q 'nomodeset' /proc/cmdline
- #if [ $? -ne 0 ];then
- # KPARAMS="$(cat /proc/cmdline)"
- # UMNTflg=0
- # if [ ! -f /mnt/${BOOT_DEV}/${BOOT_DIR}vmlinuz ];then
- #  mkdir -p /mnt/${BOOT_DEV}
- #  mount -t ${BOOT_FS} /dev/${BOOT_DEV} /mnt/${BOOT_DEV}
- #  UMNTflg=1
- # fi
- # cp -f /mnt/${BOOT_DEV}/${BOOT_DIR}vmlinuz /
- # cp -f /mnt/${BOOT_DEV}/${BOOT_DIR}initrd /
- # sync
- # if [ $UMNTflg -eq 1 ];then
- #  umount /dev/${BOOT_DEV}
- # fi
- # fuser -k -m /mnt/${WKG_DEV}
- # sleep 0.5
- # for aL in $(losetup -a | cut -f 1 -d ':' | tr '\n' ' ')
- # do
- #  umount ${aL}
- #  losetup -d ${aL} 2>/dev/null
- # done
- # sync
- # umount /dev/${WKG_DEV}
- # #rerun kernel....
- # /bin/kexec --load /vmlinuz --initrd=/initrd --append="qfix=vid nomodeset ${KPARAMS}"
- # /bin/kexec -e
- # ###NEW KERNEL###
- #fi
-
- #note: BROKENVID will need to be a kernel param, set via boot-manager menu.
+ #20250608 see above, run kexec to restart with "qfix=vid nomodeset"
  #prevent kernel drm gpu modules from loading...
  #instead of modeprobe.blacklist=nouveau modeprobe.blacklist=i915 modeprobe.blacklist=radeon modeprobe.blacklist=amdgpu modeprobe.blacklist=gma500_gfx
  echo 'blacklist amdgpu
@@ -1072,7 +1071,6 @@ blacklist radeon' > /mnt/${WKG_DEV}/${QV}/etc/modprobe.d/gpu.conf
  rm -rf /mnt/${WKG_DEV}/${QV}/etc/xorg.conf.d 2>/dev/null
  # now set a flag, /root/.profile will run xorgwizard-cli...
  touch /mnt/${WKG_DEV}/${QV}/.brokenvideo
- 
 fi
 
 ###setup PUPSTATE###
