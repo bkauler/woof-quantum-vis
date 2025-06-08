@@ -171,3 +171,9 @@ S410='Abandon du shell dans initrd (développeurs uniquement)'
 S420='Supprimer les instantanés'
 S430='Instantané original'
 S431='Instantané du premier démarrage impeccable'
+
+###
+S500='AVIS : Le noyau est sur le point de redémarrer. Si le mot de passe vous est demandé, saisissez-le. En l´absence de mot de passe, appuyez simplement sur ENTRÉE lorsque le menu apparaît.'
+S501='Le démarrage se fera normalement, sauf que l´assistant vidéo Xorg s´exécutera.'
+S502='Note technique : le redémarrage du noyau utilisera le paramètre de ligne de commande « nomodeset ».'
+S503='Compte à rebours avant le redémarrage…'

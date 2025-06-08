@@ -171,3 +171,9 @@ S410='Renunțarea la shell în initrd (numai pentru dezvoltatori)'
 S420='Ștergeți instantaneele'
 S430='Instantaneu original'
 S431='Instantaneu al primei porniri impecabile'
+
+###
+S500='NOTĂ: kernelul este pe cale să repornească. Dacă vi se solicită parola, introduceți-o. Sau, dacă nu există nicio parolă, apăsați ENTER când apare meniul.'
+S501='Va avea loc o pornire normală, cu excepția faptului că Xorg Video Wizard va rula.'
+S502='Notă tehnică: repornirea kernelului va avea parametrul din linia de comandă "nomodeset".'
+S503='Numărătoare inversă până la repornire...'

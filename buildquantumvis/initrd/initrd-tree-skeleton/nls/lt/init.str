@@ -171,3 +171,9 @@ S410='Iškritimas į apvalkalą initrd (tik kūrėjams)'
 S420='Ištrinti momentines nuotraukas'
 S430='Originalus momentinis vaizdas'
 S431='Pirmojo paleidimo momentinis vaizdas'
+
+###
+S500='PRANEŠIMAS: branduolys tuoj bus paleistas iš naujo. Jei jūsų paprašys slaptažodžio, įveskite jį. Arba, jei slaptažodžio nėra, tiesiog paspauskite ENTER, kai pasirodys meniu.'
+S501='Bus įprastas paleidimas, išskyrus tai, kad veiks „Xorg“ vaizdo vedlys.'
+S502='Techninė pastaba: branduolio paleidimas iš naujo turės komandinės eilutės parametrą „nomodeset“.'
+S503='Skaičiuojama atgal iki paleidimo iš naujo...'

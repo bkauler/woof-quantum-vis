@@ -171,3 +171,9 @@ S410='Atkāpšanās uz čaulu initrd (tikai izstrādātājiem)'
 S420='Dzēst momentuzņēmumus'
 S430='Sākotnējais momentuzņēmums'
 S431='Pirmās palaišanas momentuzņēmums'
+
+###
+S500='PAZIŅOJUMS: kodols tūlīt tiks restartēts. Ja tiek prasīta parole, ievadiet to. Vai, ja paroles nav, vienkārši nospiediet taustiņu ENTER, kad parādās izvēlne.'
+S501='Notiks parasta sāknēšana, izņemot to, ka darbosies Xorg video vednis.'
+S502='Tehniska piezīme: kodola restartēšanai būs komandrindas parametrs "nomodeset".'
+S503='Notiek atpakaļskaitīšana līdz restartēšanai...'

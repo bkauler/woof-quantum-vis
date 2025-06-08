@@ -171,3 +171,9 @@ S410='Avbrott till skal i initrd (endast utvecklare)'
 S420='Ta bort ögonblicksbilder'
 S430='Original Snapshot'
 S431='Önblicksbild av orörd första uppstart'
+
+###
+S500='OBS: kärnan startar om. Om du blir ombedd att ange lösenordet, ange det. Eller, om det inte finns något lösenord, tryck bara på ENTER när menyn visas.'
+S501='Det kommer att ske en normal uppstart, förutom att Xorg-videoguiden körs.'
+S502='Teknisk anmärkning: omstart av kärnan kommer att ha kommandoradsparametern "nomodeset".'
+S503='Räknar ner till omstart...'

@@ -171,3 +171,9 @@ S410='Descarte para shell no initrd (somente desenvolvedores)'
 S420='Excluir instantâneos'
 S430='Instantâneo Original'
 S431='Instantâneo da primeira inicialização perfeita'
+
+###
+S500='AVISO: o kernel está prestes a reiniciar. Se for solicitada a palavra-passe, introduza-a. Ou, se não existir palavra-passe, basta premir ENTER quando o menu aparecer.'
+S501='Haverá um arranque normal, excepto que o Assistente de Vídeo do Xorg será executado.'
+S502='Nota técnica: o reinício do kernel terá o parâmetro de linha de comando "nomodeset".'
+S503='Contagem decrescente para reiniciar...'

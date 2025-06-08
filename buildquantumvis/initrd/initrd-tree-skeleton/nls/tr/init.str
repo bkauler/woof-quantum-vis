@@ -171,3 +171,9 @@ S410='initrd de kabuğa çık (yalnızca geliştiriciler)'
 S420='Anlık görüntüleri sil'
 S430='Orijinal Anlık Görüntü'
 S431='Bozulmamış ilk başlatmanın anlık görüntüsü'
+
+###
+S500='BİLDİRİM: çekirdek yeniden başlatılmak üzere. Parola istenirse girin. Ya da parola yoksa, menü göründüğünde ENTER tuşuna basın.'
+S501='Normal bir önyükleme olacak, ancak Xorg Video Sihirbazı çalışacak.'
+S502='Teknik not: çekirdek yeniden başlatma "nomodeset" komut satırı parametresine sahip olacak.'
+S503='Yeniden başlatma için geri sayım...'

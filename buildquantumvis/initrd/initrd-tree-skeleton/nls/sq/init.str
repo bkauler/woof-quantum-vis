@@ -171,3 +171,9 @@ S410='Dalja në shell në initrd (vetëm për zhvilluesit)'
 S420='Fshi fotot'
 S430='Pamja origjinale'
 S431='Pamja e ngritjes së parë të pacenuar'
+
+###
+S500='NJOFITIM: bërthama është gati të riniset. Nëse kërkohet fjalëkalimi, futeni atë. Ose, nëse nuk ka fjalëkalim, thjesht shtypni ENTER kur të shfaqet menyja.'
+S501='Do të ketë një nisje normale, përveçse Xorg Video Wizard do të ekzekutohet.'
+S502='Shënim teknik: rinisja e bërthamës do të ketë parametrin e linjës së komandës "nomodeset".'
+S503='Duke numëruar mbrapsht për rinisje...'

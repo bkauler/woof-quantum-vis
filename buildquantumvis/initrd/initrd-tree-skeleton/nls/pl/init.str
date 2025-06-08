@@ -171,3 +171,9 @@ S410='Przejście do powłoki w initrd (tylko dla programistów)'
 S420='Usuń migawki'
 S430='Oryginalny zrzut ekranu'
 S431='Migawka nieskazitelnego pierwszego uruchomienia'
+
+###
+S500='UWAGA: jądro zostanie uruchomione ponownie. Jeśli zostaniesz poproszony o hasło, wprowadź je. Jeśli nie ma hasła, naciśnij ENTER, gdy pojawi się menu.'
+S501='Nastąpi normalne uruchomienie, z wyjątkiem uruchomienia Xorg Video Wizard.'
+S502='Uwaga techniczna: ponowne uruchomienie jądra będzie miało parametr wiersza poleceń „nomodeset”.'
+S503='Odliczanie do ponownego uruchomienia...'

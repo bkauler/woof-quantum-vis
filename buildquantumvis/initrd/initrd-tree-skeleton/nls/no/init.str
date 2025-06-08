@@ -171,3 +171,9 @@ S410='Frafall til skall i initrd (kun utviklere)'
 S420='Slett øyeblikksbilder'
 S430='Originalt øyeblikksbilde'
 S431='Øyeblikksbilde av uberørt første oppstart'
+
+###
+S500='MERK: Kjernen er i ferd med å starte på nytt. Hvis du blir bedt om passordet, skriv det inn. Eller, hvis det ikke finnes noe passord, trykk bare ENTER når menyen vises.'
+S501='Det vil bli en normal oppstart, bortsett fra at Xorg-videoveiviseren vil kjøre.'
+S502='Teknisk merknad: Omstart av kjernen vil ha kommandolinjeparameteren "nomodeset".'
+S503='Nedteller til omstart...'

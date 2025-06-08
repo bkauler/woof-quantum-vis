@@ -171,3 +171,9 @@ S410='Vervallen naar shell in initrd (alleen ontwikkelaars)'
 S420='Snapshots verwijderen'
 S430='Originele momentopname'
 S431='Momentopname van onberispelijke eerste keer opstarten'
+
+###
+S500='LET OP: de kernel staat op het punt opnieuw op te starten. Voer het wachtwoord in als erom wordt gevraagd. Of, als er geen wachtwoord is, druk dan op ENTER wanneer het menu verschijnt.'
+S501='Er zal normaal worden opgestart, behalve dat de Xorg Video Wizard wordt uitgevoerd.'
+S502='Technische opmerking: het herstarten van de kernel zal de opdrachtregelparameter "nomodeset" hebben.'
+S503='Aftellen naar herstarten...'

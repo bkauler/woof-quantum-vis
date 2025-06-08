@@ -171,3 +171,9 @@ S410='Frafald til shell i initrd (kun udviklere)'
 S420='Slet snapshots'
 S430='Original Snapshot'
 S431='Snapshot af uberørt første opstart'
+
+###
+S500='BEMÆRK: Kernen er ved at genstarte. Hvis du bliver bedt om adgangskoden, skal du indtaste den. Eller, hvis der ikke er nogen adgangskode, skal du blot trykke på ENTER, når menuen vises.'
+S501='Der vil være en normal opstart, bortset fra at Xorg Video Wizard kører.'
+S502='Teknisk bemærkning: Genstart af kernen vil have kommandolinjeparameteren "nomodeset".'
+S503='Nedtælling til genstart...'

@@ -158,4 +158,11 @@ S304='Gnupg imzolangan kalitlar juftligi yaratilmoqda, /root/.gnupg'
 
 ######
 S400='Hech qanday NVIDIA GPU aniqlanmadi, shuning uchun NVIDIA SFS yuklanmaydi'
+S401='Buzilgan videoni tuzatish uchun Xorg ustasini ishga tushiring'
 S409='(15 soniya vaqtni o´chirish uchun bo´sh joyni bosing)'
+
+###
+S500='DIQQAT: yadro qayta ishga tushmoqchi. Agar parol so´ralsa, uni kiriting. Yoki parol bo´lmasa, menyu paydo bo´lganda ENTER tugmasini bosing.'
+S501='Oddiy yuklash bo´ladi, faqat Xorg video ustasi ishlaydi.'
+S502='Texnik eslatma: yadroni qayta ishga tushirishda "nomodeset" buyruq qatori parametri bo´ladi.'
+S503='Qayta boshlash uchun sanash davom etmoqda...'

@@ -171,3 +171,9 @@ S410='Esci dalla shell in initrd (solo sviluppatori)'
 S420='Elimina istantanee'
 S430='Istantanea originale'
 S431='Istantanea del primo avvio originale'
+
+###
+S500='AVVISO: il kernel sta per riavviarsi. Se richiesto, inserisci la password. In alternativa, se non è presente alcuna password, premi semplicemente INVIO quando appare il menu.'
+S501='Ci sarà un avvio normale, ma verrà eseguito Xorg Video Wizard.'
+S502='Nota tecnica: il riavvio del kernel avrà il parametro "nomodeset" nella riga di comando.'
+S503='Conto alla rovescia per il riavvio...'

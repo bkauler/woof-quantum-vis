@@ -171,3 +171,9 @@ S410='Poista komentotulkkiin initrd:ssä (vain kehittäjät)'
 S420='Poista tilannekuvat'
 S430='Alkuperäinen tilannekuva'
 S431='Kuvaus alkuperäisestä ensimmäisestä käynnistyksestä'
+
+###
+S500='HUOMAUTUS: Ydin on käynnistymässä uudelleen. Jos sinulta kysytään salasanaa, anna se. Tai jos salasanaa ei ole, paina ENTER-näppäintä, kun valikko tulee näkyviin.'
+S501='Käynnistys tapahtuu normaalisti, paitsi että Xorg-video-ohjattu toiminto suoritetaan.'
+S502='Tekninen huomautus: Ytimen uudelleenkäynnistyksessä on komentoriviparametri "nomodeset".'
+S503='Laskee alas uudelleenkäynnistykseen...'

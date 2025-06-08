@@ -171,3 +171,9 @@ S410='Abbruch zur Shell in initrd (nur Entwickler)'
 S420='Snapshots löschen'
 S430='Original-Schnappschuss'
 S431='Schnappschuss des makellosen ersten Startvorgangs'
+
+###
+S500='HINWEIS: Der Kernel wird neu gestartet. Geben Sie das Passwort ein, falls Sie dazu aufgefordert werden. Falls kein Passwort vorhanden ist, drücken Sie einfach die Eingabetaste, sobald das Menü erscheint.'
+S501='Der Systemstart erfolgt normal, außer dass der Xorg-Videoassistent ausgeführt wird.'
+S502='Technischer Hinweis: Beim Neustart des Kernels wird der Befehlszeilenparameter "nomodeset" verwendet.'
+S503='Countdown bis zum Neustart läuft...'

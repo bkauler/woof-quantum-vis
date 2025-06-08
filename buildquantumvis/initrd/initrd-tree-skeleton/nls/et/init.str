@@ -171,3 +171,9 @@ S410='Katkumine kesta initrd-is (ainult arendajatele)'
 S420='Kustuta hetktõmmised'
 S430='Algne hetktõmmis'
 S431='Püha esmakäivituse hetktõmmis'
+
+###
+S500='MÄRKUS: kernel taaskäivitub kohe. Kui küsitakse parooli, sisestage see. Või kui parooli pole, vajutage menüü ilmumisel lihtsalt sisestusklahvi (ENTER).'
+S501='Toimub tavaline käivitus, välja arvatud see, et käivitub Xorgi videoviisard.'
+S502='Tehniline märkus: kerneli taaskäivitamisel on käsureaparameeter "nomodeset".'
+S503='Loendab taaskäivitamiseni...'

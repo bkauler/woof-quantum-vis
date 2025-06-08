@@ -171,3 +171,9 @@ S410='Vypustenie do shellu v initrd (len vývojári)'
 S420='Odstrániť snímky'
 S430='Pôvodná snímka'
 S431='Snímka nedotknutého prvého spustenia'
+
+###
+S500='UPOZORNENIE: Jadro sa chystá reštartovať. Ak sa zobrazí výzva na zadanie hesla, zadajte ho. Alebo, ak heslo nie je zadané, stlačte ENTER, keď sa zobrazí ponuka.'
+S501='Prebehne normálne spustenie, s výnimkou spustenia Xorg Video Wizard.'
+S502='Technická poznámka: reštart jadra bude mať parameter príkazového riadku „nomodeset“.'
+S503='Odpočítava sa čas do reštartu...'

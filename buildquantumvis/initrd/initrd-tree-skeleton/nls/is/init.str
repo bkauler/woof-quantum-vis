@@ -171,3 +171,9 @@ S410='Brottfall í skel í initrd (aðeins verktaki)'
 S420='Eyða skyndimyndum'
 S430='Upprunaleg skyndimynd'
 S431='Skoðamynd af óspilltri fyrstu ræsingu'
+
+###
+S500='ATHUGIÐ: Kjarninn er að fara að endurræsa. Ef beðið er um lykilorðið, sláðu það inn. Eða, ef ekkert lykilorð er til staðar, ýttu bara á ENTER þegar valmyndin birtist.'
+S501='Það verður eðlileg ræsing, nema að Xorg Video Wizard mun keyra.'
+S502='Tæknileg athugasemd: Endurræsing kjarnans mun hafa skipanalínubreytuna "nomodeset".'
+S503='Telur niður til endurræsingar...'

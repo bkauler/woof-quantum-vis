@@ -171,3 +171,9 @@ S410='Izpad lupine v initrd (samo razvijalci)'
 S420='Izbriši posnetke'
 S430='Izvirni posnetek'
 S431='Posnetek neokrnjenega prvega zagona'
+
+###
+S500='OBVESTILO: jedro se bo kmalu znova zagnalo. Če boste pozvani k geslu, ga vnesite. Če pa gesla ni, preprosto pritisnite ENTER, ko se prikaže meni.'
+S501='Zagon bo normalen, le da se bo zagnal čarovnik Xorg Video.'
+S502='Tehnična opomba: ponovni zagon jedra bo imel parameter ukazne vrstice »nomodeset«.'
+S503='Odštevanje do ponovnega zagona ...'

@@ -171,3 +171,9 @@ S410='Kihagyás a shellbe az initrd-ben (csak fejlesztőknek)'
 S420='Pillanatképek törlése'
 S430='Eredeti pillanatkép'
 S431='Pillanatkép az érintetlen első rendszerindításról'
+
+###
+S500='FIGYELEM: a kernel hamarosan újraindul. Ha a rendszer kéri a jelszót, adja meg. Vagy ha nincs jelszó, egyszerűen nyomja meg az ENTER billentyűt, amikor megjelenik a menü.'
+S501='Normál rendszerindítás történik, kivéve, hogy az Xorg videó varázsló elindul.'
+S502='Technikai megjegyzés: a kernel újraindításakor a "nomodeset" parancssori paraméter lesz érvényben.'
+S503='Visszaszámlálás az újraindításig...'

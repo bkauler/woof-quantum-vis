@@ -171,3 +171,9 @@ S410='Dropout to shell in initrd (developers only)'
 S420='Delete snapshots'
 S430='Original Snapshot'
 S431='Snapshot of pristine first bootup'
+
+######
+S500='NOTICE: the kernel is about to restart. If asked for the password, enter it. Or, if there is no password, just press ENTER when the menu appears.'
+S501='There will be a normal bootup, except the Xorg Video Wizard will run.'
+S502='Technical note: kernel restart will have the "nomodeset" commandline parameter.'
+S503='Counting down to restart...'

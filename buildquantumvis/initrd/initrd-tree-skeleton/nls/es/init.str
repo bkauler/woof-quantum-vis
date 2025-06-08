@@ -171,3 +171,9 @@ S410='Abandonar el shell en initrd (solo desarrolladores)'
 S420='Eliminar instantáneas'
 S430='Instantánea original'
 S431='Instantánea del primer arranque impecable'
+
+###
+S500='AVISO: El kernel está a punto de reiniciarse. Si se le solicita la contraseña, introdúzcala. Si no la tiene, simplemente pulse INTRO cuando aparezca el menú.'
+S501='El arranque será normal, excepto que se ejecutará el Asistente de Vídeo de Xorg.'
+S502='Nota técnica: El reinicio del kernel tendrá el parámetro de línea de comandos "nomodeset".'
+S503='Cuenta atrás para reiniciar...'
