@@ -115,6 +115,7 @@ EOT
 }
 
 #no longer offering boot options in boot-manager, offer here...
+mSNAPTAKE=0; mSNAPDEL=0; mSNAPBOOT=0; mFSCHECK=0; mFIXVIDEO=0; mDROPSHELL=0 #20250609
 menu_func() {
  CNTm=1
  if [ "$1" != "nopw" ];then
@@ -194,6 +195,7 @@ menu_func() {
    echo "${S406:-...you have chosen to prevent access to drive partitions}"
   ;;
   SNAPTAKE)
+   mSNAPTAKE=1 #20250609
    /sbin/take-snapshot "${WKG_DEV}" "${WKG_DIR}" "${PATHDEF}"
    if [ $? -eq 0 ];then
     PATHDEF="$(cat /NEWPATHDEF)" #ex: quantumvis/2
@@ -215,37 +217,39 @@ menu_func() {
    fi
   ;;
   SNAPDEL)
+   mSNAPDEL=1 #20250609
    /sbin/delete-snapshots "${WKG_DEV}" "${WKG_DIR}" "${PATHDEF}"
    if [ $? -eq 0 ];then
     sleep 2 #so as to read the error msg.
    fi
   ;;
   SNAPBOOT)
+   mSNAPBOOT=1 #20250609
    /sbin/choose-snapshot "${WKG_DEV}" "${WKG_DIR}" "${PATHDEF}"
    if [ $? -eq 0 ];then
     
-    #20241002 check kernel version in snapshot...
-    NEWflg=0; REBOOTflg=0
+    #20241002 check kernel version in snapshot... 20250609
+    NEWflg=1; REBOOTflg=0
     PATHDEFnew="$(cat /NEWPATHDEF)" #ex: quantumvis/2
     QVnew="${PATHDEFnew}/@qv"
     if [ ! -d /mnt/${WKG_DEV}/${QVnew}/usr/lib/modules/${KERNVER} ];then
      echo
      echo -en "\\033[1;31m" #red foreground.
-     echo "The default kernel is version: ${KERNVER}"
-     echo "There is a potential problem. The snapshot that you want to boot into has not previously run with the default kernel version." | fold -s -w 69
-     echo "It has only run with these kernel versions:"
+     echo "${S550:-The default kernel is version:} ${KERNVER}"
+     echo "${S551:-There is a potential problem. The snapshot that you want to boot into has not previously run with the default kernel version.}" | fold -s -w 69
+     echo "${S552:-It has only run with these kernel versions:}"
      PREVkerns="$(find /mnt/${WKG_DEV}/${QVnew}/usr/lib/modules -mindepth 1 -maxdepth 1 -type d | sed -e 's%.*/%%' | tr '\n' ' ')"
      echo "${PREVkerns}"
      echo -e "\\033[0;39m"
      echo
-     echo "You have a choice. Press ENTER to continue bootup, using the default kernel" | fold -s -w 69
-     echo "Or, press the SPACEBAR key then ENTER, to abort booting this snapshot."
-     echo "Or, press any other key then ENTER, to choose one of the kernels previously used by this snapshot. Be warned that the choice will then become the default kernel. Also, a reboot will be required to complete the change." | fold -s -w 69
+     echo "${S553:-You have a choice. Press ENTER to continue bootup your chosen snapshot, using the default kernel.}" | fold -s -w 69
+     echo "${S554:-Or, press the SPACEBAR key then ENTER, to abort booting this snapshot (and stay with the current snapshot).}"
+     echo "${S555:-Or, press any other key then ENTER, to choose one of the kernels previously used by this snapshot. The choice will then become the default kernel.}" | fold -s -w 69
      IFS='' read NEWask
      if [ -n "${NEWask}" ];then
       if [ "${NEWask}" == " " ];then
-       NEWflg=1
-       echo " ...ok, staying with current snapshot."
+       NEWflg=0
+       echo " ${S556:-...ok, staying with current snapshot.}"
       else
        CNTp=1
        echo -n '' > /PREVKERNS
@@ -255,25 +259,27 @@ menu_func() {
         CNTp=$((${CNTp}+1))
         echo "$aPREV" >> /PREVKERNS
        done
-       echo "Type a number from the first column, then press ENTER: "
+       echo "${S557:-Type a number from the first column, then press ENTER:} "
        read NEWchoice
        KERNchosen="$(cat /PREVKERNS | head -n ${NEWchoice} | tail -n 1)"
-       echo "OK, booting with this kernel: ${KERNchosen}"
-       echo "This kernel is now copied to the boot partition, replacing previous."
+       echo "${S558:-OK, booting with this kernel:} ${KERNchosen}"
+       echo "${559:-This kernel is now copied to the boot partition, replacing previous.}"
        cp -f /mnt/${WKG_DEV}/${QVnew}/boot/vmlinuz-${KERNchosen} /mnt/${BOOT_DIR}/${WKG_DIR}vmlinuz
        sync
        echo
        REBOOTflg=1
       fi
      else
-      echo " ...ok, continuing bootup."
+      echo " ${S560:-...ok, continuing bootup of chosen snapshot.}"
       cp -f /mnt/${BOOT_DIR}/${WKG_DIR}vmlinuz /mnt/${WKG_DEV}/${QVnew}/boot/vmlinuz-${KERNVER}
       cp -a -f /mnt/${WKG_DEV}/${QV}/usr/lib/modules/${KERNVER} /mnt/${WKG_DEV}/${QVnew}/usr/lib/modules/
+      #20250609 also update the firmware...
+      cp -a -f -u /mnt/${WKG_DEV}/${QV}/usr/lib/firmware/* /mnt/${WKG_DEV}/${QVnew}/usr/lib/firmware/
       echo
      fi
     fi
     
-    if [ $NEWflg -eq 0 ];then
+    if [ $NEWflg -eq 1 ];then
      PATHDEF="$(cat /NEWPATHDEF)" #ex: quantumvis/2
      SNAPDEF="${PATHDEF##*/}"
      QV="${PATHDEF}/@qv"
@@ -283,12 +289,26 @@ menu_func() {
      SNAPDATE="$(grep "^${SNAPDEF}|" /mnt/${WKG_DEV}/${WKG_DIR}snapshot-record | cut -f 2 -d '|')"
     
      if [ $REBOOTflg -eq 1 ];then #20241002
-      echo -en "\\033[1;31m" #red foreground.
-      echo "YOU NOW HAVE TO REBOOT THE COMPUTER"
-      echo "Type CTRL-ALT-DEL, or in some cases have to hold down the power button."
-      echo "At the next bootup, just perform a normal bootup, do not choose anything from the menu." | fold -s -w 69
-      echo -e "\\033[0;39m"
-      sleep 9999999
+      #echo -en "\\033[1;31m" #red foreground.
+      #echo "YOU NOW HAVE TO REBOOT THE COMPUTER"
+      #echo "Type CTRL-ALT-DEL, or in some cases have to hold down the power button."
+      #echo "At the next bootup, just perform a normal bootup, do not choose anything from the menu." | fold -s -w 69
+      #echo -e "\\033[0;39m"
+      #sleep 9999999
+      
+      #20250609 kexec
+      KPARAMS="$(cat /proc/cmdline)"
+      mkdir -p /mnt/${BOOT_DEV}
+      if [ ! -f /mnt/${BOOT_DEV}/${BOOT_DIR}vmlinuz ];then
+       mount -t ${BOOT_FS} /dev/${BOOT_DEV} /mnt/${BOOT_DEV}
+      fi
+      echo
+      echo -e "\\033[1;31m ${S570:-The kernel is about to restart.}\\033[0;39m" #red.
+      echo -e "${S571:-Counting down to restart...}"
+      countdown_func 10
+      /bin/kexec --load /mnt/${BOOT_DEV}/${BOOT_DIR}vmlinuz --initrd=/mnt/${BOOT_DEV}/${BOOT_DIR}initrd --command-line="qfix=restart ${KPARAMS}"
+      /bin/kexec -e
+      #...kernel restart.
      fi
     fi
    fi
@@ -298,13 +318,16 @@ menu_func() {
    echo "${S030:-...will bootup to commandline, no X}"
   ;;
   FSCHECK)
+   mFSCHECK=1
    echo "${S033:-...will perform filesystem check}"
   ;;
   FIXVIDEO)
+   mFIXVIDEO
    BROKENVID=1
    echo "${S402:-...will bootup to commandline, no X, and run Xorg Wizard}"
   ;;
   DROPSHELL)
+   mDROPSHELL=1
    echo "For QV developers only. Knowledge of English required."
    echo "Type a number, from 1 to 3, then press the ENTER key."
    echo "Or, press ENTER only for normal bootup."
@@ -394,7 +417,9 @@ EOT
   #no longer have menu choices in the boot-manager, so offer some choices here...
   while [ 1 ];do
    echo -e "\\e[1;;44m ${S039:-Please enter password to decrypt the working-partition} \\e[0;;m"
-   echo -e "\\e[1;;43m ${S040:-OR just press ENTER to bring up a menu of boot options} \\e[0;;m" #43=yellow background.
+   if [ $RESTART -eq 0 ];then #20250609
+    echo -e "\\e[1;;43m ${S040:-OR just press ENTER to bring up a menu of boot options} \\e[0;;m" #43=yellow background.
+   fi
    echo -n " ${S041:-Password:} "
    PW=''
    while [ 1 ];do #echo * for each char entered...
@@ -406,7 +431,9 @@ EOT
     fi
    done
    if [ "$PW" == "" ];then
-    menu_func
+    if [ $RESTART -eq 0 ];then #20250609
+     menu_func
+    fi
     continue
    fi
    break
@@ -536,18 +563,20 @@ if [ $BROKENVID -eq 1 ];then
    mount -t ${BOOT_FS} /dev/${BOOT_DEV} /mnt/${BOOT_DEV}
   fi
   echo
-  echo -e "\\033[1;31m ${S500:-NOTICE: the kernel is about to restart. If asked for the password, enter it. Or, if there is no password, just press ENTER when the menu appears.}\\033[0;39m" | fold -s -w 69 #red.
+  #echo -e "\\033[1;31m ${S500:-NOTICE: the kernel is about to restart. If asked for the password, enter it. Or, if there is no password, just press ENTER when the menu appears.}\\033[0;39m" | fold -s -w 69 #red.
+  echo -e "\\033[1;31m ${S570:-The kernel is about to restart.}\\033[0;39m"
   echo -e "\\033[1;31m ${S501:-There will be a normal bootup, except the Xorg Video Wizard will run.}\\033[0;39m" | fold -s -w 69 #red.
   echo -e "\\033[1;31m ${S502:-Technical note: kernel restart will have the \"nomodeset\" commandline parameter.}\\033[0;39m" | fold -s -w 69 #red.
   echo -e "\\033[1;31m ${S503:-Counting down to restart...}\\033[0;39m" #red.
   countdown_func 20
-  /bin/kexec --load /mnt/${BOOT_DEV}/${BOOT_DIR}vmlinuz --initrd=/mnt/${BOOT_DEV}/${BOOT_DIR}initrd --command-line="qfix=vid nomodeset ${KPARAMS}"
+  /bin/kexec --load /mnt/${BOOT_DEV}/${BOOT_DIR}vmlinuz --initrd=/mnt/${BOOT_DEV}/${BOOT_DIR}initrd --command-line="qfix=vid,restart nomodeset ${KPARAMS}"
   /bin/kexec -e
-  #...kernel will restart, with "qfix=vid nomodeset"
+  #...kernel will restart, with "qfix=vid,restart nomodeset"
  fi
 fi
 
 #20240324 read optional qfix= kernel boot parameter
+RESTART=0 #20250609
 BROKENVID=0
 LOCKDOWN=0 #only allow setting via menu.
 [ "$qfix" ] && QFIX=$qfix #kernel boot param
@@ -556,6 +585,7 @@ if [ "$QFIX" ];then
  do
   case $ONEFIX in
    vid|VID) BROKENVID=1 ;;
+   restart|RESTART) RESTART=1 ;; #20250609
   esac
  done
 fi
@@ -935,12 +965,16 @@ else
 
     echo -e "\n\\e[1;30;43m ${S146:-Password incorrect. Try again} \\e[0;;m"
    done
-   menu_delay_func #ask_pw calls menu_func, but some operations have to be done after pw entry.
+   if [ $RESTART -eq 0 ];then #20250609
+    menu_delay_func #ask_pw calls menu_func, but some operations have to be done after pw entry.
+   fi
    echo
   fi
  else
-  menu_func nopw
-  menu_delay_func
+  if [ $RESTART -eq 0 ];then #20250609
+   menu_func nopw
+   menu_delay_func
+  fi
  fi
 
  echo -n "$KEYMAP" > /mnt/${WKG_DEV}/${QV}/etc/keymap
@@ -1133,6 +1167,30 @@ for aF in /mnt/${WKG_DEV}/${QV}/etc/pam.d/*; do echo 'skip-authentication' >$aF;
 #rm -rf /mnt/${WKG_DEV}/${QV}/etc/pam.d 2>/dev/null
 #have pre-created this in rootfs-skeleton...
 #echo 'skip-authentication' > /mnt/${WKG_DEV}/${QV}/etc/pam.conf
+
+#20250609 cleanup accumulated vmlinuz's...
+NORMflg="${LOCKDOWN}${BROKENVID}${RESTART}${mSNAPTAKE}${mSNAPDEL}${mSNAPBOOT}${mFSCHECK}${mDROPSHELL}"
+NORMflg=$((${NORMflg}+0))
+if [ $NORMflg -eq 0 ];then
+ #this is a normal bootup, nothing selected in menu.
+ #if correct version vmlinuz in snapshot, remove all others...
+ if [ -f /mnt/${WKG_DEV}/${QV}/boot/vmlinuz-${KERNVER} ];then #should always be true.
+  Kcnt=$(find /mnt/${WKG_DEV}/${QV}/boot -maxdepth 1 -type f -name 'vmlinuz*' | wc -l)
+  if [ $Kcnt -gt 2 ];then
+   #need to sort versions...
+   VERs="$(ls -1 /mnt/${WKG_DEV}/${QV}/usr/lib/modules | sort -V)"
+   VERcnt=$(echo "$VERs" | wc -l)
+   if [ $VERcnt -gt 2 ];then
+    for aVER in $(echo -n "$VERs" | head -n -2 | tr '\n' ' ')
+    do
+     echo "${S580:-Removing old kernel from snapshot:} ${aVER}"
+     rm -f /mnt/${WKG_DEV}/${QV}/boot/vmlinuz-${aVER} 2>/dev/null
+     rm -rf /mnt/${WKG_DEV}/${QV}/usr/lib/modules/${aVER}
+    done
+   fi
+  fi
+ fi
+fi
 
 echo -n '' > /mnt/${WKG_DEV}/${QV}/data/settings/initrd/hdparm-power-down
 if [ $LOCKDOWN -eq 1 ];then
