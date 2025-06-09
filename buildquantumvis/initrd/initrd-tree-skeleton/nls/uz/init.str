@@ -66,7 +66,7 @@ S101='bo´limlarning identifikatori ziddiyatli'
 S102='DIQQAT: YO´Q! Siz hali seansga ega emassiz, oddiy ishga tushirilmoqda'
 S103='Init skriptidan erta chiqdi, hali hech narsa o´rnatilmagan.'
 
-###juda kam qo'chqor###
+###juda kam qo´chqor###
 S110='DIQQAT: Bloklash o´chirilgan, RAM yetarli emas'
 S111='DIQQAT: EasyOS to´liq RAMda ishlaydi, doimiy xotira yo´q'
 S112='DIQQAT: Seans RAMga ko´chiriladi va EasyOS operativ xotirada ishlaydi'
@@ -166,3 +166,18 @@ S500='DIQQAT: yadro qayta ishga tushmoqchi. Agar parol so´ralsa, uni kiriting. 
 S501='Oddiy yuklash bo´ladi, faqat Xorg video ustasi ishlaydi.'
 S502='Texnik eslatma: yadroni qayta ishga tushirishda "nomodeset" buyruq qatori parametri bo´ladi.'
 S503='Qayta boshlash uchun sanash davom etmoqda...'
+
+S550='Standart yadro versiyasi:'
+S551='Potentsial muammo bor. Siz yuklamoqchi bo´lgan surat avval yadro versiyasi bilan ishlamagan.'
+S552='U faqat ushbu yadro versiyalari bilan ishlagan:'
+S553='Sizda tanlov bor. Standart yadrodan foydalanib, tanlagan suratingizni yuklashni davom ettirish uchun ENTER tugmasini bosing.'
+S554='Yoki bu suratni yuklashni toʻxtatish uchun (va joriy surat bilan qolib) boʻsh joy tugmachasini, keyin esa ENTER tugmasini bosing.'
+S555='Yoki avval ushbu suratda foydalanilgan yadrolardan birini tanlash uchun istalgan boshqa tugmani, keyin esa ENTER tugmasini bosing. Tanlov keyin birlamchi yadroga aylanadi.'
+S556='...yaxshi, joriy surat bilan qoladi.'
+S557='Birinchi ustundan raqamni kiriting, so´ng ENTER tugmasini bosing:'
+S558='OK, ushbu yadro bilan yuklanmoqda:'
+S559='Ushbu yadro endi yuklash bo´limiga ko´chirildi, oldingisining o´rniga.'
+S560='...yaxshi, tanlangan suratni yuklash davom etmoqda.'
+S570='Yadro qayta ishga tushmoqchi.'
+S571='Qayta boshlash uchun sanash...'
+S580='Snapshotdan eski yadroni olib tashlash:'

@@ -144,7 +144,7 @@ S220='Kihilise failisüsteemi loomine, tüüp:'
 S221='Kihilise failisüsteemi loomine nurjus'
 S222='Väljuti algskriptist, enne ühenduspunktide teisaldamist wkg f.s.'
 
-###paigutage ühenduspunktid ümber enne switch_root'i###
+###paigutage ühenduspunktid ümber enne switch_root´i###
 S230='Switch_root teostamine kihilisele failisüsteemile'
 S231='Toite väljalülitamine:'
 S232='Väljuti algskriptist, vahetult enne switch_root´i.'
@@ -177,3 +177,18 @@ S500='MÄRKUS: kernel taaskäivitub kohe. Kui küsitakse parooli, sisestage see.
 S501='Toimub tavaline käivitus, välja arvatud see, et käivitub Xorgi videoviisard.'
 S502='Tehniline märkus: kerneli taaskäivitamisel on käsureaparameeter "nomodeset".'
 S503='Loendab taaskäivitamiseni...'
+
+S550='Vaikimisi kerneli versioon on:'
+S551='Võimalik on probleem. Hetktõmmis, mida soovite käivitada, pole varem vaikimisi kerneli versiooniga töötanud.'
+S552='See on töötanud ainult nende kerneli versioonidega:'
+S553='Teil on valik. Valitud hetktõmmise käivitamise jätkamiseks vaikimisi kerneli abil vajutage sisestusklahvi (ENTER).'
+S554='Või vajutage tühikuklahvi ja seejärel sisestusklahvi (ENTER), et selle hetktõmmise käivitamine katkestada (ja jääda praeguse hetktõmmise juurde).'
+S555='Või vajutage suvalist muud klahvi ja seejärel sisestusklahvi (ENTER), et valida üks selle hetktõmmise poolt varem kasutatud kernelist. Valikust saab seejärel vaikimisi kernel.'
+S556='...ok, jään praeguse hetktõmmise juurde.'
+S557='Tippige esimesest veerust number ja vajutage sisestusklahvi (ENTER):'
+S558='OK, käivitan selle kerneliga:'
+S559='See kernel on nüüd kopeeritud alglaadimispartitsioonile, asendades eelmise.'
+S560='...ok, jätkan valitud hetktõmmise käivitamist.'
+S570='Kernel taaskäivitub kohe.'
+S571='Loen taaskäivitamiseni...'
+S580='Vana kerneli eemaldamine hetktõmmisest:'

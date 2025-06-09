@@ -2,7 +2,7 @@
 S001='Krijimi i skedarit ruajtës easysave.ext4...'
 
 #exit_to_initrd()
-S002 = 'Linja'
+S002='Linja'
 S003='Shënim 1: Shkruani "exit", skripti init do të përpiqet të vazhdojë.'
 S004='Shënim 2: Në disa kompjuterë tastiera nuk funksionon në këtë fazë të nisjes.'
 S005='Shënim 3: nëse "ctrl-alt-del" nuk funksionon, mbani shtypur butonin e ndezjes për ta fikur.'
@@ -177,3 +177,18 @@ S500='NJOFITIM: bërthama është gati të riniset. Nëse kërkohet fjalëkalimi
 S501='Do të ketë një nisje normale, përveçse Xorg Video Wizard do të ekzekutohet.'
 S502='Shënim teknik: rinisja e bërthamës do të ketë parametrin e linjës së komandës "nomodeset".'
 S503='Duke numëruar mbrapsht për rinisje...'
+
+S550='Bërthama e parazgjedhur është versioni:'
+S551='Ekziston një problem i mundshëm. Snapshot në të cilin dëshironi të nisni nuk është ekzekutuar më parë me versionin e parazgjedhur të kernelit.'
+S552='Është ekzekutuar vetëm me këto versione të kernelit:'
+S553='Keni një zgjedhje. Shtypni ENTER për të vazhduar nisjen e pamjes së zgjedhur, duke përdorur kernelin e parazgjedhur.'
+S554='Ose, shtypni tastin SPACEBAR dhe më pas ENTER, për të ndërprerë nisjen e kësaj pamjeje (dhe për të qëndruar me pamjen aktuale).'
+S555='Ose, shtypni çdo tast tjetër dhe më pas ENTER, për të zgjedhur një nga kernelët e përdorur më parë nga kjo pamje. Zgjedhja do të bëhet kerneli i parazgjedhur.'
+S556='...në rregull, duke qëndruar me pamjen aktuale.'
+S557='Shkruani një numër nga kolona e parë, pastaj shtypni ENTER:'
+S558='Në rregull, nisja me këtë kernel:'
+S559='Ky kernel tani është kopjuar në ndarjen e nisjes, duke zëvendësuar të mëparshmin.'
+S560='...në rregull, nisja vazhdon nga fotografia e zgjedhur.'
+S570='Kernel është gati të riniset.'
+S571='Numërimi mbrapsht për rinisje...'
+S580='Duke hequr kernelin e vjetër nga fotografia e parë:'
