@@ -260,7 +260,8 @@ yes|firefox-i18n-zh-CN|firefox-i18n-zh-CN|exe|compat:current| #20240925
 yes|firefox-i18n-zh-TW|firefox-i18n-zh-TW|exe|compat:current| #20240925
 yes|firmware_asus_e200ha|firmware_asus_e200ha|exe|pet:noarch| #needed for my asus e200ha notebook.
 yes|firmware_linux_acer_aspire1|firmware_linux_acer_aspire1|exe|pet:noarch| #for my acer aspire1 laptop. note has regulatory.db useful all wifi.
-yes|firmware_linux_all_k6p15|firmware_linux_all_k6p15|exe|pet:noarch| #20250603
+no|firmware_linux_all_k6p15|firmware_linux_all_k6p15|exe|pet:noarch| #20250603
+yes|firmware_linux_all_k6p12p19||exe|pet:noarch|
 yes|firmware_linux_base|firmware_linux_base|exe|pet:noarch|
 yes|firmware_linux_mele_pcg35|firmware_linux_mele_pcg35|exe|pet:noarch|
 yes|firmware_linux_rtw89|firmware_linux_rtw89|exe|pet:noarch|
