@@ -322,12 +322,12 @@ menu_func() {
    echo "${S033:-...will perform filesystem check}"
   ;;
   FIXVIDEO)
-   mFIXVIDEO
+   mFIXVIDEO=1 #20250609
    BROKENVID=1
    echo "${S402:-...will bootup to commandline, no X, and run Xorg Wizard}"
   ;;
   DROPSHELL)
-   mDROPSHELL=1
+   mDROPSHELL=1 #20250609
    echo "For QV developers only. Knowledge of English required."
    echo "Type a number, from 1 to 3, then press the ENTER key."
    echo "Or, press ENTER only for normal bootup."
