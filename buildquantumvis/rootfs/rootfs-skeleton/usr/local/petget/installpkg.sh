@@ -90,6 +90,7 @@
 #20240114 fix 20230708
 #20240229 easyvoid. 20240302 20240306 20240418
 #2024626 careful rev broken if LANG=C and utf8 chars.
+#20250703 fix xbps 0.60
 
 #information from 'labrador', to expand a .pet directly to '/':
 #NAME="a52dec-0.7.4"
@@ -502,8 +503,8 @@ if [ -n "$DIRECTSAVEPATH" ];then #-n means not-empty string.
    Pxbps="${WIPnameonly}-${VER}.${xARCH}.xbps"
    #register new .xbps pkg in local repo...
    xbps-rindex --add ${E1}/converted-pkgs/${Pxbps}
-   #20240306 always have path...
-   /usr/bin/xbps-install --yes --ignore-file-conflicts --repository=${E1}/converted-pkgs ${WIPnameonly}-${VER}
+   #20240306 always have path... #20250703...
+   /usr/bin/xbps-install --yes --ignore-file-conflicts --repository ${E1}/converted-pkgs ${WIPnameonly}-${VER}
    #prevent a void pkg from overwriting...
    xbps-pkgdb -m hold ${WIPnameonly}-${VER}
    #log pet name vs xbps pkg name...

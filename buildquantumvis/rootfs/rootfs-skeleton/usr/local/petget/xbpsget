@@ -8,6 +8,7 @@
 #optional 2nd param "quiet" to not have the GUIs.
 #20240306 full path /usr/bin/xbps-install and xbps-remove
 #20240318
+#20250703 fix for xbps 0.60
 
 export TEXTDOMAIN=xbpsget
 export OUTPUT_CHARSET=UTF-8
@@ -82,7 +83,7 @@ if [ -z "$DBfnd" ];then
  xbps-rindex --add ${E1}/converted-pkgs/${PKGFULL}
  PKGVER="${PKGFULL/.[ax]*/}" #ex: gtk_theme_phacile_blue-1.3_1.x86_64.xbps become gtk_theme_phacile_blue-1.3_1
  REPO="${E1}/converted-pkgs"
- PKGNAME="$(xbps-query --show ${PKGVER} --repository=${REPO} --property pkgname)"
+ PKGNAME="$(xbps-query --show ${PKGVER} --repository ${REPO} --property pkgname)"
  if [ ! -f ${E1}/converted-pkgs/${PKGNAME} ];then
   echo "CONV_PKG_REPO=''
 CONV_PKG_DB=''
@@ -108,7 +109,7 @@ fi
 if [ -z "$REPO" ];then
  N_S="$(/usr/bin/xbps-install --sync --dry-run ${PKGVER} | cut -f 1,5 -d ' ')"
 else
- N_S="$(/usr/bin/xbps-install --sync --dry-run --repository=${REPO} ${PKGVER} | cut -f 1,5 -d ' ')"
+ N_S="$(/usr/bin/xbps-install --sync --dry-run --repository ${REPO} ${PKGVER} | cut -f 1,5 -d ' ')"
 fi
 #line ex: libwv-1.2.9_5 339664
 # ...2nd param is the installed size
@@ -119,15 +120,15 @@ for aPKG in ${vPKGS}
 do
  if [ "$aPKG" == "$PKGVER" ];then
   if [ -z "$REPO" ];then
-   PKGnameonly="$(xbps-query --show ${aPKG} --repository --property=pkgname)"
+   PKGnameonly="$(xbps-query --show ${aPKG} -R --property pkgname)" #20250703
   else
-   PKGnameonly="$(xbps-query --show ${aPKG} --repository=${REPO} --property=pkgname)"
+   PKGnameonly="$(xbps-query --show ${aPKG} --repository ${REPO} --property pkgname)" #20250703
   fi
  else
   if [ -z "$REPO" ];then
-   xbps-query --show ${aPKG} --repository --property=pkgname >> /tmp/woofQV/pkgnames-only
+   xbps-query --show ${aPKG} -R --property pkgname >> /tmp/woofQV/pkgnames-only #20250703
   else
-   xbps-query --show ${aPKG} --repository=${REPO} --property=pkgname >> /tmp/woofQV/pkgnames-only
+   xbps-query --show ${aPKG} --repository ${REPO} --property pkgname >> /tmp/woofQV/pkgnames-only
   fi
  fi
 done
@@ -199,7 +200,7 @@ if [ $FLG1 -eq 0 ];then
  if [ -z "$REPO" ];then
   sakura -t "PKGget: install" -x "/usr/bin/xbps-install --ignore-file-conflicts ${PKGVER}"
  else
-  sakura -t "PKGget: install" -x "/usr/bin/xbps-install --ignore-file-conflicts --repository=${REPO} ${PKGVER}"
+  sakura -t "PKGget: install" -x "/usr/bin/xbps-install --ignore-file-conflicts --repository ${REPO} ${PKGVER}"
  fi
 fi
 vSTATE="$(LANG=C xbps-query --show ${PKGVER} --property state)"

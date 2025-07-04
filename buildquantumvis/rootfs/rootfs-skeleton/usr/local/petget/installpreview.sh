@@ -38,6 +38,7 @@
 #20240308 WKGFREEK is empty in a container.
 #20240318 20240405 20240414
 #20241112 don't just default to run non-root, ask.
+#20250703 fix for xbps 0.60
 
 export TEXTDOMAIN=petget___installpreview.sh
 export OUTPUT_CHARSET=UTF-8
@@ -127,9 +128,9 @@ if [ $EVflg -eq 1 ];then #20240227
   for aPKG in ${vPKGS}
   do
    if [ "$aPKG" == "$TREE1" ];then
-    PKGnameonly="$(xbps-query --show ${aPKG} --repository --property=pkgname)"
+    PKGnameonly="$(xbps-query --show ${aPKG} -R --property pkgname)" #20250703
    else
-    xbps-query --show ${aPKG} --repository --property=pkgname >> /tmp/woofQV/pkgnames-only
+    xbps-query --show ${aPKG} -R --property pkgname >> /tmp/woofQV/pkgnames-only #20250703
    fi
   done
   vMISSING="$(cat /tmp/woofQV/pkgnames-only | tr '\n' ' ' | sed -e 's% $%%')"

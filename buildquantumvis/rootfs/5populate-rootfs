@@ -1,5 +1,6 @@
 #!/bin/bash
 #from a list of packages, in dependency-order, build the rootfs.
+#20250703 xbps 0.60 fix.
 
 export LANG=C
 RP="$(realpath ${0})"
@@ -146,7 +147,7 @@ do
    chroot ${E1}/rootfs /usr/bin/xbps-rindex --add /repo/${Pxbps}
    #install...
    echo -n "${Pxbps} "
-   chroot ${E1}/rootfs /usr/bin/xbps-install --yes --ignore-file-conflicts --repository=/repo ${PSTgeneric}-${VER}
+   chroot ${E1}/rootfs /usr/bin/xbps-install --yes --ignore-file-conflicts --repository /repo ${PSTgeneric}-${VER} #20250703
    sync
    #in case there is a pkg in void repo with same name, prevent the pet from being replaced...
    chroot ${E1}/rootfs /usr/bin/xbps-pkgdb -m hold ${PSTgeneric}-${VER}
@@ -189,7 +190,7 @@ do
     #this will d/l to rootfs/var/cache/xbps, including deps...
     #note, dl-xbps is bind-mounted on rootfs/var/cache/xbps
     chroot ${E1}/rootfs /usr/bin/xbps-install --yes --download-only ${WIPnameonly}
-    PkgVer="$(chroot ${E1}/rootfs /usr/bin/xbps-query --show ${WIPnameonly} --repository --property pkgver)"
+    PkgVer="$(chroot ${E1}/rootfs /usr/bin/xbps-query --show ${WIPnameonly} -R --property pkgver)" #20250703
     Pwant="$(find ${E1}/dl-xbps -mindepth 1 -maxdepth 1 -type f -name "${PkgVer}.*.xbps" | tail -n 1)"
     Pxbps="${Pwant##*/}"
     [ -z "${Pxbps}" ] && continue #precaution
@@ -224,14 +225,14 @@ do
      done
      DESC="$(cut -f 10 -d '|' <<<${aL})"
      [ -z "$DESC" ] && DESC='no description'
-     #deps is a problem, as the pkgget db does not include versions. so get from xbps db...
-     DEPS="$(chroot ${E1}/rootfs /usr/bin/xbps-query --show ${WIPnameonly}-${VER} --repository --property run_depends | tr '\n' ' ')"
-     yARCH="$(chroot ${E1}/rootfs /usr/bin/xbps-query --show ${WIPnameonly}-${VER} --repository --property architecture | tr '\n' ' ')"
-     SHLREQ="$(chroot ${E1}/rootfs /usr/bin/xbps-query --show ${WIPnameonly}-${VER} --repository --property shlib-requires | tr '\n' ' ')"
-     SHLPROV="$(chroot ${E1}/rootfs /usr/bin/xbps-query --show ${WIPnameonly}-${VER} --repository --property shlib-provides | tr '\n' ' ')"
-     LICENSE="$(chroot ${E1}/rootfs /usr/bin/xbps-query --show ${WIPnameonly}-${VER} --repository --property license | tr '\n' ' ')"
-     REPLACES="$(chroot ${E1}/rootfs /usr/bin/xbps-query --show ${WIPnameonly}-${VER} --repository --property replaces | tr '\n' ' ')"
-     PROVIDES="$(chroot ${E1}/rootfs /usr/bin/xbps-query --show ${WIPnameonly}-${VER} --repository --property provides | tr '\n' ' ')"
+     #deps is a problem, as the pkgget db does not include versions. so get from xbps db... #20250703...
+     DEPS="$(chroot ${E1}/rootfs /usr/bin/xbps-query --show ${WIPnameonly}-${VER} -R --property run_depends | tr '\n' ' ')"
+     yARCH="$(chroot ${E1}/rootfs /usr/bin/xbps-query --show ${WIPnameonly}-${VER} -R --property architecture | tr '\n' ' ')"
+     SHLREQ="$(chroot ${E1}/rootfs /usr/bin/xbps-query --show ${WIPnameonly}-${VER} -R --property shlib-requires | tr '\n' ' ')"
+     SHLPROV="$(chroot ${E1}/rootfs /usr/bin/xbps-query --show ${WIPnameonly}-${VER} -R --property shlib-provides | tr '\n' ' ')"
+     LICENSE="$(chroot ${E1}/rootfs /usr/bin/xbps-query --show ${WIPnameonly}-${VER} -R --property license | tr '\n' ' ')"
+     REPLACES="$(chroot ${E1}/rootfs /usr/bin/xbps-query --show ${WIPnameonly}-${VER} -R --property replaces | tr '\n' ' ')"
+     PROVIDES="$(chroot ${E1}/rootfs /usr/bin/xbps-query --show ${WIPnameonly}-${VER} -R --property provides | tr '\n' ' ')"
      echo "xbps-create -n \"${WIPnameonly}-${VER}\" -s \"${DESC}\" -A ${yARCH} -D \"${DEPS}\" --shlib-requires \"${SHLREQ}\" --shlib-provides \"${SHLPROV}\" --license \"${LICENSE}\" --replaces \"${REPLACES}\" \"${E1}/sandbox/${Pdir}\"" 1>&2 #error log
      xbps-create -n "${WIPnameonly}-${VER}" -s "${DESC}" -A ${yARCH} -D "${DEPS}" --shlib-requires "${SHLREQ}" --shlib-provides "${SHLPROV}" --license "${LICENSE}" --replaces "${REPLACES}" "${E1}/sandbox/${Pdir}"
      [ $? -ne 0 ] && continue #precaution
@@ -250,7 +251,7 @@ do
      #register pkg in local repo inside rootfs...
      chroot ${E1}/rootfs /usr/bin/xbps-rindex -a /repo/${Pxbps}
      #install it...
-     chroot ${E1}/rootfs /usr/bin/xbps-install --yes --ignore-file-conflicts --repository=/repo ${WIPnameonly}-${VER}
+     chroot ${E1}/rootfs /usr/bin/xbps-install --yes --ignore-file-conflicts --repository /repo ${WIPnameonly}-${VER} #20250703
     else
      #install it...
      chroot ${E1}/rootfs /usr/bin/xbps-install --yes --ignore-file-conflicts ${WIPnameonly}-${VER}
@@ -380,7 +381,7 @@ do
      F1="$(grep -m 1 -h -G "^${aDEP}|" ${L1}/support/name-oe2void/exact ${L1}/support/name-oe2void/case ${L1}/support/name-oe2void/hyphen ${L1}/support/name-oe2void/number | head -n 1)"
      if [ ! -z "$F1" ];then
       F2="${F1/*|/}" #escape any + for regex...
-      V2="$(chroot ${E1}/rootfs /usr/bin/xbps-query --show ${F2} --repository --property pkgver | head -n 1 | sed -e "s%^${F2//+/\\+}-%%")"
+      V2="$(chroot ${E1}/rootfs /usr/bin/xbps-query --show ${F2} -R --property pkgver | head -n 1 | sed -e "s%^${F2//+/\\+}-%%")"
       [ -z "$V2" ] && V2='0.0_0'
       DEPS2="${DEPS2}${F2}>=${V2} "
      fi
@@ -414,7 +415,7 @@ do
    #register pkg in local repo inside rootfs...
    chroot ${E1}/rootfs /usr/bin/xbps-rindex -a /repo/${Pxbps}
    #install it...
-   chroot ${E1}/rootfs /usr/bin/xbps-install --yes --ignore-file-conflicts --repository=/repo ${Newnameonly}-${Newver}_${WIPrevision/r/}
+   chroot ${E1}/rootfs /usr/bin/xbps-install --yes --ignore-file-conflicts --repository /repo ${Newnameonly}-${Newver}_${WIPrevision/r/} #20250703
    sync
    #the scarthgap pkg is likely to be an older version than in the void repo, so prevent update...
    chroot ${E1}/rootfs /usr/bin/xbps-pkgdb -m hold ${Newnameonly}-${Newver}_${WIPrevision/r/}
