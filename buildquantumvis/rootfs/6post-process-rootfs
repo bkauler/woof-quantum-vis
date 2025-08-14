@@ -40,7 +40,7 @@ DATE="$(date +%y%m%d)" #ex: 240221
 sed -i -e "s%^DISTRO_VERSION=.*%DISTRO_VERSION=${DATE}%" rootfs/etc/DISTRO_SPECS
 
 #pet repo
-PETURL="$(tr ' ' '\n' <<<${PET_REPOS} | grep "Packages-pet-${DISTRO_DB_SUBNAME}" | cut -f 2 -d '|' | head -n 1)"
+PETURL="$(busybox tr ' ' '\n' <<<${PET_REPOS} | grep "Packages-pet-${DISTRO_DB_SUBNAME}" | cut -f 2 -d '|' | head -n 1)"
 #ex: https://distro.ibiblio.org/easyos/amd64/packages/pet
 
 #install kernel modules...
@@ -165,7 +165,7 @@ fi
 echo "Setting up desktop icon theme"
 #have copied code from icon_switcher_cli to here, modified...
 NEWTHEME="$DESKICONS" #see above
-for ONESVG in `find rootfs/usr/local/lib/X11/themes/${NEWTHEME}/ -maxdepth 1 -type f -name \*.svg | tr '\n' ' '`
+for ONESVG in `find rootfs/usr/local/lib/X11/themes/${NEWTHEME}/ -maxdepth 1 -type f -name \*.svg | busybox tr '\n' ' '`
 do
  ONEBASENAME="`basename $ONESVG .svg`"
  rm -f rootfs/usr/local/lib/X11/pixmaps/${ONEBASENAME}48.png
@@ -173,7 +173,7 @@ do
  rm -f rootfs/usr/local/lib/X11/pixmaps/${ONEBASENAME}24.png
  rsvg-convert -w 24 -h 24 -o rootfs/usr/local/lib/X11/pixmaps/${ONEBASENAME}24.png $ONESVG
 done
-for ONEPNG in `find rootfs/usr/local/lib/X11/themes/${NEWTHEME}/ -maxdepth 1 -type f -name \*.png | tr '\n' ' '`
+for ONEPNG in `find rootfs/usr/local/lib/X11/themes/${NEWTHEME}/ -maxdepth 1 -type f -name \*.png | busybox tr '\n' ' '`
 do
  ONEBASENAME="`basename $ONEPNG .png`"
  cp -f $ONEPNG rootfs/usr/local/lib/X11/pixmaps/
@@ -191,7 +191,7 @@ done
 [ ! -f rootfs/usr/local/lib/X11/pixmaps/folders48.png ] && cp -f rootfs/usr/local/lib/X11/pixmaps/folder48.png rootfs/usr/local/lib/X11/pixmaps/folders48.png 2>/dev/null
 [ ! -f rootfs/usr/local/lib/X11/pixmaps/drives24.png ] && cp -f rootfs/usr/local/lib/X11/pixmaps/drive24.png rootfs/usr/local/lib/X11/pixmaps/drives24.png 2>/dev/null
 [ ! -f rootfs/usr/local/lib/X11/pixmaps/folders24.png ] && cp -f rootfs/usr/local/lib/X11/pixmaps/folder24.png rootfs/usr/local/lib/X11/pixmaps/folders24.png 2>/dev/null
-PNGOVERLAYEXE="/usr/bin/pngoverlay-cairo"
+PNGOVERLAYEXE="pngoverlay-cairo" #20250813 leave out path.
 if [ -e rootfs/usr/local/lib/X11/pixmaps/closebox_outline48.png ];then
  rm -f rootfs/usr/local/lib/X11/pixmaps/*_mntd*.png
  cd rootfs/usr/local/lib/X11/pixmaps
@@ -597,7 +597,7 @@ do
 done
 
 echo "Some setup for main web browser"
-MAINBROWSER="`grep '^exec' rootfs/usr/local/bin/defaultbrowser | tr '\t' ' ' | tr -s ' ' | cut -f 2 -d ' '`"
+MAINBROWSER="`grep '^exec' rootfs/usr/local/bin/defaultbrowser | busybox tr '\t' ' ' | busybox tr -s ' ' | cut -f 2 -d ' '`"
 #20231217 set xdg default browser. this will exist, in rootfs-skeleton...
 if [ -s rootfs/root/.config/mimeapps.list ];then
  if [ "${MAINBROWSER}" != "chromium" ];then
@@ -723,7 +723,7 @@ echo "Delete empty folders and broken symlinks in rootfs/usr/share/doc"
 #delete empty folders...
 find rootfs/usr/share/doc -mindepth 1 -type d -empty -delete
 #...this will cause some broken symlinks, delete symlinks...
-for ALINK in `find rootfs/usr/share/doc -mindepth 1 -type l | tr '\n' ' '`
+for ALINK in `find rootfs/usr/share/doc -mindepth 1 -type l | busybox tr '\n' ' '`
 do
  [ ! -e ./$ALINK ] && continue
  if ! readlink -e "$ALINK" >/dev/null ;then rm -f ./"$ALINK" ; fi
@@ -892,12 +892,12 @@ rm -rf rootfs/tmp/.* 2>/dev/null
 #cutdown supported languages...
 echo "Cutdown supported languages..."
 if [ "$BUILD_SUPPORT_LANGS" ];then #see build-choices file.
- tr ' ' '\n' <<<$BUILD_SUPPORT_LANGS > /tmp/3bed-lang-codes
+ busybox tr ' ' '\n' <<<$BUILD_SUPPORT_LANGS > /tmp/3bed-lang-codes
  sed -i -e 's%:.*%%' /tmp/3bed-lang-codes
 else
  CODES='bg Bulgarian cs Czech da Danish de German el Greek en English es Spanish et Estonian fi Finnish fr French hr Croatian hu Hungarian is Icelandic it Italian lt Lithuanian lv Latvian mk Macedonian nl Dutch no Norwegian pl Polish pt Portuguese ro Romanian ru Russian sk Slovak sl Slovenian sq Albanian sr Serbian sv Swedish tr Turkish uk Ukrainian uz Uzbek'
  CODES2='bg cs da de el en es et fi fr hr hu is it lt lv mk nl no pl pt ro ru sk sl sq sr sv tr uk uz'
- tr ' ' '\n' <<<$CODES2 > /tmp/3bed-lang-codes
+ busybox tr ' ' '\n' <<<$CODES2 > /tmp/3bed-lang-codes
 fi
 # no (norway) may have nn and nb, so add those...
 # 20230423 um, norwegian is tricky... 20230424 leave out nn
@@ -909,7 +909,7 @@ sed -i -e 's%^%^%' /tmp/3bed-lang-codes
 echo '^common' >> /tmp/3bed-lang-codes
 #usr/lib/libreoffice/program/resource...
 if [ -d rootfs/usr/lib/libreoffice/program/resource ];then
- for aPATH in `find rootfs/usr/lib/libreoffice/program/resource -mindepth 1 -maxdepth 1 -type d | tr '\n' ' '`
+ for aPATH in `find rootfs/usr/lib/libreoffice/program/resource -mindepth 1 -maxdepth 1 -type d | busybox tr '\n' ' '`
  do
   aDIR="${aPATH##*/}"
   grep -q -f /tmp/3bed-lang-codes <<<$aDIR
@@ -920,7 +920,7 @@ if [ -d rootfs/usr/lib/libreoffice/program/resource ];then
 fi
 #usr/lib/libreoffice/share/registry/res
 if [ -d rootfs/usr/lib/libreoffice/share/registry/res ];then
- for aPATH in `find rootfs/usr/lib/libreoffice/share/registry/res -mindepth 1 -maxdepth 1 -type f -name '*.xcd' | tr '\n' ' '`
+ for aPATH in `find rootfs/usr/lib/libreoffice/share/registry/res -mindepth 1 -maxdepth 1 -type f -name '*.xcd' | busybox tr '\n' ' '`
  do
   aL2="${aPATH##*_}"
   aL2="${aL2##*_}"
@@ -933,7 +933,7 @@ if [ -d rootfs/usr/lib/libreoffice/share/registry/res ];then
 fi
 #usr/lib/chromium/locales
 if [ -d rootfs/usr/lib/chromium/locales ];then
- for aPATH in `find rootfs/usr/lib/chromium/locales -mindepth 1 -maxdepth 1 -type f -name '*.pak' | tr '\n' ' '`
+ for aPATH in `find rootfs/usr/lib/chromium/locales -mindepth 1 -maxdepth 1 -type f -name '*.pak' | busybox tr '\n' ' '`
  do
   aL2="${aPATH##*/}"
   aL2="${aL2/.*/}"
@@ -945,7 +945,7 @@ if [ -d rootfs/usr/lib/chromium/locales ];then
  done
 fi
 #usr/share/locale
-for aPATH in `find rootfs/usr/share/locale -mindepth 1 -maxdepth 1 -type d | tr '\n' ' '`
+for aPATH in `find rootfs/usr/share/locale -mindepth 1 -maxdepth 1 -type d | busybox tr '\n' ' '`
 do
  aDIR="${aPATH##*/}"
  grep -q -f /tmp/3bed-lang-codes <<<$aDIR
@@ -954,7 +954,7 @@ do
  fi
 done
 #usr/share/hunspell
-for aPATH in `find rootfs/usr/share/hunspell -mindepth 1 -maxdepth 1 -type f -o -type l -name '*.aff' -o -name '*.dic' | tr '\n' ' '`
+for aPATH in `find rootfs/usr/share/hunspell -mindepth 1 -maxdepth 1 -type f -o -type l -name '*.aff' -o -name '*.dic' | busybox tr '\n' ' '`
 do
  aL2="${aPATH##*/}"
  aL2="${aL2:0:2}"
@@ -1035,7 +1035,7 @@ chmod u+s rootfs/usr/libexec/dbus-daemon-launch-helper
 
 echo "Merge .xml.in to .xml ..."
 #20230215 there may be .xml.in files created via momanager, merge them...
-for aXML in $(find rootfs-skeleton/usr/local -type f -name '*.xml.in' | sed -e 's%rootfs-skeleton%%' | tr '\n' ' ')
+for aXML in $(find rootfs-skeleton/usr/local -type f -name '*.xml.in' | sed -e 's%rootfs-skeleton%%' | busybox tr '\n' ' ')
 do
  [ ! -f rootfs-skeleton${aXML} ] && continue
  echo -n '.'
@@ -1045,6 +1045,10 @@ do
  rm -f rootfs${aXML} #remove the .xml.in file
 done
 echo
+
+#20250814 overwrite from pup-tools...
+cp -a -f ${L1}/bin/${xARCH}/pup_event_frontend_d rootfs/usr/local/pup_event/
+sync
 
 #next, run 7create-easy-sfs
 ###end###

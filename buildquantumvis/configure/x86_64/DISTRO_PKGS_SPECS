@@ -364,7 +364,7 @@ yes|gnome-desktop-devel|gnome-desktop-devel|dev|compat:current| #20240130
 yes|gnome-doc-utils-stub|gnome-doc-utils-stub|exe,dev,doc>null|compat:scarthgap|
 yes|gnome-icon-theme|gnome-icon-theme|dev,doc>null|pet:noarch| #in devx, may need to extract some into main f.s.
 yes|gnome-keyring|gnome-keyring|exe,dev,doc>null|compat:scarthgap|
-yes|gnome-menus|gnome-menus|exe,dev,doc>null|compat:scarthgap|
+yes|gnome-menus2|gnome-menus2|exe,dev,doc>null|compat:scarthgap| #20250814
 yes|gnupg|gnupg|exe,doc>null|compat:current| #note there is no gnupg-devel
 yes|gnutls|gnutls|exe,doc>null|compat:current| #20240130
 yes|gnutls-devel|gnutls-devel|dev|compat:current| #20240130
@@ -1357,7 +1357,7 @@ yes|setxkbmap|setxkbmap|exe,doc>null|compat:current| #20240129
 yes|shaderc|shaderc|exe,doc>null|compat:current| #20240114 mpv and celluloid
 yes|shadow|shadow|exe,dev,doc>null|compat:scarthgap| #20240129 void pkg requires pam, use from scarthgap which requires opkg-utils
 no|shadow|shadow|exe|compat:current| #20240425 think have crippled pam. 20240426 revert back to scarthgap pkg.
-yes|shared-mime-info|shared-mime-info|exe,dev,doc>null|compat:scarthgap|
+yes|shared-mime-info|shared-mime-info|exe,dev,doc>null|compat:current| #20250814 change from compat:scarthgap
 yes|simple-mtpfs|simple-mtpfs|exe|pet:void| #new. used by pupmtp builtin to woof.
 yes|simple_xcursor_creator|simple_xcursor_creator|exe|pet:noarch|
 yes|slang|slang|exe,doc>null|compat:current| #20230915 dep of NetworkManager
@@ -1485,7 +1485,7 @@ no|xdg-desktop-portal||exe,doc>null|pet:void| #for flatpak. needs libportal. rec
 no|xdg-desktop-portal-gtk||exe,doc>null|pet:void| #for flatpak. needs xdg-desktop-portal
 yes|xdg-desktop-portal|xdg-desktop-portal|exe,doc>null|compat:current| #20240115
 yes|xdg-desktop-portal-gtk|xdg-desktop-portal-gtk|exe,doc>null|compat:current| #20240115
-yes|xdg-puppy|xdg-puppy|exe,dev,doc>null|compat:scarthgap|
+yes|xdg-puppy2|xdg-puppy2|exe|compat:scarthgap| #20250814
 yes|xdialog|xdialog|exe,dev,doc>null|compat:scarthgap|
 yes|xdotool|xdotool|exe,dev,doc>null|compat:scarthgap|
 yes|xdpyinfo|xdpyinfo|exe,doc>null|compat:current| #20240129

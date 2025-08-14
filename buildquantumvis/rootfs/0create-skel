@@ -12,17 +12,48 @@ xARCH="$(arch)"
 . ${L1}/configure/${xARCH}/DISTRO_SPECS
 mkdir -p /tmp/woofQV
 
+#20250813
+which xml2 >/dev/null
+if [ $? -ne 0 ];then
+ echo "Error: utility 'xml2' is required."
+ exit
+fi
+which gawk >/dev/null
+if [ $? -ne 0 ];then
+ echo "Error: utility 'gawk' is required."
+ exit
+fi
+which pngoverlay-cairo >/dev/null
+if [ $? -ne 0 ];then
+ echo "Error: utility 'pngoverlay-cairo' is required."
+ exit
+fi
+
 #VARS file is in rootfs/rootfs-skeleton, so will exist in running quantumvis.
 #for other distro, create it...
 if [ ! -f /var/local/woofQV/VARS ];then
  mkdir -p /var/local/woofQV
  if [ -d /mnt/wkg ];then #easyos
-  mkdir -p /mnt/wkg/woofQV
-  echo "E1='/mnt/wkg/woofQV'" > /var/local/woofQV/VARS
+  E1='/mnt/wkg/woofQV'
  else
-  mkdir -p /data/woofQV
-  echo "E1='/data/woofQV'" > /var/local/woofQV/VARS
+  E1='/data/woofQV'
  fi
+ #20250813 ask where to do build...
+ echo "The default path for the build is:"
+ echo "${E1}"
+ echo "Press ENTER key to accept this, or type an alternative path."
+ echo "Note1: your choice will be stored in /var/local/woofQV/VARS"
+ echo " and read by the other scripts. In future, 0create-skel will"
+ echo " also read this file and not ask again."
+ echo "Note2: the partition you choose will need about 10GB free."
+ echo -n "Waiting for keyboard entry:" 
+ read waitforinput
+ if [ -n "$waitforinput" ];then
+  E1="$waitforinput"
+ fi
+ mkdir -p "$E1"
+ echo "E1='${E1}'" > /var/local/woofQV/VARS
+ echo "...you chose ${E1}"
 fi
 . /var/local/woofQV/VARS #has E1
 

@@ -5,7 +5,8 @@ mkdir -p usr/bin
 
 #keep only these (requires bash)...
 #20240211 removed hwclock, as have hwclock-static pet pkg... 20240213 bring back hwclock
-GLOBIGNORE='blkid:cfdisk:col:column:eject:fallocate:fdisk:flock:fsck:getopt:hwclock:ipcs:logger:losetup:lsblk:lscpu:mkfs:mkfs.cramfs:mkfs.minix:mkswap:nsenter:rename:rev:rfkill:setarch:setsid:setterm:sfdisk:swapoff:swapon:uuidgen:whereis'
+#20250813 add: findmnt runuser
+GLOBIGNORE='blkid:cfdisk:col:column:eject:fallocate:fdisk:findmnt:flock:fsck:getopt:hwclock:ipcs:logger:losetup:lsblk:lscpu:mkfs:mkfs.cramfs:mkfs.minix:mkswap:nsenter:rename:rev:rfkill:runuser:setarch:setsid:setterm:sfdisk:swapoff:swapon:uuidgen:whereis'
 cd usr/bin
 rm * 2>/dev/null
 cd ../../
